@@ -35,7 +35,7 @@ jobs:
           cp -r dist/* publish/
 
       - name: Сохраняем артефакты (папку publish)
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: site-files
           path: publish/
