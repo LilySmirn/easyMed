@@ -1,0 +1,1155 @@
+@font-face {
+  font-family: 'Benzin';
+  src: url('fonts/Benzin-Medium.woff2') format('woff2'),
+       url('fonts/Benzin-Medium.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'TildaSans';
+  src: url('fonts/TildaSans-Regular.woff2') format('woff2'),
+       url('fonts/TildaSans-Medium.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Benzin', Arial, sans-serif;
+  letter-spacing: 0.1em !important;
+  color: #000000;
+}
+
+p {
+  font-family: 'TildaSans', Arial, sans-serif;
+  letter-spacing: 0.04em;
+  color: #000000;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  margin: 0;
+  padding: 0;
+  line-height: 1.6;
+  color: #000000;
+  background-color: #f7fafc;
+  letter-spacing: 0.04em;
+  caret-color: transparent;
+  scroll-behavior: smooth;
+  height: 100%;
+  overflow-y: auto;
+  -ms-overflow-style: none;  /* For Internet Explorer and Edge */
+  scrollbar-width: none;     /* For Firefox */
+}
+
+input, textarea {
+  caret-color: auto;
+}
+
+/* Sticky header */
+.site-header {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
+  background-color: rgba(186, 222, 255, 0.95);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.site-header.scrolled {
+  background-color: rgba(150, 200, 240, 0.98);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+  min-height: 50px; /* Reduced from 60px */
+}
+
+.header-content .title-logo {
+  height: 28px; /* Reduced from 32px */
+  margin-right: 16px;
+  display: flex;
+  align-items: center;
+}
+
+.header-content .logo {
+  height: 28px; /* Reduced from 32px */
+  display: flex;
+  align-items: center;
+}
+
+.header-content .demo-button {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+}
+
+.demo-button,
+.site-header button {
+  background: linear-gradient(135deg, #4CAF50, #45a049);
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  cursor: pointer;
+  border-radius: 6px;
+  font-size: 15px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.demo-button:hover,
+.site-header button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.header-content button {
+  background-color: #4CAF50;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 15px;
+  margin-left: 20px;
+}
+
+/* Hero section */
+.hero {
+  position: relative;
+  background: url('images/bg-2.jpeg') no-repeat center center;
+  background-size: cover;
+  color: #000000;
+  padding: 0;
+  margin: 0;
+  border-radius: 0;
+  min-height: calc(100vh - 80px); /* Adjust for header height */
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Center content vertically */
+  align-items: center; /* Center content horizontally */
+  overflow: hidden; /* Ensure scaled background doesn't create scrollbars */
+  transition: all 0.8s ease-out;
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url('images/bg-2.jpeg') no-repeat center center;
+  background-size: cover;
+  transform: scale(1.05); /* Slightly larger at start */
+  transition: transform 1.5s ease-out;
+  z-index: -1;
+  animation: backgroundEaseIn 2s ease-out forwards;
+}
+
+.hero:hover::before {
+  transform: scale(1); /* Return to normal size on hover */
+}
+
+/* Add animation for page load */
+@keyframes backgroundEaseIn {
+  0% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+section {
+  padding: 10px 20px;
+  margin: 20px;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+}
+
+.intro-content {
+  position: relative;
+  padding: 0 20px;
+  margin: 0 auto;
+  width: 100%;
+  max-width: 1400px;
+  box-sizing: border-box;
+  text-align: center;
+  transform: translateY(-10%); /* Move up slightly from center */
+}
+
+.intro-content h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  font-style: normal;
+  text-align: center;
+  max-width: 1200px;
+  margin: 0 auto 30px;
+  line-height: 1.3;
+  letter-spacing: 0.1em !important;
+}
+
+.intro-description {
+  font-size: 1.5rem;
+  line-height: 1.7;
+  margin: 2.5rem auto;
+  max-width: 1000px;
+  color: #000000;
+  font-weight: 400;
+  text-align: center;
+  padding: 20px 30px;
+  position: relative;
+  z-index: 1;
+  background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.85) -35%, rgba(255, 255, 255, 0.7) 5%, rgba(255, 255, 255, 0.4) 28%, rgba(255, 255, 255, 0) 91%);
+  border-radius: 50%; 
+  backdrop-filter: blur(2px);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+}
+
+/* Sections */
+.advantages,
+.differences,
+.faq,
+.contact-form {
+  background-color: #badeff;
+}
+
+.section h2 {
+  margin-top: 0;
+  font-size: 24px;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+ul li {
+  background: #fff;
+  margin: 16px 0;
+  padding: 12px 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.25s ease-out, box-shadow 0.25s ease-out;
+}
+
+ul li:hover {
+  transform: scale(1.015);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+}
+
+ul li h3 {
+  margin: 0;
+  font-size: 1.1em;
+  color: #000000;
+}
+
+ul li p {
+  margin: 5px 0 0 15px;
+  font-size: 0.95em;
+  color: #000000;
+  padding-left: 10px;
+  border-left: 2px solid #e0e0e0;
+  transition: border-color 0.3s ease;
+}
+
+ul li:hover p {
+  border-left: 2px solid #00c666;
+}
+
+/* Advantages and differences sections */
+.advantages ul li {
+  margin-right: 10%;
+}
+
+.differences {
+  position: relative;
+}
+
+.differences h2 {
+  text-align: right;
+}
+
+.differences ul li {
+  margin-left: 10%;
+}
+
+/* Chat button */
+.chat-button {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #4CAF50;
+  color: #fff;
+  padding: 10px;
+  border-radius: 50%;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  z-index: 1500;
+}
+
+.chat-button:hover {
+  transform: none;
+  scale: 1.05;
+}
+
+.chat-button.whatsapp:hover,
+.chat-button.telegram:hover {
+  transform: translateY(120px);
+  scale: 1.05;
+}
+
+.chat-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1500;
+}
+
+.social-buttons {
+  position: relative;
+  z-index: 1500;
+}
+
+.button-wrapper {
+  height: 50px;
+  position: relative;
+  z-index: 1500;
+}
+
+.button-wrapper:hover .chat-button.whatsapp {
+  transform: translateY(-55px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.button-wrapper:hover .chat-button.telegram {
+  transform: translateY(-110px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.button-wrapper:hover .chat-button.whatsapp img{
+  height: 57px;
+  width: 57px;
+}
+
+.button-wrapper:not(:hover) .chat-button.whatsapp img,
+.button-wrapper:not(:hover) .chat-button.telegram img{
+  transition: all 0.6s ease;
+}
+
+.button-wrapper:hover .chat-button.telegram img{
+  height: 55px;
+  width: 55px;
+}
+
+.social-button {
+  position: relative;
+  z-index: 1500;
+}
+
+.social-button.telegram img {
+  transform: translateY(4px);
+  height: 40px;
+  width: 40px;
+}
+
+.social-button.whatsapp img {
+  transform: translateY(4px);
+  height: 40px;
+  width: 40px;
+}
+
+.chat-button.main img {
+  height: 25px;
+  width: 25px;
+  filter: brightness(0) invert(1);
+}
+
+/* iframe */
+iframe {
+  width: 100%;
+  max-width: 800px;
+  height: 300px;
+  margin: 0 auto;
+  display: block;
+}
+
+/* Media queries */
+@media (max-width: 1400px) {
+  .intro-content h1 {
+    max-width: 1000px;
+  }
+}
+
+@media (max-width: 992px) {
+  .intro-content h1 {
+    max-width: 800px;
+  }
+}
+
+@media (max-width: 768px) {
+  section {
+    padding: 20px;
+    margin: 10px;
+  }
+  
+  .intro-content {
+    padding: 0 20px;
+    transform: translateY(-5%); /* Less offset on smaller screens */
+  }
+  
+  .intro-content h1 {
+    font-size: 2rem;
+  }
+  
+  .intro-description {
+    font-size: 1.25rem;
+    padding: 15px 25px;
+  }
+  
+  .advantages ul li,
+  .differences ul li {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .differences h2 {
+    text-align: left;
+  }
+  
+  .header-content {
+    padding: 8px 15px;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .header-content .title-logo,
+  .header-content .logo {
+    height: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .site-header {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .header-content {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    padding: 6px 10px;
+  }
+  
+  .header-content .title-logo,
+  .header-content .logo {
+    margin: 0 5px;
+  }
+  
+  .header-content .demo-button {
+    margin: 0 5px;
+  }
+
+  .header-content button {
+    padding: 6px 12px;
+    font-size: 14px;
+    margin: 0;
+  }
+  
+  .intro-content {
+    padding: 0 15px;
+    transform: translateY(-2%); /* Minimal offset on very small screens */
+  }
+  
+  .intro-content h1 {
+    font-size: 1.5rem;
+  }
+  
+  .intro-description {
+    font-size: 1.1rem;
+    padding: 12px 20px;
+    background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.85) -35%, rgba(255, 255, 255, 0.7) 5%, rgba(255, 255, 255, 0.4) 28%, rgba(255, 255, 255, 0) 91%);
+  }
+  
+  /* radial-gradient(ellipse at center, rgba(255, 255, 255, 0.85) 30%, rgba(255, 255, 255, 0.7) 50%, rgba(255, 255, 255, 0.4) 60%, rgba(255, 255, 255, 0) 76%) */
+
+  iframe {
+    height: 180px;
+  }
+}
+
+/* Clients section */
+.clients {
+  position: relative;
+  background-color: #ffffff;
+  padding: 40px 0;
+  overflow: hidden; /* Add this to prevent content from overflowing */
+  max-width: 100%; /* Ensure section doesn't exceed viewport width */
+}
+
+.clients h2 {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.client-carousel {
+  padding: 0 40px;
+  max-width: 100%; /* Ensure carousel doesn't exceed container width */
+  box-sizing: border-box; /* Include padding in width calculation */
+}
+
+.client-item {
+  text-align: center;
+  padding: 10px;
+  box-sizing: border-box; /* Include padding in width calculation */
+}
+
+.client-logo {
+  width: auto;
+  max-width: 100%; /* Ensure images don't exceed their container */
+  height: 120px;
+  object-fit: contain;
+  margin-bottom: 15px;
+  transition: transform 0.25s ease-out;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.client-item:hover .client-logo {
+  transform: scale(1.05);
+}
+
+.client-item p {
+  margin: 0;
+  font-size: 0.9em;
+  font-weight: 600;
+  color: #333;
+  text-transform: uppercase;
+}
+
+/* Hide Owl Carousel Navigation Arrows */
+.owl-nav {
+  display: none;
+}
+
+/* CTA section */
+.cta {
+  text-align: center;
+  padding-bottom: 60px;
+}
+
+.cta-content {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.cta h2 {
+  font-size: 2.5rem;
+  margin-bottom: 2rem;
+}
+
+.demo-button-large {
+  font-size: 1.25rem;
+  padding: 1rem 2rem;
+}
+
+/* Section animations */
+.advantages, .differences, .faq {
+  transition: max-height 0.3s ease-out;
+  overflow: hidden;
+  max-height: 2000px;
+}
+
+.advantages.expanded, .differences.expanded, .faq.expanded {
+  max-height: 2000px; /* Adjust this value based on your content height */
+}
+
+.advantages li, .differences li, .faq li {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.3s ease-out;
+}
+
+.advantages li.show, .differences li.show, .faq li.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.advantages li:hover, .differences li:hover, .faq li:hover {
+  transform: scale(1.015);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+}
+
+/* Contact form */
+.contact-form-wrapper {
+  background-color: #badeff;
+  width: 100%;
+  padding: 60px 0;
+  margin: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.contact-form {
+  padding: 30px 20px;
+  max-width: 600px;
+  margin: 0 auto;
+  min-height: auto;
+  max-height: none;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background-color: transparent;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+.contact-form h2 {
+  font-size: 36px;
+  text-align: center;
+  margin: 8px;
+}
+
+.contact-form p {
+  text-align: center;
+  font-size: 18px;
+  margin: 0 0 32px 0;
+}
+
+.contact-form form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.contact-form input {
+  padding: 16px 24px;
+  border-radius: 12px;
+  border: 1px solid #e0e0e0;
+  font-size: 16px;
+  transition: border-color 1.3s ease;
+}
+
+.contact-form input:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+.contact-form button {
+  padding: 16px 32px;
+  border-radius: 12px;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.contact-form button:hover {
+  background-color: #0056b3;
+}
+
+@media (max-height: 700px) {
+  .contact-form-wrapper {
+    padding: 40px 0;
+  }
+  
+  .contact-form {
+    padding: 20px;
+  }
+  
+  .contact-form h2 {
+    font-size: 28px;
+    margin-bottom: 5px;
+  }
+  
+  .contact-form p {
+    margin-bottom: 20px;
+    font-size: 16px;
+  }
+  
+  .contact-form input, .contact-form button {
+    padding: 12px 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .contact-form-wrapper {
+    padding: 30px 0;
+  }
+  
+  .contact-form {
+    padding: 15px;
+  }
+  
+  .contact-form h2 {
+    font-size: 24px;
+  }
+  
+  .contact-form p {
+    font-size: 14px;
+  }
+}
+
+/* Benefits section */
+.benefits {
+  background-color: #ffffff;
+  margin-top: 0;
+  padding: 60px 20px;
+  border-radius: 0;
+}
+
+.benefits-container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.benefits-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  gap: 40px;
+}
+
+.benefits-header h2 {
+  font-size: 2rem;
+  color: #000000;
+  flex: 1;
+  margin: 0;
+  text-align: left;
+  max-width: 600px;
+}
+
+.benefits-explanation {
+  flex: 1;
+  background-color: #badeff;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-width: 600px;
+}
+
+.benefits-explanation p {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #000000;
+  line-height: 1.6;
+}
+
+.benefits-slogan {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 2px solid rgba(23, 124, 171, 0.3);
+}
+
+.benefits-slogan p {
+  font-weight: 600;
+  font-style: italic;
+  color: #177cab;
+}
+
+.benefits-blocks {
+  display: flex;
+  justify-content: space-between;
+  gap: 30px;
+  margin-top: 20px;
+  padding: 0 10px;
+}
+
+.benefit-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #fff;
+  border-radius: 12px;
+  padding: 30px 15px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  min-width: 300px;
+}
+
+.benefit-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+}
+
+.benefit-image {
+  width: 90%;
+  height: 250px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.benefit-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.benefit-title {
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: #000000;
+  margin: 0 0 15px 0;
+  text-align: center;
+  width: 90%;
+  text-transform: uppercase;
+}
+
+.benefit-description {
+  font-size: 1rem;
+  color: #000000;
+  text-align: center;
+  margin: 0;
+  width: 90%;
+}
+
+/* Media queries for benefits section */
+@media (max-width: 992px) {
+  .benefits-header {
+    flex-direction: column;
+    gap: 30px;
+  }
+  
+  .benefits-header h2 {
+    max-width: 100%;
+  }
+  
+  .benefits-explanation {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .benefits {
+    padding: 40px 20px;
+  }
+  
+  .benefits-blocks {
+    flex-direction: column;
+    gap: 30px;
+    padding: 0;
+  }
+  
+  .benefit-item {
+    max-width: 100%;
+    min-width: auto;
+  }
+  
+  .benefit-image {
+    width: 90%;
+    height: 280px;
+  }
+}
+
+@media (max-width: 480px) {
+  .benefits-header h2 {
+    font-size: 1.8rem;
+  }
+  
+  .benefits-explanation p {
+    font-size: 1rem;
+  }
+  
+  .benefit-image {
+    width: 95%;
+    height: 250px;
+  }
+}
+
+/* Tech section */
+.tech-section {
+  background-color: #ffffff;
+  padding: 60px 20px;
+  margin: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+}
+
+.tech-container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.tech-header-content {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 50px;
+  gap: 40px;
+}
+
+.tech-title {
+  flex: 1;
+  max-width: 600px;
+}
+
+.tech-section h2 {
+  font-size: 2rem;
+  color: #000000;
+  margin: 0 0 30px 0;
+  text-align: left;
+}
+
+.tech-explanation {
+  margin-top: 20px;
+}
+
+.tech-explanation p {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #000000;
+  line-height: 1.6;
+}
+
+.tech-video {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  max-width: 600px;
+}
+
+.video-container {
+  width: 100%;
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border: 1px solid #e2e8f0;
+}
+
+.video-header {
+  padding: 20px;
+  background-color: #badeff;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.video-header h3 {
+  margin: 0 0 8px 0;
+  font-size: 1.2rem;
+  color: #000000;
+}
+
+.video-header p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #000000;
+}
+
+.tech-video iframe {
+  display: block;
+  width: 100%;
+  border: none;
+}
+
+.tech-blocks {
+  display: flex;
+  justify-content: space-between;
+  gap: 30px;
+  margin-top: 40px;
+}
+
+.tech-block {
+  flex: 1;
+  background-color: #fff;
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.tech-block:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+}
+
+.tech-block h3 {
+  font-size: 1.3rem;
+  color: #000000;
+  margin: 0 0 15px 0;
+}
+
+.tech-block p {
+  font-size: 1rem;
+  color: #000000;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Media queries for tech section */
+@media (max-width: 992px) {
+  .tech-header-content {
+    flex-direction: column;
+  }
+  
+  .tech-title, .tech-video {
+    max-width: 100%;
+  }
+  
+  .video-container {
+    margin-top: 30px;
+  }
+}
+
+@media (max-width: 768px) {
+  .tech-section {
+    padding: 40px 20px;
+  }
+  
+  .tech-blocks {
+    flex-direction: column;
+    gap: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .tech-section h2 {
+    font-size: 1.5rem;
+  }
+  
+  .tech-explanation p {
+    font-size: 1rem;
+  }
+  
+  .tech-block h3 {
+    font-size: 1.2rem;
+  }
+  
+  .video-header {
+    padding: 15px;
+  }
+  
+  .video-header h3 {
+    font-size: 1.1rem;
+  }
+  
+  .video-header p {
+    font-size: 0.85rem;
+  }
+}
+
+/* Pricing section */
+.pricing.advantages {
+  background-color: #badeff;
+}
+
+.pricing.advantages h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 24px;
+}
+
+.pricing.advantages ul {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.pricing.advantages li {
+  padding: 12px;
+  margin: 16px 0;
+  transition: transform 0.25s ease-out, box-shadow 0.25s ease-out;
+}
+
+.pricing.advantages li:hover {
+  transform: scale(1.015);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+}
+
+.pricing.advantages li p {
+  margin: 5px 0 0 0;
+  font-size: 1.1em;
+  color: #333;
+  padding: 0 0 0 15px;
+  border-left: 2px solid #e0e0e0;
+  text-align: left;
+  transition: border-color 0.3s ease;
+}
+
+.pricing.advantages li:hover p {
+  border-left: 2px solid #00c666;
+}
+
+@media (max-width: 768px) {
+  .pricing.advantages li {
+    padding: 15px;
+  }
+  
+  .pricing.advantages li p {
+    font-size: 1em;
+    padding-left: 10px;
+    margin: 3px 0 0 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .client-logo {
+    height: 100px;
+  }
+  
+  .client-item p {
+    font-size: 0.8em;
+  }
+}
+
+/* Fix for Owl Carousel overflow */
+.owl-carousel {
+  width: 100%;
+  overflow: hidden;
+}
+
+.owl-stage-outer {
+  overflow: hidden;
+}
+
+.owl-item {
+  box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+  .cta h2 {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .cta h2 {
+    font-size: 1.5rem;
+    line-height: 1.3;
+    word-break: break-word;
+    hyphens: auto;
+  }
+}

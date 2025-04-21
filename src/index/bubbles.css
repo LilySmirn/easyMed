@@ -1,0 +1,132 @@
+/* Bubbles Animation Styles */
+.bubbles-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.bubble {
+  position: absolute;
+  width: 45px; /* Scaled down from 60px to 45px (0.75x) */
+  height: 45px; /* Scaled down from 60px to 45px (0.75x) */
+  /* Remove border-radius to make it square */
+  background-color: transparent; /* Make background transparent */
+  pointer-events: auto;
+  opacity: 1;
+  will-change: transform, left, top, opacity;
+}
+
+/* Hidden state for bubbles before they appear */
+.bubble-hidden {
+  opacity: 0;
+}
+
+/* Create the cross shape */
+.bubble::before,
+.bubble::after {
+  content: '';
+  position: absolute;
+  background-color: rgba(0, 180, 80, 0.6); /* More transparent green */
+  border-radius: 7px; /* Scaled down from 9px to 7px (approximately 0.75x) */
+  box-shadow: 0 0 11px rgba(0, 255, 100, 0.3); /* Scaled down from 15px to 11px */
+}
+
+/* Horizontal bar of cross */
+.bubble::before {
+  top: 35%;
+  left: 0;
+  width: 100%;
+  height: 30%;
+}
+
+/* Vertical bar of cross */
+.bubble::after {
+  top: 0;
+  left: 35%;
+  width: 30%;
+  height: 100%;
+}
+
+/* Enhanced 3D effect with more realistic gradient - more pale colors */
+.bubble::before,
+.bubble::after {
+  background: linear-gradient(135deg, 
+                rgba(150, 255, 200, 0.7) 0%, 
+                rgba(0, 180, 120, 0.6) 50%,
+                rgba(0, 120, 80, 0.5) 100%);
+}
+
+/* Add highlight and shadow for 3D effect - softer shadows */
+.bubble::before {
+  box-shadow: inset -2px -2px 4px rgba(0, 50, 0, 0.2), 
+              inset 2px 2px 4px rgba(255, 255, 255, 0.4),
+              0 0 14px rgba(0, 255, 100, 0.3);
+}
+
+.bubble::after {
+  box-shadow: inset -2px -2px 4px rgba(0, 50, 0, 0.2), 
+              inset 2px 2px 4px rgba(255, 255, 255, 0.4),
+              0 0 14px rgba(0, 255, 100, 0.3);
+}
+
+/* Add a shine effect */
+.bubble::before::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, 
+                rgba(255, 255, 255, 0.6) 0%, 
+                rgba(255, 255, 255, 0) 60%);
+  border-radius: 3px;
+}
+
+.bubble.appear {
+  animation: bubble-appear 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+.bubble.burst {
+  animation: bubble-burst 0.3s ease-out forwards;
+}
+
+@keyframes bubble-appear {
+  0% {
+    transform: scale(0) translateY(10px) rotate(45deg);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.2;
+  }
+  100% {
+    transform: scale(1) translateY(0) rotate(0deg);
+    opacity: 0.8; /* Slightly reduced opacity for all bubbles */
+  }
+}
+
+@keyframes bubble-burst {
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1.5) rotate(90deg);
+    opacity: 0;
+  }
+}
+
+/* Make sure bubbles are below text content */
+.hero {
+  position: relative;
+}
+
+.hero .intro-content {
+  position: relative;
+  z-index: 2;
+} 
