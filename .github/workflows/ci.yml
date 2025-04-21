@@ -25,6 +25,14 @@ jobs:
       - name: Сборка проекта
         run: npm run build
 
+      - name: Копируем всё из src в dist (кроме уже собранных файлов)
+        run: |
+          rsync -av \
+            --exclude='scripts/mkb.js' \
+            --exclude='css/main.css' \
+            --exclude='mkb/index.html' \
+          src/ dist/
+
       - name: Запуск тестов
         run: npm test
 
