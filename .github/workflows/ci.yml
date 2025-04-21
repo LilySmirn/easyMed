@@ -33,3 +33,9 @@ jobs:
           rm -rf publish
           mkdir publish
           cp -r dist/* publish/
+
+      - name: Сохраняем артефакты (папку publish)
+        uses: actions/upload-artifact@v3
+        with:
+          name: site-files
+          path: publish/
