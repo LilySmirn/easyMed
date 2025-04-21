@@ -28,8 +28,8 @@ jobs:
       - name: Запуск тестов
         run: npm test
 
-      - name: Publish (копируем файлы из dev в publish)
+      - name: Publish (копируем файлы из dist в publish)
         run: |
           rm -rf publish
           mkdir publish
-          cp -r dev/* publish/
+          cp -r dist/* publish/
