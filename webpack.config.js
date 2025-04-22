@@ -1,6 +1,8 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const TerserWebpackPlugin = require('terser-webpack-plugin');
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 
 module.exports = {
     entry: './src/scripts/mkb.js',
@@ -36,6 +38,13 @@ module.exports = {
             },
         ],
     },
+    optimization: {
+        minimize: true,
+        minimizer: [
+            new TerserWebpackPlugin(),
+            new CssMinimizerPlugin(),
+        ],
+    },
     devServer: {
         static: {
             directory: path.join(__dirname, 'dist'),
@@ -45,5 +54,5 @@ module.exports = {
             index: 'mkb/index.html',
         },
     },
-    mode: 'development',
+    mode: 'production',
 };
