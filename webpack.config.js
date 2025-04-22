@@ -1,33 +1,50 @@
 const path = require('path');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const TerserWebpackPlugin = require('terser-webpack-plugin');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const WebpackObfuscator = require('webpack-obfuscator');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+
+const entries = require('./buildEntries.js');
+const findHtmlPlugins = require('./findHtmlPlugins.js');
 
 module.exports = {
-    entry: './src/scripts/mkb.js',
+    entry: entries,
     output: {
         path: path.resolve(__dirname, 'dist'),
-        filename: 'scripts/mkb.js',
+        filename: '[name].js',
         clean: true,
     },
     plugins: [
-        new HtmlWebpackPlugin({
-            template: './src/mkb/index.html',
-            filename: 'mkb/index.html',
-        }),
+        ...findHtmlPlugins(path.resolve(__dirname, 'src')),
+
         new MiniCssExtractPlugin({
-            filename: 'css/main.css',
+            filename: '[name].css',
         }),
-        // Плагин для обфускации
-        new WebpackObfuscator({
-            rotateStringArray: true,
-            stringArray: true,
-            stringArrayEncoding: ['base64'],
-            deadCodeInjection: true,
-            deadCodeInjectionThreshold: 0.4,
-        }, ['scripts/mkb.js']),
+
+        new WebpackObfuscator(
+            {
+                rotateStringArray: true,
+                stringArray: true,
+                stringArrayEncoding: ['base64'],
+                deadCodeInjection: true,
+                deadCodeInjectionThreshold: 0.4,
+            },
+            ['scripts/mkb.js']
+        ),
+
+        new CopyWebpackPlugin({
+            patterns: [
+                {
+                    from: '**/*',
+                    context: path.resolve(__dirname, 'src'),
+                    globOptions: {
+                        ignore: ['**/*.js', '**/*.css', '**/index.html'],
+                    },
+                    to: '[path][name][ext]',
+                },
+            ],
+        }),
     ],
     module: {
         rules: [
@@ -59,9 +76,7 @@ module.exports = {
             directory: path.join(__dirname, 'dist'),
         },
         open: true,
-        historyApiFallback: {
-            index: 'mkb/index.html',
-        },
+        historyApiFallback: true,
     },
     mode: 'production',
 };
