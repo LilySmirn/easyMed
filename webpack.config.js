@@ -2,47 +2,76 @@ const path = require('path');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const TerserWebpackPlugin = require('terser-webpack-plugin');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
-const WebpackObfuscator = require('webpack-obfuscator');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
-
-const entries = require('./buildEntries.js');
-const findHtmlPlugins = require('./findHtmlPlugins.js');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const WebpackObfuscator = require('webpack-obfuscator');
 
 module.exports = {
-    entry: entries,
+    entry: {
+        'scripts/mkb': './src/scripts/mkb.js',
+        // 'scripts/mkbStart': './src/scripts/mkb-start.js',
+        'scripts/login': './src/scripts/login.js',
+        // 'index/bubbles': './src/index/bubbles.js',
+        // 'index/script': './src/index/script.js',
+        // 'index/smoothScroll': './src/index/smooth-scroll.js',
+        // 'index/styles': './src/index/styles.css',
+        // 'css/main': './src/css/main.css',
+    },
     output: {
         path: path.resolve(__dirname, 'dist'),
         filename: '[name].js',
         clean: true,
     },
     plugins: [
-        ...findHtmlPlugins(path.resolve(__dirname, 'src')),
-
+        new HtmlWebpackPlugin({
+            template: './src/mkb/index.html',
+            filename: 'mkb/index.html',
+        }),
+        // new HtmlWebpackPlugin({
+        //     template: './src/index.html',
+        //     filename: 'index.html',
+        // }),
+        new HtmlWebpackPlugin({
+            template: './src/login/index.html',
+            filename: 'login/index.html',
+        }),
         new MiniCssExtractPlugin({
             filename: '[name].css',
         }),
-
-        new WebpackObfuscator(
-            {
-                rotateStringArray: true,
-                stringArray: true,
-                stringArrayEncoding: ['base64'],
-                deadCodeInjection: true,
-                deadCodeInjectionThreshold: 0.4,
-            },
-            ['scripts/mkb.js']
-        ),
-
+        new WebpackObfuscator({
+            rotateStringArray: true,
+            stringArray: true,
+            stringArrayEncoding: ['base64'],
+            deadCodeInjection: true,
+            deadCodeInjectionThreshold: 0.4,
+        }, []),
         new CopyWebpackPlugin({
             patterns: [
-                {
-                    from: '**/*',
-                    context: path.resolve(__dirname, 'src'),
-                    globOptions: {
-                        ignore: ['**/*.js', '**/*.css', '**/index.html'],
-                    },
-                    to: '[path][name][ext]',
-                },
+                { from: 'src/php', to: 'php', noErrorOnMissing: true },
+                { from: 'src/index/fonts', to: 'index/fonts', noErrorOnMissing: true },
+                { from: 'src/index/images', to: 'index/images', noErrorOnMissing: true },
+                { from: 'src/images', to: 'images', noErrorOnMissing: true },
+                // {
+                //     from: 'src/index',
+                //     to: 'index',
+                //     globOptions: {
+                //         ignore: ['**/*.js', '**/*.css'],
+                //         dot: true,
+                //     },
+                //     filter: (resourcePath) =>
+                //         /\.(js\.bak|md|xcf|mp4|jpeg|jpg)$/i.test(path.basename(resourcePath)),
+                //     noErrorOnMissing: true,
+                // },
+                // {
+                //     from: 'src',
+                //     to: '',
+                //     globOptions: {
+                //         ignore: ['**/*.js', '**/*.css', '**/*.html'],
+                //     },
+                //     filter: (resourcePath) =>
+                //         /\.(json|conf|config|js\.bak|md)$/i.test(path.basename(resourcePath)),
+                //     noErrorOnMissing: true,
+                // },
             ],
         }),
     ],
@@ -60,6 +89,13 @@ module.exports = {
                     options: {
                         presets: ['@babel/preset-env'],
                     },
+                },
+            },
+            {
+                test: /\.(png|jpe?g|gif|svg|woff2?|eot|ttf|otf)$/i,
+                type: 'asset/resource',
+                generator: {
+                    filename: 'assets/[name][ext]',
                 },
             },
         ],
