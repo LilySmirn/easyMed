@@ -942,27 +942,23 @@ function fetchResults(query) {
 }
 
 function displayResults(data) {
-        searchListElem.innerHTML = '';
-        const results = data.filter(
-            (item, ind) => data.findIndex((obj) => obj.code === item.code) === ind
-        );
-        if (results.length > 0) {
-          for (let i = 0; i < results.length; i++) {
-            const item = results[i];
-            const li = document.createElement('li');
-            li.textContent = item.code + ': ' + item.name;
-            li.valueData = item.code;
-            li.classList.add('form__input--list-item');
-            searchListElem.appendChild(li);
-          }
-          resultsContainer.classList.remove('hidden');
-        } else {
-          searchListElem.textContent = 'Совпадений не найдено';
-        }
-      })
-      .catch((error) => {
-        console.error('Error:', error);
-      });
+  searchListElem.innerHTML = '';
+  const results = data.filter(
+      (item, ind) => data.findIndex((obj) => obj.code === item.code) === ind
+  );
+  if (results.length > 0) {
+    for (let i = 0; i < results.length; i++) {
+      const item = results[i];
+      const li = document.createElement('li');
+      li.textContent = item.code + ': ' + item.name;
+      li.valueData = item.code;
+      li.classList.add('form__input--list-item');
+      searchListElem.appendChild(li);
+    }
+    resultsContainer.classList.remove('hidden');
+  } else {
+    searchListElem.textContent = 'Совпадений не найдено';
+  }
 }
 
 function createLoadingElement(className = '') {
