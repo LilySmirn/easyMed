@@ -1,10 +1,13 @@
+// import $ from "jquery";
+// import 'owl.carousel/dist/owl.carousel.min.js';
+
 // Convert HTMLCollection to Array to use forEach
 Array.from(document.getElementsByClassName('demo-button')).forEach((button) =>
   button.addEventListener('click', function (e) {
     e.preventDefault();
-    
+
     const contactForm = document.querySelector('.contact-form-wrapper');
-    
+
     // Smooth scroll implementation
     const scrollToElement = (element) => {
       const startPosition = window.pageYOffset;
@@ -12,25 +15,25 @@ Array.from(document.getElementsByClassName('demo-button')).forEach((button) =>
       const distance = targetPosition - startPosition;
       const duration = 800; // milliseconds
       let start = null;
-      
+
       const step = (timestamp) => {
         if (!start) start = timestamp;
         const progress = timestamp - start;
         const percentage = Math.min(progress / duration, 1);
-        
+
         // Easing function for smoother animation
         const easeInOutQuad = t => t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
-        
+
         window.scrollTo(0, startPosition + distance * easeInOutQuad(percentage));
-        
+
         if (progress < duration) {
           window.requestAnimationFrame(step);
         }
       };
-      
+
       window.requestAnimationFrame(step);
     };
-    
+
     scrollToElement(contactForm);
   })
 )
@@ -80,17 +83,17 @@ handleScroll()
 // Contact form submission handler
 document.addEventListener('DOMContentLoaded', function() {
   const contactForm = document.querySelector('.contact-form form');
-  
+
   if (contactForm) {
     contactForm.addEventListener('submit', async function(event) {
       event.preventDefault();
-      
+
       // Get form input values
       const email = contactForm.querySelector('input[type="email"]').value.trim();
       const name = contactForm.querySelector('input[type="text"][placeholder="Ваше имя"]').value.trim();
       const phoneNumber = contactForm.querySelector('input[type="tel"]').value.trim();
       const misName = contactForm.querySelector('input[type="text"][placeholder="МИС или CRM"]').value.trim();
-      
+
       // Create contact data object
       const contactData = {
         email,
@@ -98,10 +101,10 @@ document.addEventListener('DOMContentLoaded', function() {
         phoneNumber,
         misName
       };
-      
+
       // Google Apps Script endpoint
       const url = 'https://script.google.com/macros/s/AKfycbwdzgB4VUFVK9V1JG0J762KDaM0VM14MtDwzgrbAYKCooQcsGEHKXevpRKx0Ts8xQxk/exec';
-      
+
       try {
         const response = await fetch(url, {
           method: "POST",
@@ -111,10 +114,10 @@ document.addEventListener('DOMContentLoaded', function() {
           },
           mode: 'no-cors',
         });
-        
+
         // Show success message
         alert(`${contactData.name}, заявка отправлена!\nМы свяжемся с Вами в ближайшее время.`);
-        
+
         // Reset form
         contactForm.reset();
       } catch(error) {

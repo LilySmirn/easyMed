@@ -1,6 +1,6 @@
-import '../css/main.css';
-
-import { decryptData } from './crypto.js';
+// import '../css/main.css';
+//
+// import { decryptData } from './crypto.js';
 
 const searchInput = document.getElementById('search-input');
 const clearButton = document.getElementById('clear-button');
@@ -17,7 +17,7 @@ const buttonsSection = document.querySelector(".form__section--buttons");
 const pageMkb = document.querySelector('.page__mkb');
 const sectionToggles = document.querySelector('.form__section--toggles');
 const resultsContainer = document.querySelector('.form__input--list-container');
-const loadingContainer = document.querySelector('.form__loading-container')
+const loadingContainer = document.querySelector('.form__loading-container');
 
 exitButtonElem.addEventListener('click', () => {
   document.cookie = "username=''; path=/";
@@ -517,7 +517,8 @@ async function searchMkb() {
       throw new Error('Network response was not ok');
     }
 
-    const data = await response.json();
+    const encryptedText  = await response.text();
+    const data = await decryptData(encryptedText);
 
     if (!data || !data.child) {
       throw new Error('Invalid data received');
@@ -930,7 +931,8 @@ function createListData(mkbData, type, status, age) {
 
 function fetchResults(query) {
   fetch(`../php/search.php?q=${encodeURIComponent(query)}`)
-    .then((response) => response.json())
+    .then((response) => response.text())
+    .then(async (encryptedText) => await decryptData(encryptedText))
     .then((data) => {
       displayResults(data);
     })
@@ -939,17 +941,7 @@ function fetchResults(query) {
     });
 }
 
-// TODO: remove after CryptoJS testing
-// window.testCrypto = testCrypto;
-// function testCrypto(data) {
-//   let enc = encryptData(data);
-//
-//   return decryptData(enc);
-// }
-
 function displayResults(data) {
-  decryptData(data)
-      .then((data) => {
         searchListElem.innerHTML = '';
         const results = data.filter(
             (item, ind) => data.findIndex((obj) => obj.code === item.code) === ind

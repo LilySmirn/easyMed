@@ -32,6 +32,8 @@
     "webpack-obfuscator": "^3.5.1"
   },
   "dependencies": {
-    "crypto-js": "^4.2.0"
+    "crypto-js": "^4.2.0",
+    "jquery": "^3.7.1",
+    "owl.carousel": "^2.3.4"
   }
 }
