@@ -1,6 +1,6 @@
-// import '../css/main.css';
-//
-// import { decryptData } from './crypto.js';
+import '../css/main.css';
+
+import { decryptData } from './crypto.js';
 
 const searchInput = document.getElementById('search-input');
 const clearButton = document.getElementById('clear-button');
@@ -517,8 +517,14 @@ async function searchMkb() {
       throw new Error('Network response was not ok');
     }
 
-    const encryptedText  = await response.text();
-    const data = await decryptData(encryptedText);
+    // const encryptedText  = await response.text();
+    // const data = await decryptData(encryptedText);
+    //
+    // if (!data || !data.child) {
+    //   throw new Error('Invalid data received');
+    // }
+
+    const data = await response.json();
 
     if (!data || !data.child) {
       throw new Error('Invalid data received');
@@ -929,16 +935,27 @@ function createListData(mkbData, type, status, age) {
   return listData;
 }
 
+// function fetchResults(query) {
+//   fetch(`../php/search.php?q=${encodeURIComponent(query)}`)
+//     .then((response) => response.text())
+//     .then(async (encryptedText) => await decryptData(encryptedText))
+//     .then((data) => {
+//       displayResults(data);
+//     })
+//     .catch((error) => {
+//       console.error('Error:', error);
+//     });
+// }
+
 function fetchResults(query) {
   fetch(`../php/search.php?q=${encodeURIComponent(query)}`)
-    .then((response) => response.text())
-    .then(async (encryptedText) => await decryptData(encryptedText))
-    .then((data) => {
-      displayResults(data);
-    })
-    .catch((error) => {
-      console.error('Error:', error);
-    });
+      .then((response) => response.json())
+      .then((data) => {
+        displayResults(data);
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
 }
 
 function displayResults(data) {
