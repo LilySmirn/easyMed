@@ -1,21 +1,19 @@
 const path = require('path');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const TerserWebpackPlugin = require('terser-webpack-plugin');
-const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const WebpackObfuscator = require('webpack-obfuscator');
+
+const isDev = process.env.NODE_ENV === 'development';
 
 module.exports = {
     entry: {
         'scripts/mkb': './src/scripts/mkb.js',
         'scripts/mkbStart': './src/scripts/mkb-start.js',
         'scripts/login': './src/scripts/login.js',
-        'index/bubbles': './src/index/bubbles.js',
+        'index/bubbles': ['./src/index/bubbles.js', './src/index/bubbles.css'],
         'index/script': './src/index/script.js',
         'index/smoothScroll': './src/index/smooth-scroll.js',
-        // 'index/styles': './src/index/styles.css',
-        // 'css/main': './src/css/main.css',
+        'index/styles': './src/css/main.css',
     },
     output: {
         path: path.resolve(__dirname, 'dist'),
@@ -27,11 +25,13 @@ module.exports = {
             template: './src/mkb/index.html',
             filename: 'mkb/index.html',
             chunks: ['scripts/mkb', 'scripts/mkbStart'],
+            inject: 'head',
         }),
         new HtmlWebpackPlugin({
             template: './src/index.html',
             filename: 'index.html',
-            chunks: ['index/bubbles', 'index/script', 'index/smoothScroll'],
+            chunks: ['index/styles', 'index/script', 'index/bubbles', 'index/smoothScroll'],
+            inject: 'head',
         }),
         new HtmlWebpackPlugin({
             template: './src/login/index.html',
@@ -41,13 +41,6 @@ module.exports = {
         new MiniCssExtractPlugin({
             filename: '[name].css',
         }),
-        new WebpackObfuscator({
-            rotateStringArray: true,
-            stringArray: true,
-            stringArrayEncoding: ['base64'],
-            deadCodeInjection: true,
-            deadCodeInjectionThreshold: 0.4,
-        }, []),
         new CopyWebpackPlugin({
             patterns: [
                 { from: 'src/php', to: 'php', noErrorOnMissing: true },
@@ -82,7 +75,10 @@ module.exports = {
         rules: [
             {
                 test: /\.css$/i,
-                use: [MiniCssExtractPlugin.loader, 'css-loader'],
+                use: [
+                    isDev ? 'style-loader' : MiniCssExtractPlugin.loader,
+                    'css-loader',
+                ],
             },
             {
                 test: /\.js$/,
@@ -103,19 +99,4 @@ module.exports = {
             },
         ],
     },
-    optimization: {
-        minimize: true,
-        minimizer: [
-            new TerserWebpackPlugin(),
-            new CssMinimizerPlugin(),
-        ],
-    },
-    devServer: {
-        static: {
-            directory: path.join(__dirname, 'dist'),
-        },
-        open: true,
-        historyApiFallback: true,
-    },
-    mode: 'production',
 };

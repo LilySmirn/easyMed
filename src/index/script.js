@@ -1,5 +1,7 @@
-// import $ from "jquery";
-// import 'owl.carousel/dist/owl.carousel.min.js';
+import './styles.css';
+import './bubbles.js';
+import './bubbles.css';
+import './smooth-scroll.js';
 
 // Convert HTMLCollection to Array to use forEach
 Array.from(document.getElementsByClassName('demo-button')).forEach((button) =>
@@ -39,11 +41,14 @@ Array.from(document.getElementsByClassName('demo-button')).forEach((button) =>
 )
 
 function handleScroll () {
+  console.log('handleScroll');
   const sections = document.querySelectorAll('.advantages, .differences, .faq')
 
   sections.forEach((section) => {
     const rect = section.getBoundingClientRect()
     const isVisible = rect.top <= window.innerHeight * 0.75
+
+    console.log(rect.top, window.innerHeight * 0.75);
 
     if (isVisible && !section.classList.contains('expanded')) {
       // Expand the section
@@ -75,13 +80,11 @@ function handleScroll () {
   }
 }
 
-// Add scroll event listener
-window.addEventListener('scroll', handleScroll)
-// Initial check for visible sections
-handleScroll()
-
 // Contact form submission handler
 document.addEventListener('DOMContentLoaded', function() {
+  window.addEventListener('scroll', handleScroll);
+  handleScroll();
+
   const contactForm = document.querySelector('.contact-form form');
 
   if (contactForm) {

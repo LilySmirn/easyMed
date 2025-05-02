@@ -216,7 +216,7 @@ section {
   position: relative;
   z-index: 1;
   background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.85) -35%, rgba(255, 255, 255, 0.7) 5%, rgba(255, 255, 255, 0.4) 28%, rgba(255, 255, 255, 0) 91%);
-  border-radius: 50%; 
+  border-radius: 50%;
   backdrop-filter: blur(2px);
   box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
 }
@@ -413,21 +413,21 @@ iframe {
     padding: 20px;
     margin: 10px;
   }
-  
+
   .intro-content {
     padding: 0 20px;
     transform: translateY(-5%); /* Less offset on smaller screens */
   }
-  
+
   .intro-content h1 {
     font-size: 2rem;
   }
-  
+
   .intro-description {
     font-size: 1.25rem;
     padding: 15px 25px;
   }
-  
+
   .advantages ul li,
   .differences ul li {
     margin-left: 0;
@@ -437,13 +437,13 @@ iframe {
   .differences h2 {
     text-align: left;
   }
-  
+
   .header-content {
     padding: 8px 15px;
     justify-content: space-between;
     align-items: center;
   }
-  
+
   .header-content .title-logo,
   .header-content .logo {
     height: 24px;
@@ -455,19 +455,19 @@ iframe {
     flex-direction: column;
     align-items: center;
   }
-  
+
   .header-content {
     flex-wrap: wrap;
     justify-content: center;
     gap: 8px;
     padding: 6px 10px;
   }
-  
+
   .header-content .title-logo,
   .header-content .logo {
     margin: 0 5px;
   }
-  
+
   .header-content .demo-button {
     margin: 0 5px;
   }
@@ -477,22 +477,22 @@ iframe {
     font-size: 14px;
     margin: 0;
   }
-  
+
   .intro-content {
     padding: 0 15px;
     transform: translateY(-2%); /* Minimal offset on very small screens */
   }
-  
+
   .intro-content h1 {
     font-size: 1.5rem;
   }
-  
+
   .intro-description {
     font-size: 1.1rem;
     padding: 12px 20px;
     background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.85) -35%, rgba(255, 255, 255, 0.7) 5%, rgba(255, 255, 255, 0.4) 28%, rgba(255, 255, 255, 0) 91%);
   }
-  
+
   /* radial-gradient(ellipse at center, rgba(255, 255, 255, 0.85) 30%, rgba(255, 255, 255, 0.7) 50%, rgba(255, 255, 255, 0.4) 60%, rgba(255, 255, 255, 0) 76%) */
 
   iframe {
@@ -679,21 +679,21 @@ iframe {
   .contact-form-wrapper {
     padding: 40px 0;
   }
-  
+
   .contact-form {
     padding: 20px;
   }
-  
+
   .contact-form h2 {
     font-size: 28px;
     margin-bottom: 5px;
   }
-  
+
   .contact-form p {
     margin-bottom: 20px;
     font-size: 16px;
   }
-  
+
   .contact-form input, .contact-form button {
     padding: 12px 20px;
   }
@@ -703,15 +703,15 @@ iframe {
   .contact-form-wrapper {
     padding: 30px 0;
   }
-  
+
   .contact-form {
     padding: 15px;
   }
-  
+
   .contact-form h2 {
     font-size: 24px;
   }
-  
+
   .contact-form p {
     font-size: 14px;
   }
@@ -842,11 +842,11 @@ iframe {
     flex-direction: column;
     gap: 30px;
   }
-  
+
   .benefits-header h2 {
     max-width: 100%;
   }
-  
+
   .benefits-explanation {
     max-width: 100%;
   }
@@ -856,18 +856,18 @@ iframe {
   .benefits {
     padding: 40px 20px;
   }
-  
+
   .benefits-blocks {
     flex-direction: column;
     gap: 30px;
     padding: 0;
   }
-  
+
   .benefit-item {
     max-width: 100%;
     min-width: auto;
   }
-  
+
   .benefit-image {
     width: 90%;
     height: 280px;
@@ -878,11 +878,11 @@ iframe {
   .benefits-header h2 {
     font-size: 1.8rem;
   }
-  
+
   .benefits-explanation p {
     font-size: 1rem;
   }
-  
+
   .benefit-image {
     width: 95%;
     height: 250px;
@@ -1015,11 +1015,11 @@ iframe {
   .tech-header-content {
     flex-direction: column;
   }
-  
+
   .tech-title, .tech-video {
     max-width: 100%;
   }
-  
+
   .video-container {
     margin-top: 30px;
   }
@@ -1029,7 +1029,7 @@ iframe {
   .tech-section {
     padding: 40px 20px;
   }
-  
+
   .tech-blocks {
     flex-direction: column;
     gap: 20px;
@@ -1040,23 +1040,23 @@ iframe {
   .tech-section h2 {
     font-size: 1.5rem;
   }
-  
+
   .tech-explanation p {
     font-size: 1rem;
   }
-  
+
   .tech-block h3 {
     font-size: 1.2rem;
   }
-  
+
   .video-header {
     padding: 15px;
   }
-  
+
   .video-header h3 {
     font-size: 1.1rem;
   }
-  
+
   .video-header p {
     font-size: 0.85rem;
   }
@@ -1107,7 +1107,7 @@ iframe {
   .pricing.advantages li {
     padding: 15px;
   }
-  
+
   .pricing.advantages li p {
     font-size: 1em;
     padding-left: 10px;
@@ -1119,7 +1119,7 @@ iframe {
   .client-logo {
     height: 100px;
   }
-  
+
   .client-item p {
     font-size: 0.8em;
   }

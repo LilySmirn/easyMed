@@ -3,7 +3,7 @@
 document.addEventListener(
   'wheel',
   function (event) {
-    event.preventDefault()
+      // event.preventDefault()
 
     const scrollAmount = event.deltaY * 2 // Multiplied by 3 to increase scroll distance
     const duration = 250 // Reduced from 500ms to 250ms for faster scrolling

@@ -230,7 +230,9 @@ function showInputListLoader() {
 }
 
 function setCardViewTogglers() {
+  console.log('setCardViewTogglers вызвана');
   const cardHeaderElems = document.getElementsByClassName('form__card-header');
+  console.log('Найдено .form__card-header:', cardHeaderElems.length);
   Array.from(cardHeaderElems).forEach((header) => {
     header.addEventListener('click', (e) => {
       if (
@@ -253,6 +255,10 @@ function setCardViewTogglers() {
     });
   });
 }
+window.setCardViewTogglers = setCardViewTogglers;
+document.addEventListener('DOMContentLoaded', () => {
+  window.setCardViewTogglers();
+});
 
 function setTextBlockSelectionEventHandler() {
   const cardElems = Array.from(document.getElementsByClassName('form__card'));
