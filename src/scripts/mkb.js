@@ -255,10 +255,10 @@ function setCardViewTogglers() {
     });
   });
 }
-window.setCardViewTogglers = setCardViewTogglers;
-document.addEventListener('DOMContentLoaded', () => {
-  window.setCardViewTogglers();
-});
+// window.setCardViewTogglers = setCardViewTogglers;
+// document.addEventListener('DOMContentLoaded', () => {
+//   window.setCardViewTogglers();
+// });
 
 function setTextBlockSelectionEventHandler() {
   const cardElems = Array.from(document.getElementsByClassName('form__card'));
@@ -951,7 +951,7 @@ function createListData(mkbData, type, status, age) {
 //     .catch((error) => {
 //       console.error('Error:', error);
 //     });
-// }
+//   }
 
 function fetchResults(query) {
   fetch(`../php/search.php?q=${encodeURIComponent(query)}`)
