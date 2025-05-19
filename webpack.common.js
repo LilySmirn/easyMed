@@ -12,8 +12,8 @@ module.exports = {
         'scripts/login': './src/scripts/login.js',
         'index/bubbles': ['./src/index/bubbles.js', './src/index/bubbles.css'],
         'index/script': './src/index/script.js',
-        'index/smoothScroll': './src/index/smooth-scroll.js',
-        'index/styles': './src/css/main.css',
+        'index/styles': './src/index/styles.css',
+        'css/main': './src/css/main.css',
     },
     output: {
         path: path.resolve(__dirname, 'dist'),
@@ -24,13 +24,13 @@ module.exports = {
         new HtmlWebpackPlugin({
             template: './src/mkb/index.html',
             filename: 'mkb/index.html',
-            chunks: ['scripts/mkb', 'scripts/mkbStart'],
+            chunks: ['scripts/mkb', 'scripts/mkbStart', 'css/main'],
             inject: 'head',
         }),
         new HtmlWebpackPlugin({
             template: './src/index.html',
             filename: 'index.html',
-            chunks: ['index/styles', 'index/script', 'index/bubbles', 'index/smoothScroll'],
+            chunks: ['index/styles', 'index/script', 'index/bubbles'],
             inject: 'head',
         }),
         new HtmlWebpackPlugin({
