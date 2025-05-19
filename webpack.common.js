@@ -2,6 +2,35 @@ const path = require('path');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const { version } = require('./package.json');
+
+class AppendQueryPlugin {
+    constructor(version) {
+        this.version = version;
+    }
+
+    apply(compiler) {
+        compiler.hooks.compilation.tap('AppendQueryPlugin', (compilation) => {
+            HtmlWebpackPlugin.getHooks(compilation).alterAssetTagGroups.tapAsync(
+                'AppendQueryPlugin',
+                (data, cb) => {
+                    const appendVersion = (tag) => {
+                        if (tag.tagName === 'script' && tag.attributes.src) {
+                            tag.attributes.src += `?v=${this.version}`;
+                        }
+                        if (tag.tagName === 'link' && tag.attributes.href) {
+                            tag.attributes.href += `?v=${this.version}`;
+                        }
+                        return tag;
+                    };
+                    data.headTags = data.headTags.map(appendVersion);
+                    data.bodyTags = data.bodyTags.map(appendVersion);
+                    cb(null, data);
+                }
+            );
+        });
+    }
+}
 
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -21,22 +50,24 @@ module.exports = {
         clean: true,
     },
     plugins: [
+
         new HtmlWebpackPlugin({
             template: './src/mkb/index.html',
             filename: 'mkb/index.html',
             chunks: ['scripts/mkb', 'scripts/mkbStart', 'css/main'],
-            inject: 'head',
+            inject: 'body',
         }),
         new HtmlWebpackPlugin({
             template: './src/index.html',
             filename: 'index.html',
             chunks: ['index/styles', 'index/script', 'index/bubbles'],
-            inject: 'head',
+            inject: 'body',
         }),
         new HtmlWebpackPlugin({
             template: './src/login/index.html',
             filename: 'login/index.html',
             chunks: ['scripts/login'],
+            inject: 'body',
         }),
         new MiniCssExtractPlugin({
             filename: '[name].css',
@@ -70,6 +101,8 @@ module.exports = {
                 },
             ],
         }),
+
+        new AppendQueryPlugin(version),
     ],
     module: {
         rules: [
