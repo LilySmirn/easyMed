@@ -114,21 +114,42 @@ setCardViewTogglers();
 setTextBlockSelectionEventHandler();
 setCardCopyButtonsEventHandler();
 
-if (urlCode) {
-  pageMkb.classList.remove('page__mkb--start');
-  const searchInput = document.getElementById('search-input');
-  searchInput.codeValue = urlCode;
-  hideMkbData();
-  searchMkb();
-  loadingContainer.remove();
-  const newURL = window.location.origin + '/mkb';
-  history.replaceState({}, '', newURL);
-} else {
-  setTimeout(() => {
-    loadingContainer.remove();
-    createHistoryPanel();
-  }, 3000);
-}
+document.addEventListener('DOMContentLoaded', () => {
+  const loadingContainer = document.querySelector('.form__loading-container');
+
+  if (urlCode) {
+    pageMkb.classList.remove('page__mkb--start');
+    const searchInput = document.getElementById('search-input');
+    searchInput.codeValue = urlCode;
+    hideMkbData();
+    searchMkb();
+    if (loadingContainer) loadingContainer.remove();
+    const newURL = window.location.origin + '/mkb';
+    history.replaceState({}, '', newURL);
+  } else {
+    setTimeout(() => {
+      if (loadingContainer) loadingContainer.remove();
+      createHistoryPanel();
+    }, 3000);
+  }
+});
+
+
+// if (urlCode) {
+//   pageMkb.classList.remove('page__mkb--start');
+//   const searchInput = document.getElementById('search-input');
+//   searchInput.codeValue = urlCode;
+//   hideMkbData();
+//   searchMkb();
+//   loadingContainer.remove();
+//   const newURL = window.location.origin + '/mkb';
+//   history.replaceState({}, '', newURL);
+// } else {
+//   setTimeout(() => {
+//     loadingContainer.remove();
+//     createHistoryPanel();
+//   }, 3000);
+// }
 
 async function createHistoryPanel() {
   const username = getCookie('username');
