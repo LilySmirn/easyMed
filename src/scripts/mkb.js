@@ -23,6 +23,7 @@ const overlay = document.querySelector('.overlay');
 const popup = overlay.querySelector('.call-popup');
 const closeBtn = overlay.querySelector('.call-popup__close');
 
+// button and form "Связаться с нами"
 function openPopup() {
   overlay.classList.remove('hidden');
   requestAnimationFrame(() => overlay.classList.add('active'));
@@ -42,6 +43,44 @@ overlay.addEventListener('click', (e) => {
     closePopup();
   }
 });
+
+//отправка заявки с mkb в бот
+document.getElementById('popupForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+
+  const token = '7936795213:AAGRgurZVGGQIJcCuU1bZpodJtRqvqsuFLs';
+  const chatId = '284467225';
+
+  const email = this.email.value.trim();
+  const name = this.name.value.trim();
+  const phone = this.phone.value.trim();
+  const crm = this.crm.value.trim() || '—';
+
+  const message = `📥 Новая заявка с сайта:\n\n📧 Email: ${email}\n👤 Имя: ${name}\n📞 Телефон: ${phone}\n🗂 МИС/CRM: ${crm}`;
+
+  fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      chat_id: chatId,
+      text: message
+    })
+  })
+      .then(response => {
+        if (response.ok) {
+          alert('✅ Заявка успешно отправлена!');
+          this.reset();
+          closePopup();
+        } else {
+          alert('⚠️ Ошибка при отправке.');
+        }
+      })
+      .catch(error => {
+        console.error('Ошибка:', error);
+        alert('⚠️ Не удалось отправить заявку.');
+      });
+});
+
 
 exitButtonElem.addEventListener('click', () => {
   document.cookie = "username=''; path=/";

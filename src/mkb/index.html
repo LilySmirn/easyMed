@@ -97,15 +97,18 @@
             <h2>Свяжитесь с нами</h2>
             <p>мы вам перезвоним</p>
           </div>
-          <div class="call-popup__form">
-            <input type="email" placeholder="Ваш email" required />
-            <input type="text" placeholder="Ваше имя" required />
-            <input type="tel" placeholder="Введите номер телефона" required />
-            <input type="text" placeholder="МИС или CRM" />
-          </div>
-          <div class="call-popup__btn">
-            <button type="submit" class="popup__btn">Оставить заявку</button>
-          </div>
+
+          <form id="popupForm" class="call-popup__form">
+            <input type="email" name="email" placeholder="Ваш email" required />
+            <input type="text" name="name" placeholder="Ваше имя" required />
+            <input type="tel" name="phone" placeholder="Введите номер телефона" required />
+            <input type="text" name="crm" placeholder="МИС или CRM" />
+
+            <div class="call-popup__btn">
+              <button type="submit" class="popup__btn">Оставить заявку</button>
+            </div>
+          </form>
+
           <div class="call-popup__close">
             <img src="../images/popup-exit.png" alt="close">
           </div>
@@ -522,6 +525,6 @@
       </div>
     </div>
     <div id="tooltip" class="tooltip"></div>
-    <script src="../scripts/mkb.js?v16"></script>
+<!--    <script src="../scripts/mkb.js?v16"></script>-->
   </body>
 </html>
