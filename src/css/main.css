@@ -70,14 +70,15 @@ html,
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  width: 143px;
+  width: 150px;
   height: 21px;
   color: #99CEFF;
-  margin-right: 40px;
+  margin-right: 30px;
 }
 .call-btn__logo {
   height: 16px;
   width: 16px;
+  margin-right: 4px;
 }
 .call-btn__text {
   font-family: Arial, sans-serif;
@@ -127,6 +128,14 @@ html,
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+  pointer-events: none;
+}
+.overlay.active {
+  display: flex;
+  opacity: 1;
+  pointer-events: all;
 }
 
 .call-popup {

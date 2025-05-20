@@ -18,6 +18,30 @@ const pageMkb = document.querySelector('.page__mkb');
 const sectionToggles = document.querySelector('.form__section--toggles');
 const resultsContainer = document.querySelector('.form__input--list-container');
 const loadingContainer = document.querySelector('.form__loading-container');
+const openBtn = document.querySelector('.header__call-container');
+const overlay = document.querySelector('.overlay');
+const popup = overlay.querySelector('.call-popup');
+const closeBtn = overlay.querySelector('.call-popup__close');
+
+function openPopup() {
+  overlay.classList.remove('hidden');
+  requestAnimationFrame(() => overlay.classList.add('active'));
+  document.body.style.overflow = 'hidden';
+}
+
+function closePopup() {
+  overlay.classList.remove('active');
+  document.body.style.overflow = '';
+  setTimeout(() => overlay.classList.add('hidden'), 300);
+}
+
+openBtn.addEventListener('click', openPopup);
+closeBtn.addEventListener('click', closePopup);
+overlay.addEventListener('click', (e) => {
+  if (!popup.contains(e.target)) {
+    closePopup();
+  }
+});
 
 exitButtonElem.addEventListener('click', () => {
   document.cookie = "username=''; path=/";
