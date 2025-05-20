@@ -60,6 +60,36 @@ html,
   height: 32px;
   cursor: pointer;
 }
+.header__call-exit-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.header__call-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  width: 143px;
+  height: 21px;
+  color: #99CEFF;
+  margin-right: 40px;
+}
+.call-btn__logo {
+  height: 16px;
+  width: 16px;
+}
+.call-btn__text {
+  font-family: Arial, sans-serif;
+  font-weight: bold;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  text-align: center;
+}
 .header__exit-btn-container {
   display: flex;
   justify-content: center;
