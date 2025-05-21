@@ -756,6 +756,10 @@ option:disabled {
   background-image: linear-gradient(to top, white, rgb(255, 255, 255));
 }
 
+.form__card-header {
+  margin-bottom: 20px;
+}
+
 .form__card-header,
 .form__card-header--container {
   display: flex;

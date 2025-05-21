@@ -1,6 +1,6 @@
-import '../css/main.css';
-
-import { decryptData } from './crypto.js';
+// import '../css/main.css';
+//
+// import { decryptData } from './crypto.js';
 
 const searchInput = document.getElementById('search-input');
 const clearButton = document.getElementById('clear-button');
@@ -870,22 +870,63 @@ function hideCard(cardType) {
 function createExamBlock(blockParentElem, examData) {
   const examContainer = document.createElement('div');
   examContainer.classList.add('block__container');
-  const examHeader = document.createElement('h4');
+
+  const examHeader = document.createElement('div');
   examHeader.classList.add('block__header');
-  examHeader.innerText = examData.name;
+  examHeader.style.display = 'flex';
+  examHeader.style.justifyContent = 'space-between';
+  examHeader.style.alignItems = 'center';
+
+  const examTitle = document.createElement('h4');
+  examTitle.innerText = examData.name;
+  examTitle.style.margin = '0';
+
+  // Кнопка-картинка
+  const infoIcon = document.createElement('img');
+  infoIcon.src = '../images/info-icon.png';
+  infoIcon.alt = 'Info';
+  infoIcon.classList.add('block__info-icon');
+
+  examHeader.appendChild(examTitle);
+  examHeader.appendChild(infoIcon);
+
   const examComment = document.createElement('p');
   examComment.classList.add('block__comment');
   examComment.innerText = examData.comment;
+
   const examQuality = document.createElement('div');
   examQuality.classList.add('block__quality');
   examQuality.classList.add(
-    examData.is_qualitative ? 'block__quality--green' : 'block__quality--gray'
+      examData.is_qualitative ? 'block__quality--green' : 'block__quality--gray'
   );
+
   examContainer.appendChild(examHeader);
   examContainer.appendChild(examComment);
   examContainer.appendChild(examQuality);
+
   blockParentElem.appendChild(examContainer);
 }
+
+
+// function createExamBlock(blockParentElem, examData) {
+//   const examContainer = document.createElement('div');
+//   examContainer.classList.add('block__container');
+//   const examHeader = document.createElement('h4');
+//   examHeader.classList.add('block__header');
+//   examHeader.innerText = examData.name;
+//   const examComment = document.createElement('p');
+//   examComment.classList.add('block__comment');
+//   examComment.innerText = examData.comment;
+//   const examQuality = document.createElement('div');
+//   examQuality.classList.add('block__quality');
+//   examQuality.classList.add(
+//     examData.is_qualitative ? 'block__quality--green' : 'block__quality--gray'
+//   );
+//   examContainer.appendChild(examHeader);
+//   examContainer.appendChild(examComment);
+//   examContainer.appendChild(examQuality);
+//   blockParentElem.appendChild(examContainer);
+// }
 
 function createTreatBlock(parentElem, treatData) {
   const treatContainer = document.createElement('div');
