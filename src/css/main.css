@@ -117,6 +117,130 @@ html,
   text-align: center;
 }
 
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+
+.exam-popup__close {
+  position: absolute;
+  top: 19px;
+  right: 25px;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  z-index: 11;
+}
+
+.udd__text {
+  margin: 0;
+}
+
+.exam-popup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  width: 636px;
+  height: 305px;
+  background-color: white;
+  padding: 19px 8px 18px 24px;
+  position: relative;
+  border-radius: 10px;
+  text-align: left;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.popup__content {
+
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  padding-right: 10px;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.popup__content::-webkit-scrollbar {
+  width: 3px;
+}
+
+.popup__content::-webkit-scrollbar-thumb {
+  background-color: #D4D4D4;
+  border-radius: 4px;
+}
+
+.urr-udd-h2-container {
+  display: flex;
+  justify-content: left;
+  align-items: start;
+
+  position: sticky;
+  top: 0;
+  background-color: white;
+  z-index: 10;
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
+.urr-udd-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-width: 60px;
+  margin-right: 15px;
+}
+
+hr {
+  background-color: #E7E9EC;
+  height: 1px;
+  border: none;
+  margin-top: 12px;
+  margin-bottom: 12px;
+}
+
+.popup__title {
+  max-width: 465px;
+  font-family: Arial, sans-serif;
+  font-weight: bold;
+  font-size: 20px;
+  margin: 0;
+}
+
+.popup__description {
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+  line-height: 130%;
+  width: 560px;
+}
+
+.popup__comment {
+  margin-bottom: 3px;
+  margin-top: 0px;
+}
+
+.popup__comment-text {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+  line-height: 130%;
+  width: 560px;
+}
+
+.dot-description::before {
+  content: "• ";
+  color: black;
+}
+
 .overlay {
   position: fixed;
   top: 0;
