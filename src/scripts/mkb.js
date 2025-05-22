@@ -915,9 +915,13 @@ function openInfoPopupByTitle(examTitle) {
     titleEl.textContent = examTitle;
     descEl.textContent = data.description || '';
     commentEl.textContent = data.comment || '';
-
-    urrImg.style.display = data.urr === 'yes' ? 'inline-block' : 'none';
     uddText.textContent = data.udd || '';
+
+    if (data.urr === 'yes') {
+      urrImg.classList.remove('hidden');
+    } else {
+      urrImg.classList.add('hidden');
+    }
 
     popupOverlay.classList.remove('hidden');
   } else {
