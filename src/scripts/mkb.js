@@ -1,6 +1,6 @@
-import '../css/main.css';
-
-import { decryptData } from './crypto.js';
+// import '../css/main.css';
+//
+// import { decryptData } from './crypto.js';
 
 const searchInput = document.getElementById('search-input');
 const clearButton = document.getElementById('clear-button');
@@ -939,16 +939,44 @@ function createExamBlock(blockParentElem, examData) {
   examHeader.style.justifyContent = 'space-between';
   examHeader.style.alignItems = 'center';
 
+  // Новый блок слева от заголовка
+  const leftBlock = document.createElement('div');
+  leftBlock.style.display = 'flex';
+  leftBlock.style.alignItems = 'center';
+  leftBlock.style.gap = '8px';
+
+  const infoBox = document.createElement('div');
+  infoBox.style.display = 'flex';
+  infoBox.style.alignItems = 'center';
+  infoBox.style.gap = '4px';
+
+  const urrImg = document.createElement('img');
+  urrImg.src = '../images/urr-icon.png';
+  urrImg.alt = 'urr';
+  urrImg.classList.add('urr__img');
+  urrImg.style.width = '20px';
+  urrImg.style.height = '20px';
+
+  const uddText = document.createElement('span');
+  uddText.textContent = 'A3';
+
+  infoBox.appendChild(urrImg);
+  infoBox.appendChild(uddText);
+
   const examTitle = document.createElement('h4');
   examTitle.innerText = examData.name;
   examTitle.style.margin = '0';
 
-  // Инфо
+  // Собираем левую часть (иконка + A3 + заголовок)
+  leftBlock.appendChild(infoBox);
+  leftBlock.appendChild(examTitle);
+
+  // Инфо-иконка (справа)
   const infoIcon = document.createElement('img');
   infoIcon.src = '../images/info-icon.png';
   infoIcon.alt = 'Info';
   infoIcon.classList.add('block__info-icon');
-  infoIcon.dataset.id = examData.id; // <- добавляем data-id
+  infoIcon.dataset.id = examData.id;
 
   infoIcon.addEventListener('click', function () {
     fetchPopupDataOnce().then(() => {
@@ -956,7 +984,7 @@ function createExamBlock(blockParentElem, examData) {
     });
   });
 
-  examHeader.appendChild(examTitle);
+  examHeader.appendChild(leftBlock);
   examHeader.appendChild(infoIcon);
 
   const examComment = document.createElement('p');
@@ -969,6 +997,7 @@ function createExamBlock(blockParentElem, examData) {
       examData.is_qualitative ? 'block__quality--green' : 'block__quality--gray'
   );
 
+  // Собираем блок целиком
   examContainer.appendChild(examHeader);
   examContainer.appendChild(examComment);
   examContainer.appendChild(examQuality);
