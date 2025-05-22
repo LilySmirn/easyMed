@@ -22,6 +22,25 @@ const openBtn = document.querySelector('.header__call-container');
 const overlay = document.querySelector('.overlay');
 const popup = overlay.querySelector('.call-popup');
 const closeBtn = overlay.querySelector('.call-popup__close');
+const popupOverlay = document.getElementById("popup-overlay");
+const closeButton = document.querySelector(".exam-popup__close");
+let popupData = null;
+
+async function fetchPopupDataOnce() {
+  if (!popupData) {
+    try {
+      const response = await fetch('/popup-data.json');
+      if (!response.ok) throw new Error('HTTP error');
+      popupData = await response.json();
+    } catch (err) {
+      console.error('Ошибка загрузки popup-data.json:', err);
+      popupData = {};
+    }
+  }
+  return popupData;
+}
+
+setupPopupCloseHandlers(); //закрыть поп-ап инфо
 
 // button and form "Связаться с нами"
 function openPopup() {
@@ -867,6 +886,45 @@ function hideCard(cardType) {
   }
 }
 
+function setupPopupCloseHandlers() {
+
+  if (closeButton) {
+    closeButton.addEventListener("click", function () {
+      popupOverlay.classList.add("hidden");
+    });
+  }
+
+  popupOverlay.addEventListener("click", function (e) {
+    if (e.target === popupOverlay) {
+      popupOverlay.classList.add("hidden");
+    }
+  });
+}
+
+//открытие инфо поп-апа с фейковыми данными
+function openInfoPopupByTitle(examTitle) {
+  const titleEl = document.querySelector('.popup__title');
+  const descEl = document.querySelector('.popup__description');
+  const commentEl = document.querySelector('.popup__comment-text');
+  const urrImg = document.querySelector('.urr__img');
+  const uddText = document.querySelector('.udd__text');
+
+  const data = popupData[examTitle];
+
+  if (data) {
+    titleEl.textContent = examTitle;
+    descEl.textContent = data.description || '';
+    commentEl.textContent = data.comment || '';
+
+    urrImg.style.display = data.urr === 'yes' ? 'inline-block' : 'none';
+    uddText.textContent = data.udd || '';
+
+    popupOverlay.classList.remove('hidden');
+  } else {
+    console.warn("Нет данных для анализа:", examTitle);
+  }
+}
+
 function createExamBlock(blockParentElem, examData) {
   const examContainer = document.createElement('div');
   examContainer.classList.add('block__container');
@@ -881,11 +939,18 @@ function createExamBlock(blockParentElem, examData) {
   examTitle.innerText = examData.name;
   examTitle.style.margin = '0';
 
-  // Кнопка-картинка
+  // Инфо
   const infoIcon = document.createElement('img');
   infoIcon.src = '../images/info-icon.png';
   infoIcon.alt = 'Info';
   infoIcon.classList.add('block__info-icon');
+  infoIcon.dataset.id = examData.id; // <- добавляем data-id
+
+  infoIcon.addEventListener('click', function () {
+    fetchPopupDataOnce().then(() => {
+      openInfoPopupByTitle(examData.name);
+    });
+  });
 
   examHeader.appendChild(examTitle);
   examHeader.appendChild(infoIcon);
