@@ -40,6 +40,29 @@ async function fetchPopupDataOnce() {
   return popupData;
 }
 
+function initPage() {
+  if (urlCode) {
+    pageMkb.classList.remove('page__mkb--start');
+    const searchInput = document.getElementById('search-input');
+    searchInput.codeValue = urlCode;
+    hideMkbData();
+    searchMkb();
+    if (loadingContainer) loadingContainer.remove();
+    const newURL = window.location.origin + '/mkb';
+    history.replaceState({}, '', newURL);
+  } else {
+    setTimeout(() => {
+      if (loadingContainer) loadingContainer.remove();
+      createHistoryPanel();
+    }, 3000);
+  }
+}
+
+// Вызов fetch и инициализацию страницы
+fetchPopupDataOnce().then(() => {
+  initPage();
+});
+
 setupPopupCloseHandlers(); //закрыть поп-ап инфо
 
 // button and form "Связаться с нами"
@@ -196,42 +219,25 @@ setCardViewTogglers();
 setTextBlockSelectionEventHandler();
 setCardCopyButtonsEventHandler();
 
-document.addEventListener('DOMContentLoaded', () => {
-  const loadingContainer = document.querySelector('.form__loading-container');
-
-  if (urlCode) {
-    pageMkb.classList.remove('page__mkb--start');
-    const searchInput = document.getElementById('search-input');
-    searchInput.codeValue = urlCode;
-    hideMkbData();
-    searchMkb();
-    if (loadingContainer) loadingContainer.remove();
-    const newURL = window.location.origin + '/mkb';
-    history.replaceState({}, '', newURL);
-  } else {
-    setTimeout(() => {
-      if (loadingContainer) loadingContainer.remove();
-      createHistoryPanel();
-    }, 3000);
-  }
-});
-
-
-// if (urlCode) {
-//   pageMkb.classList.remove('page__mkb--start');
-//   const searchInput = document.getElementById('search-input');
-//   searchInput.codeValue = urlCode;
-//   hideMkbData();
-//   searchMkb();
-//   loadingContainer.remove();
-//   const newURL = window.location.origin + '/mkb';
-//   history.replaceState({}, '', newURL);
-// } else {
-//   setTimeout(() => {
-//     loadingContainer.remove();
-//     createHistoryPanel();
-//   }, 3000);
-// }
+// document.addEventListener('DOMContentLoaded', () => {
+//   const loadingContainer = document.querySelector('.form__loading-container');
+//
+//   if (urlCode) {
+//     pageMkb.classList.remove('page__mkb--start');
+//     const searchInput = document.getElementById('search-input');
+//     searchInput.codeValue = urlCode;
+//     hideMkbData();
+//     searchMkb();
+//     if (loadingContainer) loadingContainer.remove();
+//     const newURL = window.location.origin + '/mkb';
+//     history.replaceState({}, '', newURL);
+//   } else {
+//     setTimeout(() => {
+//       if (loadingContainer) loadingContainer.remove();
+//       createHistoryPanel();
+//     }, 3000);
+//   }
+// });
 
 async function createHistoryPanel() {
   const username = getCookie('username');
@@ -929,6 +935,20 @@ function openInfoPopupByTitle(examTitle) {
   }
 }
 
+//вставка данных в левый блок анализов
+function fillLeftBlockData(examName, uddTextElem, urrImgElem) {
+  const popupEntry = popupData[examName];
+  if (!popupEntry) return;
+
+  if (popupEntry.udd) {
+    uddTextElem.textContent = popupEntry.udd;
+  }
+
+  if (popupEntry.urr === 'no') {
+    urrImgElem.style.visibility = 'hidden';
+  }
+}
+
 function createExamBlock(blockParentElem, examData) {
   const examContainer = document.createElement('div');
   examContainer.classList.add('block__container');
@@ -959,7 +979,9 @@ function createExamBlock(blockParentElem, examData) {
 
   const uddText = document.createElement('span');
   uddText.textContent = 'A3';
+  uddText.style.fontWeight = 'normal';
 
+  fillLeftBlockData(examData.name, uddText, urrImg);
   infoBox.appendChild(urrImg);
   infoBox.appendChild(uddText);
 
@@ -1005,26 +1027,6 @@ function createExamBlock(blockParentElem, examData) {
   blockParentElem.appendChild(examContainer);
 }
 
-
-// function createExamBlock(blockParentElem, examData) {
-//   const examContainer = document.createElement('div');
-//   examContainer.classList.add('block__container');
-//   const examHeader = document.createElement('h4');
-//   examHeader.classList.add('block__header');
-//   examHeader.innerText = examData.name;
-//   const examComment = document.createElement('p');
-//   examComment.classList.add('block__comment');
-//   examComment.innerText = examData.comment;
-//   const examQuality = document.createElement('div');
-//   examQuality.classList.add('block__quality');
-//   examQuality.classList.add(
-//     examData.is_qualitative ? 'block__quality--green' : 'block__quality--gray'
-//   );
-//   examContainer.appendChild(examHeader);
-//   examContainer.appendChild(examComment);
-//   examContainer.appendChild(examQuality);
-//   blockParentElem.appendChild(examContainer);
-// }
 
 function createTreatBlock(parentElem, treatData) {
   const treatContainer = document.createElement('div');
