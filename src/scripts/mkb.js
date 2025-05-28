@@ -27,16 +27,20 @@ const closeButton = document.querySelector(".exam-popup__close");
 let popupData = null;
 
 async function fetchPopupDataOnce() {
-  if (!popupData) {
-    try {
-      const response = await fetch('/popup-data.json');
-      if (!response.ok) throw new Error('HTTP error');
-      popupData = await response.json();
-    } catch (err) {
-      console.error('Ошибка загрузки popup-data.json:', err);
-      popupData = {};
+  try {
+    const response = await fetch('/res_K26.0_second.json');
+
+    if (!response.ok) {
+      throw new Error('HTTP error');
     }
+
+    popupData = await response.json();
+  } catch (err) {
+    // TODO: add retry
+    console.error('Ошибка загрузки расширенных данных:', err);
+    popupData = {};
   }
+
   return popupData;
 }
 
@@ -58,11 +62,7 @@ function initPage() {
   }
 }
 
-// Вызов fetch и инициализацию страницы
-fetchPopupDataOnce().then(() => {
-  initPage();
-});
-
+initPage();
 setupPopupCloseHandlers(); //закрыть поп-ап инфо
 
 // button and form "Связаться с нами"
@@ -624,13 +624,14 @@ async function searchMkb() {
   searchInput.disabled = true;
 
   try {
-    const response = await fetch(
-      `../php/get-data.php/login?code=${code}&username=${username}&password=${password}`
-    );
+    const response = await fetch('/res_K26.0_first.json');
 
     if (!response.ok) {
       throw new Error('Network response was not ok');
     }
+
+    // fire and forget: the additional data should be loaded in background
+    fetchPopupDataOnce();
 
     // const encryptedText  = await response.text();
     // const data = await decryptData(encryptedText);
@@ -656,7 +657,8 @@ async function searchMkb() {
     setMkbName();
     const listsAreSet = setLists();
     if (listsAreSet) revealMkbData();
-  } catch (error) {
+  }
+  catch (error) {
     console.error('Ошибка:', error);
     searchInput.placeholder = 'Название или код болезни';
     searchInput.disabled = false;
@@ -758,6 +760,7 @@ function setLists() {
 
   createList('exam', listsData);
   createList('treat', listsData);
+
   return true;
 }
 
@@ -813,23 +816,43 @@ function setExamText() {
   );
 
   const currentAge = ageToggleElem.checked ? 'grownup' : 'child';
-  const currentStage = examStageToggleFirstElem.classList.contains(
-    'stage__selected'
-  )
-    ? 1
-    : 2;
+  const currentStage = examStageToggleFirstElem.classList.contains('stage__selected') ? 1 : 2;
   const standardInd = getStandardInd('exam');
 
   const examCardRequiredElem = document.getElementById('exam-card-required');
   const examCardOptionalElem = document.getElementById('exam-card-optional');
   clearCard(examCardRequiredElem);
   clearCard(examCardOptionalElem);
-  mkbData[currentAge].standards[standardInd].examinations.forEach((exam) => {
-    if (exam.examination_stage_id == currentStage) {
-      if (exam.is_required) createExamBlock(examCardRequiredElem, exam);
-      else createExamBlock(examCardOptionalElem, exam);
-    }
+
+  let requiredExaminationsByCategory = groupByCategoryAndSort(
+      mkbData[currentAge].standards[standardInd].examinations
+          .filter(exam => exam.stage === currentStage && exam.is_required)
+  );
+
+  let optionalExaminationsByCategory = groupByCategoryAndSort(
+      mkbData[currentAge].standards[standardInd].examinations
+          .filter(exam => exam.stage === currentStage && !exam.is_required)
+  );
+
+  let prevName = "";
+  requiredExaminationsByCategory.forEach((category) => {
+    createGroupTitle(examCardRequiredElem, category.name);
+    prevName = "";
+    category.values.forEach((exam) => {
+      createExamBlock(examCardRequiredElem, exam, prevName);
+      prevName = exam.name;
+    })
   });
+
+  optionalExaminationsByCategory.forEach((category) => {
+    createGroupTitle(examCardOptionalElem, category.name);
+    prevName = "";
+    category.values.forEach((exam) => {
+      createExamBlock(examCardOptionalElem, exam, prevName);
+      prevName = exam.name;
+    })
+  });
+
   examCardRequiredElem.classList.remove('hidden');
   examCardOptionalElem.classList.remove('hidden');
 }
@@ -844,15 +867,45 @@ function setTreatText() {
 
   const treatCardActionElem = document.getElementById('treat-card-action');
   const treatCardDrugElem = document.getElementById('treat-card-drug');
+
   clearCard(treatCardActionElem);
   clearCard(treatCardDrugElem);
-  mkbData[currentAge].standards[standardInd].treatments.forEach((treat) => {
-    if (treat.treatment_type_id === 1)
-      createExamBlock(treatCardActionElem, treat);
-    else createTreatBlock(treatCardDrugElem, treat);
+
+  let treatments = mkbData[currentAge]
+      .standards[standardInd]
+      .treatments
+      .sort((a, b) => a.name.localeCompare(b.name));
+
+  treatments.forEach((treatment) => {
+    if (treatment.type === "drug") {
+      createTreatBlock(treatCardDrugElem, treatment);
+    }
+    else if (treatment.type === "service") {
+      createTreatBlock(treatCardActionElem, treatment);
+    }
   });
+
   treatCardActionElem.classList.remove('hidden');
   treatCardDrugElem.classList.remove('hidden');
+}
+
+function groupByCategoryAndSort(arr, key) {
+  const groups = {};
+
+  arr.forEach(item => {
+    const groupKey = item['category_name'];
+
+    if (!groups[groupKey]) {
+      groups[groupKey] = [];
+    }
+
+    groups[groupKey].push(item);
+  });
+
+  return Object.entries(groups).map(([groupName, values]) => ({
+    name: groupName,
+    values: values.sort((a, b) => a.name.localeCompare(b.name))
+  }));
 }
 
 function toggleStage(e) {
@@ -908,36 +961,55 @@ function setupPopupCloseHandlers() {
 }
 
 //открытие инфо поп-апа с фейковыми данными
-function openInfoPopupByTitle(examTitle) {
-  const titleEl = document.querySelector('.popup__title');
-  const descEl = document.querySelector('.popup__description');
-  const commentEl = document.querySelector('.popup__comment-text');
-  const urrImg = document.querySelector('.urr__img');
-  const uddText = document.querySelector('.udd__text');
+function openInfoPopupByTitle(examData) {
+  const popupOverlay = document.getElementById('popup-overlay');
+  const titleEl = popupOverlay.querySelector('.popup__title');
+  const descEl = popupOverlay.querySelector('.popup__description');
+  const commentEl = popupOverlay.querySelector('.popup__comment-text');
+  const urrImg = popupOverlay.querySelector('.circle__img');
+  const uddText = popupOverlay.querySelector('.udd__text');
 
-  const data = popupData[examTitle];
+  const crDbId = examData.cr_db_id;
+  const popupInfo = popupData[crDbId];
 
-  if (data) {
-    titleEl.textContent = examTitle;
-    descEl.textContent = data.description || '';
-    commentEl.textContent = data.comment || '';
-    uddText.textContent = data.udd || '';
+  if (popupInfo) {
+    console.log(popupInfo);
 
-    if (data.urr === 'yes') {
+    // 1. Заголовок
+    titleEl.textContent = examData.name || "Без названия";
+
+    // 2. Код (уур + удд)
+    if (examData.pers) {
+      const { уур, удд } = examData.pers;
+      uddText.textContent = `${уур}${+удд < 10 ? '0' : ''}${удд}`;
+    } else {
+      uddText.textContent = "";
+    }
+
+    // 3. Иконка
+    if (examData.is_qualitative === 1) {
       urrImg.classList.remove('hidden');
     } else {
       urrImg.classList.add('hidden');
     }
 
+    // 4. Описание и комментарий
+    descEl.textContent = popupInfo.text || "Описание отсутствует";
+    commentEl.innerHTML = `<i>${popupInfo.comment || '-'}</i>`;
+
+    // 5. Показываем попап
     popupOverlay.classList.remove('hidden');
   } else {
-    console.warn("Нет данных для анализа:", examTitle);
+    console.warn("Нет данных из второго JSON для:", crDbId);
   }
 }
 
 //вставка данных в левый блок анализов
 function fillLeftBlockData(examName, uddTextElem, urrImgElem) {
   const popupEntry = popupData[examName];
+
+  console.log(popupEntry);
+
   if (!popupEntry) return;
 
   if (popupEntry.udd) {
@@ -949,7 +1021,7 @@ function fillLeftBlockData(examName, uddTextElem, urrImgElem) {
   }
 }
 
-function createExamBlock(blockParentElem, examData) {
+function createGroupTitle(blockParentElem, title) {
   const examContainer = document.createElement('div');
   examContainer.classList.add('block__container');
 
@@ -959,59 +1031,73 @@ function createExamBlock(blockParentElem, examData) {
   examHeader.style.justifyContent = 'space-between';
   examHeader.style.alignItems = 'center';
 
-  // Новый блок слева от заголовка
+  const examTitle = document.createElement('h4');
+  examTitle.innerText = title;
+  examTitle.style.margin = '0';
+
+  examHeader.appendChild(examTitle);
+  examContainer.appendChild(examHeader);
+  blockParentElem.appendChild(examContainer);
+}
+
+function createExamBlock(blockParentElem, examData, prevName) {
+  const examContainer = document.createElement('div');
+  examContainer.classList.add('block__container');
+
+  const examHeader = document.createElement('div');
+  examHeader.classList.add('block__header');
+  examHeader.style.display = 'flex';
+  examHeader.style.justifyContent = 'space-between';
+  examHeader.style.alignItems = 'center';
+
   const leftBlock = document.createElement('div');
   leftBlock.style.display = 'flex';
   leftBlock.style.alignItems = 'center';
   leftBlock.style.gap = '8px';
 
-  const infoBox = document.createElement('div');
-  infoBox.style.display = 'flex';
-  infoBox.style.alignItems = 'center';
-  infoBox.style.gap = '4px';
-
-  const urrImg = document.createElement('img');
-  urrImg.src = '../images/urr-icon.png';
-  urrImg.alt = 'urr';
-  urrImg.classList.add('urr__img');
-  urrImg.style.width = '20px';
-  urrImg.style.height = '20px';
-
   const uddText = document.createElement('span');
-  uddText.textContent = 'A3';
   uddText.style.fontWeight = 'normal';
 
-  fillLeftBlockData(examData.name, uddText, urrImg);
-  infoBox.appendChild(urrImg);
-  infoBox.appendChild(uddText);
+  // fillLeftBlockData(examData, uddText, urrImg);
 
-  const examTitle = document.createElement('h4');
-  examTitle.innerText = examData.name;
-  examTitle.style.margin = '0';
+  if (examData.name !== prevName) {
+    const infoBox = document.createElement('div');
+    infoBox.style.display = 'flex';
+    infoBox.style.alignItems = 'center';
+    infoBox.style.gap = '4px';
 
-  // Собираем левую часть (иконка + A3 + заголовок)
-  leftBlock.appendChild(infoBox);
-  leftBlock.appendChild(examTitle);
+    const urrImg = document.createElement('img');
+    urrImg.src = '../images/circle-icon.png';
+    urrImg.alt = 'urr';
+    urrImg.classList.add('circle__img');
+    urrImg.style.width = '20px';
+    urrImg.style.height = '20px';
 
-  // Инфо-иконка (справа)
-  const infoIcon = document.createElement('img');
-  infoIcon.src = '../images/info-icon.png';
-  infoIcon.alt = 'Info';
-  infoIcon.classList.add('block__info-icon');
-  infoIcon.dataset.id = examData.id;
+    const examTitle = document.createElement('h4');
+    examTitle.innerText = examData.name;
+    examTitle.style.margin = '0';
 
-  infoIcon.addEventListener('click', function () {
-    fetchPopupDataOnce().then(() => {
-      openInfoPopupByTitle(examData.name);
-    });
-  });
+    infoBox.appendChild(urrImg);
+    infoBox.appendChild(uddText);
+    leftBlock.appendChild(infoBox);
+    leftBlock.appendChild(examTitle);
+  }
 
   examHeader.appendChild(leftBlock);
-  examHeader.appendChild(infoIcon);
+  if (examData.cr_db_id) {
+    const infoIcon = document.createElement('img');
+    infoIcon.src = '../images/info-icon.png';
+    infoIcon.alt = 'Info';
+    infoIcon.classList.add('block__info-icon');
+
+    infoIcon.addEventListener('click', () => openInfoPopupByTitle(examData));
+
+    examHeader.appendChild(infoIcon);
+  }
 
   const examComment = document.createElement('p');
   examComment.classList.add('block__comment');
-  examComment.innerText = examData.comment;
+  examComment.innerText = examData.comment || "";
 
   const examQuality = document.createElement('div');
   examQuality.classList.add('block__quality');
@@ -1019,14 +1105,12 @@ function createExamBlock(blockParentElem, examData) {
       examData.is_qualitative ? 'block__quality--green' : 'block__quality--gray'
   );
 
-  // Собираем блок целиком
   examContainer.appendChild(examHeader);
   examContainer.appendChild(examComment);
   examContainer.appendChild(examQuality);
 
   blockParentElem.appendChild(examContainer);
 }
-
 
 function createTreatBlock(parentElem, treatData) {
   const treatContainer = document.createElement('div');
@@ -1064,6 +1148,8 @@ function createTreatBlock(parentElem, treatData) {
 }
 
 function createList(type, listsData) {
+  console.log("Create list: ", type, listsData);
+
   const listData = listsData[type];
   const listElem = document.getElementById(type + '-list');
   listElem.removeEventListener(
@@ -1153,9 +1239,13 @@ function getStandardInd(type) {
 function createListData(mkbData, type, status, age) {
   const agedStandards = (age === 'child' ? mkbData.child : mkbData.grownup)
     .standards;
+
   const listData = [];
+
   agedStandards.forEach((standard, standardIndex) => {
-    if (type !== standard.type || status !== standard.status) return;
+    if (type !== standard.type || status !== standard.status) {
+      return;
+    }
     else {
       listData.push({
         name: standard.name,
@@ -1163,6 +1253,7 @@ function createListData(mkbData, type, status, age) {
       });
     }
   });
+
   return listData;
 }
 
