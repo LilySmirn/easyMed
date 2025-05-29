@@ -633,6 +633,7 @@ async function searchMkb() {
     // fire and forget: the additional data should be loaded in background
     fetchPopupDataOnce();
 
+
     // const encryptedText  = await response.text();
     // const data = await decryptData(encryptedText);
     //
@@ -893,7 +894,12 @@ function groupByCategoryAndSort(arr, key) {
   const groups = {};
 
   arr.forEach(item => {
-    const groupKey = item['category_name'];
+    const rawCategory = item['category_name'];
+
+    //TODO: Fix category in database [workitem #29]
+    const strCategory = typeof rawCategory === 'string' ? rawCategory.trim() : '';
+
+    const groupKey = strCategory === '' || strCategory === 'null' ? 'Прочее' : strCategory;
 
     if (!groups[groupKey]) {
       groups[groupKey] = [];
@@ -902,10 +908,42 @@ function groupByCategoryAndSort(arr, key) {
     groups[groupKey].push(item);
   });
 
-  return Object.entries(groups).map(([groupName, values]) => ({
-    name: groupName,
-    values: values.sort((a, b) => a.name.localeCompare(b.name))
-  }));
+  // Сортировка, кроме "Прочее"
+  const result = Object.entries(groups)
+      .filter(([groupName]) => groupName !== 'Прочее')
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([groupName, values]) => ({
+        name: groupName,
+        values: values.sort((a, b) => a.name.localeCompare(b.name))
+      }));
+
+  // Добавляем "Прочее" в конец
+  if (groups['Прочее']) {
+    result.push({
+      name: 'Прочее',
+      values: groups['Прочее'].sort((a, b) => a.name.localeCompare(b.name))
+    });
+  }
+
+  return result;
+
+
+  // const groups = {};
+  //
+  // arr.forEach(item => {
+  //   const groupKey = item['category_name'];
+  //
+  //   if (!groups[groupKey]) {
+  //     groups[groupKey] = [];
+  //   }
+  //
+  //   groups[groupKey].push(item);
+  // });
+  //
+  // return Object.entries(groups).map(([groupName, values]) => ({
+  //   name: groupName,
+  //   values: values.sort((a, b) => a.name.localeCompare(b.name))
+  // }));
 }
 
 function toggleStage(e) {
@@ -960,7 +998,7 @@ function setupPopupCloseHandlers() {
   });
 }
 
-//открытие инфо поп-апа с фейковыми данными
+//открытие инфо поп-апа с тестовыми данными
 function openInfoPopupByTitle(examData) {
   const popupOverlay = document.getElementById('popup-overlay');
   const titleEl = popupOverlay.querySelector('.popup__title');
