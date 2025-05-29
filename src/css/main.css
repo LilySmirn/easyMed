@@ -141,7 +141,7 @@ html,
 }
 
 .udd__text {
-  margin: 0 0 0 5px;
+  margin: 0 10px 0 5px;
 }
 
 .exam-popup {
@@ -182,8 +182,7 @@ html,
 .urr-udd-h2-container {
   display: flex;
   justify-content: left;
-  align-items: start;
-
+  align-items: center;
   position: sticky;
   top: 0;
   background-color: white;
@@ -923,7 +922,7 @@ option:disabled {
 }
 
 .block__container {
-  margin-bottom: 24px;
+  margin-bottom: 10px;
   position: relative;
   border-radius: 10px;
   padding-left: 8px;
@@ -944,12 +943,13 @@ option:disabled {
   font-size: 16px;
   margin-bottom: 8px;
   cursor: pointer;
+  margin-top: 24px;
 }
 
 .block__comment {
   font-family: Arial, sans-serif;
   font-size: 16px;
-  margin-top: 8px;
+  margin-top: 0;
   margin-bottom: 0;
 }
 
