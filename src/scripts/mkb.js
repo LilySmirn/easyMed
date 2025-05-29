@@ -579,40 +579,81 @@ function flashTooltipOnEvent(event, tooltipText, timeout) {
 }
 
 function getCardDataText(cardElem, copyButtonElem) {
-  const selectionModeIsOn = copyButtonElem
-      .closest('.form__card--copy-button')
-      .classList.contains('copy-button--selected');
+  const allBlocks = Array.from(cardElem.getElementsByClassName('block__container'));
 
-  const dataString = Array.from(
-      cardElem.getElementsByClassName('block__container')
-  ).reduce((string, blockElem) => {
+  const selectionModeIsOn = allBlocks.some(block =>
+      block.classList.contains('block__container--selected')
+  );
 
-    //получаем заголовок
+  let lastKnownTitle = '';
+  const linesToCopy = [];
+
+  for (const blockElem of allBlocks) {
     const headerElem = blockElem.querySelector('.block__header');
-    const titleText = headerElem ? headerElem.innerText.trim() : '';
+    const titleText = headerElem ? headerElem.innerText.trim() : null;
+
+    if (titleText) {
+      lastKnownTitle = titleText;
+    }
+
+    // Пропускаем, если блок не выделен, а режим выделения включён
+    if (selectionModeIsOn && !blockElem.classList.contains('block__container--selected')) {
+      continue;
+    }
+
+    // Используем сохранённый заголовок, если у текущего блока его нет
+    const effectiveTitle = titleText || lastKnownTitle;
 
     const planElem = blockElem.querySelector('.block__comment--plan');
-    const durationELem = blockElem.querySelector('.block__comment--duration');
+    const durationElem = blockElem.querySelector('.block__comment--duration');
 
-    if (
-        selectionModeIsOn &&
-        !blockElem.classList.contains('block__container--selected')
-    ) {
-      return string;
-    }
-
-    let newString = titleText;
+    const blockLines = [effectiveTitle];
     if (planElem) {
-      newString += '\n' + planElem.innerText.trim();
+      blockLines.push(planElem.innerText.trim());
     }
-    if (durationELem) {
-      newString += '\n' + durationELem.innerText.trim();
+    if (durationElem) {
+      blockLines.push(durationElem.innerText.trim());
     }
 
-    return string + '\n\n' + newString.trim();
-  }, '');
+    linesToCopy.push(blockLines.join('\n'));
+  }
 
-  return dataString.trim();
+  return linesToCopy.join('\n\n').trim();
+
+  // const selectionModeIsOn = copyButtonElem
+  //     .closest('.form__card--copy-button')
+  //     .classList.contains('copy-button--selected');
+  //
+  // const dataString = Array.from(
+  //     cardElem.getElementsByClassName('block__container')
+  // ).reduce((string, blockElem) => {
+  //
+  //   //получаем заголовок
+  //   const headerElem = blockElem.querySelector('.block__header');
+  //   const titleText = headerElem ? headerElem.innerText.trim() : '';
+  //
+  //   const planElem = blockElem.querySelector('.block__comment--plan');
+  //   const durationELem = blockElem.querySelector('.block__comment--duration');
+  //
+  //   if (
+  //       selectionModeIsOn &&
+  //       !blockElem.classList.contains('block__container--selected')
+  //   ) {
+  //     return string;
+  //   }
+  //
+  //   let newString = titleText;
+  //   if (planElem) {
+  //     newString += '\n' + planElem.innerText.trim();
+  //   }
+  //   if (durationELem) {
+  //     newString += '\n' + durationELem.innerText.trim();
+  //   }
+  //
+  //   return string + '\n\n' + newString.trim();
+  // }, '');
+  //
+  // return dataString.trim();
 
   // const selectionModeIsOn = copyButtonElem
   //   .closest('.form__card--copy-button')
