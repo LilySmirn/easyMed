@@ -1081,6 +1081,7 @@ function createGroupTitle(blockParentElem, title) {
   examHeader.style.justifyContent = 'space-between';
   examHeader.style.alignItems = 'center';
   examHeader.style.backgroundColor = '#badeff';
+  examHeader.style.padding = '5px 5px 5px 10px';
 
   const examTitle = document.createElement('h4');
   examTitle.innerText = title;
