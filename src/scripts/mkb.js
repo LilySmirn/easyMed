@@ -27,21 +27,33 @@ const closeButton = document.querySelector(".exam-popup__close");
 let popupData = null;
 
 async function fetchPopupDataOnce() {
-  try {
-    const response = await fetch('/res_K26.0_second.json');
+  const maxRetries = 2; //2 попытки
+  const retryDelay = 1000; // между попытками, ms
+  let attempt = 0;
 
-    if (!response.ok) {
-      throw new Error('HTTP error');
+  while (attempt <= maxRetries) {
+    try {
+      const response = await fetch('/res_K26.0_second.json');
+
+      if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status}`);
+      }
+
+      popupData = await response.json();
+      return popupData;
+    } catch (err) {
+      console.error(`Попытка ${attempt + 1} не удалась:`, err);
+      attempt++;
+
+      if (attempt > maxRetries) {
+        console.error('Ошибка загрузки расширенных данных после 3 попыток');
+        popupData = {};
+        return popupData;
+      }
+
+      await new Promise(resolve => setTimeout(resolve, retryDelay));
     }
-
-    popupData = await response.json();
-  } catch (err) {
-    // TODO: add retry
-    console.error('Ошибка загрузки расширенных данных:', err);
-    popupData = {};
   }
-
-  return popupData;
 }
 
 function initPage() {
@@ -1068,6 +1080,7 @@ function createGroupTitle(blockParentElem, title) {
   examHeader.style.display = 'flex';
   examHeader.style.justifyContent = 'space-between';
   examHeader.style.alignItems = 'center';
+  examHeader.style.backgroundColor = '#badeff';
 
   const examTitle = document.createElement('h4');
   examTitle.innerText = title;
