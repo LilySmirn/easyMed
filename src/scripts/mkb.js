@@ -580,34 +580,69 @@ function flashTooltipOnEvent(event, tooltipText, timeout) {
 
 function getCardDataText(cardElem, copyButtonElem) {
   const selectionModeIsOn = copyButtonElem
-    .closest('.form__card--copy-button')
-    .classList.contains('copy-button--selected');
+      .closest('.form__card--copy-button')
+      .classList.contains('copy-button--selected');
+
   const dataString = Array.from(
-    cardElem.getElementsByClassName('block__container')
+      cardElem.getElementsByClassName('block__container')
   ).reduce((string, blockElem) => {
-    const titleText =
-      blockElem.querySelector('.block__header').innerText;
+
+    //получаем заголовок
+    const headerElem = blockElem.querySelector('.block__header');
+    const titleText = headerElem ? headerElem.innerText.trim() : '';
 
     const planElem = blockElem.querySelector('.block__comment--plan');
-
     const durationELem = blockElem.querySelector('.block__comment--duration');
 
     if (
-      selectionModeIsOn &&
-      !blockElem.classList.contains('block__container--selected')
+        selectionModeIsOn &&
+        !blockElem.classList.contains('block__container--selected')
     ) {
       return string;
     }
+
     let newString = titleText;
     if (planElem) {
-      newString += '\n' + planElem.innerText;
+      newString += '\n' + planElem.innerText.trim();
     }
     if (durationELem) {
-      newString += '\n' + durationELem.innerText;
+      newString += '\n' + durationELem.innerText.trim();
     }
-    return string + '\n' + '\n' + newString;
+
+    return string + '\n\n' + newString.trim();
   }, '');
+
   return dataString.trim();
+
+  // const selectionModeIsOn = copyButtonElem
+  //   .closest('.form__card--copy-button')
+  //   .classList.contains('copy-button--selected');
+  // const dataString = Array.from(
+  //   cardElem.getElementsByClassName('block__container')
+  // ).reduce((string, blockElem) => {
+  //   const titleText =
+  //     blockElem.querySelector('.block__header').innerText;
+  //
+  //   const planElem = blockElem.querySelector('.block__comment--plan');
+  //
+  //   const durationELem = blockElem.querySelector('.block__comment--duration');
+  //
+  //   if (
+  //     selectionModeIsOn &&
+  //     !blockElem.classList.contains('block__container--selected')
+  //   ) {
+  //     return string;
+  //   }
+  //   let newString = titleText;
+  //   if (planElem) {
+  //     newString += '\n' + planElem.innerText;
+  //   }
+  //   if (durationELem) {
+  //     newString += '\n' + durationELem.innerText;
+  //   }
+  //   return string + '\n' + '\n' + newString;
+  // }, '');
+  // return dataString.trim();
 }
 
 function getSelectedBlocksAmount(cardElem) {
@@ -1096,23 +1131,28 @@ function createExamBlock(blockParentElem, examData, prevName) {
   const examContainer = document.createElement('div');
   examContainer.classList.add('block__container');
 
-  const examHeader = document.createElement('div');
-  examHeader.classList.add('block__header');
-  examHeader.style.display = 'flex';
-  examHeader.style.justifyContent = 'space-between';
-  examHeader.style.alignItems = 'center';
-
-  const leftBlock = document.createElement('div');
-  leftBlock.style.display = 'flex';
-  leftBlock.style.alignItems = 'center';
-  leftBlock.style.gap = '8px';
+  const examQuality = document.createElement('div');
+  examQuality.classList.add('block__quality');
+  examQuality.classList.add(
+      examData.is_qualitative ? 'block__quality--green' : 'block__quality--gray'
+  );
 
   const uddText = document.createElement('span');
   uddText.style.fontWeight = 'normal';
 
-  // fillLeftBlockData(examData, uddText, urrImg);
-
   if (examData.name !== prevName) {
+    // === ОТОБРАЖАЕМ ЗАГОЛОВОК С ИКОНКОЙ ===
+    const examHeader = document.createElement('div');
+    examHeader.classList.add('block__header');
+    examHeader.style.display = 'flex';
+    examHeader.style.justifyContent = 'space-between';
+    examHeader.style.alignItems = 'center';
+
+    const leftBlock = document.createElement('div');
+    leftBlock.style.display = 'flex';
+    leftBlock.style.alignItems = 'center';
+    leftBlock.style.gap = '8px';
+
     const infoBox = document.createElement('div');
     infoBox.style.display = 'flex';
     infoBox.style.alignItems = 'center';
@@ -1133,35 +1173,123 @@ function createExamBlock(blockParentElem, examData, prevName) {
     infoBox.appendChild(uddText);
     leftBlock.appendChild(infoBox);
     leftBlock.appendChild(examTitle);
+
+    examHeader.appendChild(leftBlock);
+
+    if (examData.cr_db_id) {
+      const infoIcon = document.createElement('img');
+      infoIcon.src = '../images/info-icon.png';
+      infoIcon.alt = 'Info';
+      infoIcon.classList.add('block__info-icon');
+      infoIcon.addEventListener('click', () => openInfoPopupByTitle(examData));
+      examHeader.appendChild(infoIcon);
+    }
+
+    examContainer.appendChild(examHeader);
+
+    const examComment = document.createElement('p');
+    examComment.classList.add('block__comment');
+    examComment.innerText = examData.comment || "";
+    examContainer.appendChild(examComment);
+
+  } else {
+    // === НЕТ ЗАГОЛОВКА — ИКОНКА СПРАВА ОТ КОММЕНТАРИЯ ===
+    const commentWrapper = document.createElement('div');
+    commentWrapper.style.display = 'flex';
+    commentWrapper.style.justifyContent = 'space-between';
+    commentWrapper.style.alignItems = 'flex-start';
+
+    const examComment = document.createElement('p');
+    examComment.classList.add('block__comment');
+    examComment.innerText = examData.comment || "";
+
+    commentWrapper.appendChild(examComment);
+
+    if (examData.cr_db_id) {
+      const infoIcon = document.createElement('img');
+      infoIcon.src = '../images/info-icon.png';
+      infoIcon.alt = 'Info';
+      infoIcon.classList.add('block__info-icon');
+      infoIcon.style.marginLeft = '8px';
+      infoIcon.addEventListener('click', () => openInfoPopupByTitle(examData));
+      commentWrapper.appendChild(infoIcon);
+    }
+
+    examContainer.appendChild(commentWrapper);
   }
 
-  examHeader.appendChild(leftBlock);
-  if (examData.cr_db_id) {
-    const infoIcon = document.createElement('img');
-    infoIcon.src = '../images/info-icon.png';
-    infoIcon.alt = 'Info';
-    infoIcon.classList.add('block__info-icon');
-
-    infoIcon.addEventListener('click', () => openInfoPopupByTitle(examData));
-
-    examHeader.appendChild(infoIcon);
-  }
-
-  const examComment = document.createElement('p');
-  examComment.classList.add('block__comment');
-  examComment.innerText = examData.comment || "";
-
-  const examQuality = document.createElement('div');
-  examQuality.classList.add('block__quality');
-  examQuality.classList.add(
-      examData.is_qualitative ? 'block__quality--green' : 'block__quality--gray'
-  );
-
-  examContainer.appendChild(examHeader);
-  examContainer.appendChild(examComment);
   examContainer.appendChild(examQuality);
-
   blockParentElem.appendChild(examContainer);
+
+  // const examContainer = document.createElement('div');
+  // examContainer.classList.add('block__container');
+  //
+  // const examHeader = document.createElement('div');
+  // examHeader.classList.add('block__header');
+  // examHeader.style.display = 'flex';
+  // examHeader.style.justifyContent = 'space-between';
+  // examHeader.style.alignItems = 'center';
+  //
+  // const leftBlock = document.createElement('div');
+  // leftBlock.style.display = 'flex';
+  // leftBlock.style.alignItems = 'center';
+  // leftBlock.style.gap = '8px';
+  //
+  // const uddText = document.createElement('span');
+  // uddText.style.fontWeight = 'normal';
+  //
+  // // fillLeftBlockData(examData, uddText, urrImg);
+  //
+  // if (examData.name !== prevName) {
+  //   const infoBox = document.createElement('div');
+  //   infoBox.style.display = 'flex';
+  //   infoBox.style.alignItems = 'center';
+  //   infoBox.style.gap = '4px';
+  //
+  //   const urrImg = document.createElement('img');
+  //   urrImg.src = '../images/circle-icon.png';
+  //   urrImg.alt = 'urr';
+  //   urrImg.classList.add('circle__img');
+  //   urrImg.style.width = '20px';
+  //   urrImg.style.height = '20px';
+  //
+  //   const examTitle = document.createElement('h4');
+  //   examTitle.innerText = examData.name;
+  //   examTitle.style.margin = '0';
+  //
+  //   infoBox.appendChild(urrImg);
+  //   infoBox.appendChild(uddText);
+  //   leftBlock.appendChild(infoBox);
+  //   leftBlock.appendChild(examTitle);
+  // }
+  //
+  // examHeader.appendChild(leftBlock);
+  // if (examData.cr_db_id) {
+  //   const infoIcon = document.createElement('img');
+  //   infoIcon.src = '../images/info-icon.png';
+  //   infoIcon.alt = 'Info';
+  //   infoIcon.classList.add('block__info-icon');
+  //
+  //   infoIcon.addEventListener('click', () => openInfoPopupByTitle(examData));
+  //
+  //   examHeader.appendChild(infoIcon);
+  // }
+  //
+  // const examComment = document.createElement('p');
+  // examComment.classList.add('block__comment');
+  // examComment.innerText = examData.comment || "";
+  //
+  // const examQuality = document.createElement('div');
+  // examQuality.classList.add('block__quality');
+  // examQuality.classList.add(
+  //     examData.is_qualitative ? 'block__quality--green' : 'block__quality--gray'
+  // );
+  //
+  // examContainer.appendChild(examHeader);
+  // examContainer.appendChild(examComment);
+  // examContainer.appendChild(examQuality);
+  //
+  // blockParentElem.appendChild(examContainer);
 }
 
 function createTreatBlock(parentElem, treatData) {
