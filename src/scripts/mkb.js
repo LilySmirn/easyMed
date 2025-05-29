@@ -1,6 +1,6 @@
-// import '../css/main.css';
-//
-// import { decryptData } from './crypto.js';
+import '../css/main.css';
+
+import { decryptData } from './crypto.js';
 
 const searchInput = document.getElementById('search-input');
 const clearButton = document.getElementById('clear-button');
