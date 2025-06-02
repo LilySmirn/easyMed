@@ -1,6 +1,6 @@
-import '../css/main.css';
-
-import { decryptData } from './crypto.js';
+// import '../css/main.css';
+//
+// import { decryptData } from './crypto.js';
 
 const searchInput = document.getElementById('search-input');
 const clearButton = document.getElementById('clear-button');
@@ -24,6 +24,7 @@ const popup = overlay.querySelector('.call-popup');
 const closeBtn = overlay.querySelector('.call-popup__close');
 const popupOverlay = document.getElementById("popup-overlay");
 const closeButton = document.querySelector(".exam-popup__close");
+const crmLinkContainer = document.getElementById('crm-link-container');
 let popupData = null;
 
 async function fetchPopupDataOnce() {
@@ -166,8 +167,8 @@ clearButton.addEventListener('click', () => {
 
 document.getElementsByTagName('body')[0].addEventListener('click', (e) => {
   if (
-    !e.target.closest('.form__input--list-container') &&
-    !resultsContainer.classList.contains('hidden')
+      !e.target.closest('.form__input--list-container') &&
+      !resultsContainer.classList.contains('hidden')
   ) {
     resultsContainer.classList.add('hidden');
     searchInput.value = document.currentTextContent || '';
@@ -175,15 +176,15 @@ document.getElementsByTagName('body')[0].addEventListener('click', (e) => {
 });
 
 document
-  .querySelector('.header__logo-container')
-  .addEventListener('click', () => {
-    window.location.href = '/';
-  });
+    .querySelector('.header__logo-container')
+    .addEventListener('click', () => {
+      window.location.href = '/';
+    });
 
 searchInput.addEventListener('keypress', function (e) {
   if (
-    e.key === 'Enter' &&
-    !searchButton.classList.contains('form__button--search-disabled')
+      e.key === 'Enter' &&
+      !searchButton.classList.contains('form__button--search-disabled')
   ) {
     searchMkb();
   }
@@ -254,7 +255,7 @@ setCardCopyButtonsEventHandler();
 async function createHistoryPanel() {
   const username = getCookie('username');
   document.historyDataArr = JSON.parse(
-    localStorage.getItem(`mkbSearchHistory:${username}`)
+      localStorage.getItem(`mkbSearchHistory:${username}`)
   );
   if (!document.historyDataArr || document.historyDataArr.length === 0) {
     return;
@@ -307,7 +308,7 @@ async function updateHistory(newSearchData) {
   const oldHistoryArr = document.historyDataArr;
   if (oldHistoryArr) {
     const sameDataInd = oldHistoryArr.findIndex(
-      (historyData) => historyData.valueData === newSearchData.valueData
+        (historyData) => historyData.valueData === newSearchData.valueData
     );
     if (sameDataInd !== -1) {
       oldHistoryArr.splice(sameDataInd, 1);
@@ -318,8 +319,8 @@ async function updateHistory(newSearchData) {
   const newHistoryArr = [newSearchData, ...slicedHistory];
   document.historyDataArr = newHistoryArr;
   localStorage.setItem(
-    `mkbSearchHistory:${username}`,
-    JSON.stringify(newHistoryArr)
+      `mkbSearchHistory:${username}`,
+      JSON.stringify(newHistoryArr)
   );
 }
 
@@ -329,17 +330,17 @@ async function delayFor(delay) {
 
 function setCardCopyButtonsEventHandler() {
   Array.from(document.getElementsByClassName('form__card')).forEach(
-    (cardElem) => {
-      addCopyCardAllTextDataEventListeners(
-        cardElem.querySelector('.copy-button__copy-button')
-      );
-      cardElem
-        .querySelector('.copy-button__close-button')
-        .addEventListener('click', (e) => {
-          const cardElem = e.target.closest('.form__card');
-          removeBlockSelections(cardElem);
-        });
-    }
+      (cardElem) => {
+        addCopyCardAllTextDataEventListeners(
+            cardElem.querySelector('.copy-button__copy-button')
+        );
+        cardElem
+            .querySelector('.copy-button__close-button')
+            .addEventListener('click', (e) => {
+              const cardElem = e.target.closest('.form__card');
+              removeBlockSelections(cardElem);
+            });
+      }
   );
 }
 
@@ -357,10 +358,10 @@ function setCardViewTogglers() {
   Array.from(cardHeaderElems).forEach((header) => {
     header.addEventListener('click', (e) => {
       if (
-        e.target.classList.contains('form__card--copy-button') ||
-        e.target.classList.contains('form__card--copy-button--svg') ||
-        e.target.closest('.form__card--copy-button') ||
-        e.target.closest('.copy-button__close-button')
+          e.target.classList.contains('form__card--copy-button') ||
+          e.target.classList.contains('form__card--copy-button--svg') ||
+          e.target.closest('.form__card--copy-button') ||
+          e.target.closest('.copy-button__close-button')
       ) {
         e.stopPropagation();
         return;
@@ -371,8 +372,8 @@ function setCardViewTogglers() {
       }
       currentElem.classList.toggle('minimized');
       currentElem
-        .querySelector('.form__card-toggle')
-        .classList.toggle('rotated');
+          .querySelector('.form__card-toggle')
+          .classList.toggle('rotated');
     });
   });
 }
@@ -388,11 +389,11 @@ function setTextBlockSelectionEventHandler() {
       if (e.target.classList.contains('block__container')) {
         toggleBlockSelection(e.target);
         const textToCopy = getCardDataText(
-          cardElem,
-          cardElem.querySelector('.copy-button__copy-button')
+            cardElem,
+            cardElem.querySelector('.copy-button__copy-button')
         );
         const selectedBlocksAmount = cardElem.getElementsByClassName(
-          'block__container--selected'
+            'block__container--selected'
         ).length;
         if (selectedBlocksAmount) {
           const tooltipText = `Скопировано ${selectedBlocksAmount} шт.`;
@@ -409,11 +410,11 @@ function setTextBlockSelectionEventHandler() {
       if (closestBlockElem) {
         toggleBlockSelection(closestBlockElem);
         const textToCopy = getCardDataText(
-          cardElem,
-          cardElem.querySelector('.copy-button__copy-button')
+            cardElem,
+            cardElem.querySelector('.copy-button__copy-button')
         );
         const selectedBlocksAmount = cardElem.getElementsByClassName(
-          'block__container--selected'
+            'block__container--selected'
         ).length;
         if (selectedBlocksAmount) {
           const tooltipText = `Скопировано ${selectedBlocksAmount} шт.`;
@@ -435,11 +436,11 @@ function toggleBlockSelection(blockElem) {
   blockElem.classList.toggle('block__container--selected');
   const copyButtonElem = cardElem.querySelector('.form__card--copy-button');
   if (
-    Array.from(cardElem.getElementsByClassName('block__container')).find(
-      (someBlockElem) => {
-        return someBlockElem.classList.contains('block__container--selected');
-      }
-    )
+      Array.from(cardElem.getElementsByClassName('block__container')).find(
+          (someBlockElem) => {
+            return someBlockElem.classList.contains('block__container--selected');
+          }
+      )
   ) {
     switchOnCopyButton(copyButtonElem);
   } else {
@@ -449,23 +450,23 @@ function toggleBlockSelection(blockElem) {
 
 function removeBlockSelections(cardElem) {
   cardElem
-    .querySelector('.form__card--copy-button')
-    .classList.remove('copy-button--selected');
+      .querySelector('.form__card--copy-button')
+      .classList.remove('copy-button--selected');
   cardElem
-    .querySelector('.copy-button__close-button')
-    .classList.add('hidden');
+      .querySelector('.copy-button__close-button')
+      .classList.add('hidden');
   Array.from(cardElem.getElementsByClassName('block__container')).forEach(
-    (someBlockElem) => {
-      someBlockElem.classList.remove('block__container--selected');
-    }
+      (someBlockElem) => {
+        someBlockElem.classList.remove('block__container--selected');
+      }
   );
 }
 
 function removeAllBlockSelections() {
   Array.from(document.getElementsByClassName('form__card')).forEach(
-    (cardElem) => {
-      removeBlockSelections(cardElem);
-    }
+      (cardElem) => {
+        removeBlockSelections(cardElem);
+      }
   );
 }
 
@@ -489,9 +490,9 @@ function switchOnCopyButton(copyButtonElem) {
       copyButtonElem.classList.add('copy-button--selected');
     }, 500);
     copyButtonElem
-      .closest('.form__card')
-      .querySelector('.copy-button__close-button')
-      .classList.remove('hidden');
+        .closest('.form__card')
+        .querySelector('.copy-button__close-button')
+        .classList.remove('hidden');
   }
 }
 
@@ -519,11 +520,11 @@ function addCopyCardAllTextDataEventListeners(cardCopyElem) {
     const cardElem = e.target.closest('.form__card');
     const textToCopy = getCardDataText(cardElem, e.target);
     let selectedBlocksAmount = cardElem.getElementsByClassName(
-      'block__container--selected'
+        'block__container--selected'
     ).length;
     if (!selectedBlocksAmount)
       selectedBlocksAmount =
-        cardElem.getElementsByClassName('block__container').length;
+          cardElem.getElementsByClassName('block__container').length;
     copyToClipboard(textToCopy, flashTooltipOnEvent, [
       e,
       `Скопировано ${selectedBlocksAmount} шт.`,
@@ -534,16 +535,16 @@ function addCopyCardAllTextDataEventListeners(cardCopyElem) {
 function copyToClipboard(textToCopy, callback, args) {
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard
-      .writeText(textToCopy)
-      .then(() => {
-        if (callback) {
-          args = args ? args : [];
-          callback(...args);
-        }
-      })
-      .catch((err) => {
-        console.error('Could not copy text: ', err);
-      });
+        .writeText(textToCopy)
+        .then(() => {
+          if (callback) {
+            args = args ? args : [];
+            callback(...args);
+          }
+        })
+        .catch((err) => {
+          console.error('Could not copy text: ', err);
+        });
   } else {
     // Fallback method using a temporary textarea element
     const tempTextArea = document.createElement('textarea');
@@ -572,8 +573,8 @@ function flashTooltipOnEvent(event, tooltipText, timeout) {
   if (timeout) {
     clearTimeout(document.tooltipHideTimeoutId);
     document.tooltipHideTimeoutId = setTimeout(
-      () => (tooltipElem.style.visibility = 'hidden'),
-      timeout
+        () => (tooltipElem.style.visibility = 'hidden'),
+        timeout
     );
   }
 }
@@ -688,7 +689,7 @@ function getCardDataText(cardElem, copyButtonElem) {
 
 function getSelectedBlocksAmount(cardElem) {
   return Array.from(
-    cardElem.getElementsByClassName('block__container--selected')
+      cardElem.getElementsByClassName('block__container--selected')
   ).length;
 }
 
@@ -705,8 +706,8 @@ async function searchMkb() {
   clearButton.classList.add('hidden');
   searchButton.classList.add('hidden');
   document
-    .querySelector('.form__input--list-container')
-    .classList.add('hidden');
+      .querySelector('.form__input--list-container')
+      .classList.add('hidden');
   searchInput.value = '';
   searchInput.placeholder = 'ЗАГРУЗКА...';
   searchInput.disabled = true;
@@ -807,8 +808,8 @@ function setLists() {
   // const ageToggleElem = document.getElementById('age-toggle');
   // const standardToggleElem = document.getElementById('standard-toggle');
   if (
-    mkbData.child.standards.length === 0 &&
-    mkbData.grownup.standards.length === 0
+      mkbData.child.standards.length === 0 &&
+      mkbData.grownup.standards.length === 0
   ) {
     document.getElementById('mkb-code').innerText = mkbData.child.code;
     sectionToggles.classList.add('hidden');
@@ -819,32 +820,33 @@ function setLists() {
   }
   noDataPopup.classList.add('hidden');
   setTogglers(mkbData);
+
   const examStageToggleFirstElem = document.getElementById(
-    'exam-stage-toggle-first'
+      'exam-stage-toggle-first'
   );
   const examStageToggleSecondElem = document.getElementById(
-    'exam-stage-toggle-second'
+      'exam-stage-toggle-second'
   );
   examStageToggleFirstElem.addEventListener('click', toggleStage);
   examStageToggleSecondElem.addEventListener('click', toggleStage);
 
   const currentAge = ageToggleElem.checked ? 'grownup' : 'child';
   const currentStatus = standardToggleElem.checked
-    ? 'Рекомендация'
-    : 'Стандарт';
+      ? 'Рекомендация'
+      : 'Стандарт';
 
   const listsData = {};
   listsData.exam = createListData(
-    mkbData,
-    'Диагностика',
-    currentStatus,
-    currentAge
+      mkbData,
+      'Диагностика',
+      currentStatus,
+      currentAge
   );
   listsData.treat = createListData(
-    mkbData,
-    'Лечение',
-    currentStatus,
-    currentAge
+      mkbData,
+      'Лечение',
+      currentStatus,
+      currentAge
   );
 
   createList('exam', listsData);
@@ -880,6 +882,8 @@ function setTogglers(mkbData) {
       (standard) => standard.status === 'Рекомендация'
   );
 
+  crmLinkContainer.innerHTML = '';
+
   if (!hasStandard && hasRecommendation) {
     standardToggleElem.checked = true;
     standardToggleElem.disabled = true;
@@ -901,7 +905,7 @@ function setExamText() {
 
   const ageToggleElem = document.getElementById('age-toggle');
   const examStageToggleFirstElem = document.getElementById(
-    'exam-stage-toggle-first'
+      'exam-stage-toggle-first'
   );
 
   const currentAge = ageToggleElem.checked ? 'grownup' : 'child';
@@ -912,6 +916,15 @@ function setExamText() {
   const examCardOptionalElem = document.getElementById('exam-card-optional');
   clearCard(examCardRequiredElem);
   clearCard(examCardOptionalElem);
+
+  // Add recommendations link
+  crmLinkContainer.innerHTML = '';
+  let crmId = mkbData[currentAge].standards[standardInd].cr_m_id;
+  if (crmId !== undefined) {
+    crmLinkContainer.innerHTML =
+        `<a href="https://cr.minzdrav.gov.ru/view-cr/${crmId}">${crmId}</a>
+         <img src="../images/link-icon.png" alt="link" class="crm-link-img" />`;
+  }
 
   let requiredExaminationsByCategory = groupByCategoryAndSort(
       mkbData[currentAge].standards[standardInd].examinations
@@ -1037,10 +1050,10 @@ function groupByCategoryAndSort(arr, key) {
 function toggleStage(e) {
   removeAllBlockSelections();
   const examStageToggleFirstElem = document.getElementById(
-    'exam-stage-toggle-first'
+      'exam-stage-toggle-first'
   );
   const examStageToggleSecondElem = document.getElementById(
-    'exam-stage-toggle-second'
+      'exam-stage-toggle-second'
   );
   if (e.target.classList.contains('stage__selected')) {
     return;
@@ -1379,7 +1392,7 @@ function createTreatBlock(parentElem, treatData) {
   const treatQuality = document.createElement('div');
   treatQuality.classList.add('block__quality');
   treatQuality.classList.add(
-    treatData.is_qualitative ? 'block__quality--green' : 'block__quality--gray'
+      treatData.is_qualitative ? 'block__quality--green' : 'block__quality--gray'
   );
   treatContainer.appendChild(treatHeader);
   treatContainer.appendChild(treatComment);
@@ -1395,7 +1408,7 @@ function createTreatBlock(parentElem, treatData) {
     treatDuration.classList.add('block__comment');
     treatDuration.classList.add('block__comment--duration');
     treatDuration.innerHTML =
-      '<strong>Длительность курса: </strong>' + treatData.duration;
+        '<strong>Длительность курса: </strong>' + treatData.duration;
     treatContainer.appendChild(treatDuration);
   }
   treatContainer.appendChild(treatQuality);
@@ -1403,13 +1416,11 @@ function createTreatBlock(parentElem, treatData) {
 }
 
 function createList(type, listsData) {
-  console.log("Create list: ", type, listsData);
-
   const listData = listsData[type];
   const listElem = document.getElementById(type + '-list');
   listElem.removeEventListener(
-    'change',
-    type === 'exam' ? setExamText : setTreatText
+      'change',
+      type === 'exam' ? setExamText : setTreatText
   );
   removeOptions(listElem);
   const listParentElem = listElem.parentElement;
@@ -1447,8 +1458,8 @@ function createList(type, listsData) {
   }
   listElem.value = '';
   listElem.addEventListener(
-    'change',
-    type === 'exam' ? setExamText : setTreatText
+      'change',
+      type === 'exam' ? setExamText : setTreatText
   );
   revealSection(type);
 
@@ -1493,7 +1504,7 @@ function getStandardInd(type) {
 
 function createListData(mkbData, type, status, age) {
   const agedStandards = (age === 'child' ? mkbData.child : mkbData.grownup)
-    .standards;
+      .standards;
 
   const listData = [];
 
@@ -1505,6 +1516,7 @@ function createListData(mkbData, type, status, age) {
       listData.push({
         name: standard.name,
         index: standardIndex,
+        cr_m_id: standard.cr_m_id,
       });
     }
   });
