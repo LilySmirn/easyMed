@@ -934,12 +934,20 @@ function setExamText() {
 
   let requiredExaminationsByCategory = groupByCategoryAndSort(
       mkbData[currentAge].standards[standardInd].examinations
-          .filter(exam => exam.stage === currentStage && exam.is_required)
+          .filter(exam =>
+              exam.stage === currentStage &&
+              exam.is_required &&
+              exam.is_stationary !== 1
+          )
   );
 
   let optionalExaminationsByCategory = groupByCategoryAndSort(
       mkbData[currentAge].standards[standardInd].examinations
-          .filter(exam => exam.stage === currentStage && !exam.is_required)
+          .filter(exam =>
+              exam.stage === currentStage &&
+              !exam.is_required &&
+              exam.is_stationary !== 1
+          )
   );
 
   let prevName = "";
@@ -982,6 +990,7 @@ function setTreatText() {
   let treatments = mkbData[currentAge]
       .standards[standardInd]
       .treatments
+      .filter(t => t.is_stationary !== 1 && t.is_offlabel !== 1)
       .sort((a, b) => a.name.localeCompare(b.name));
 
   treatments.forEach((treatment) => {
