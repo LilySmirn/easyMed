@@ -919,11 +919,17 @@ function setExamText() {
 
   // Add recommendations link
   crmLinkContainer.innerHTML = '';
+  crmLinkContainer.classList.remove('active');
   let crmId = mkbData[currentAge].standards[standardInd].cr_m_id;
   if (crmId !== undefined) {
     crmLinkContainer.innerHTML =
-        `<a href="https://cr.minzdrav.gov.ru/view-cr/${crmId}">${crmId}</a>
-         <img src="../images/link-icon.png" alt="link" class="crm-link-img" />`;
+        `<a href="https://cr.minzdrav.gov.ru/view-cr/${crmId}" 
+      target="_blank" rel="noopener noreferrer" 
+      class="crm-link">
+     ${crmId}
+     <img src="../images/link-icon.png" alt="link" class="crm-link-img" />
+   </a>`;
+    crmLinkContainer.classList.add('active');
   }
 
   let requiredExaminationsByCategory = groupByCategoryAndSort(

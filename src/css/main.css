@@ -844,7 +844,7 @@ input {
   font-family: Arial, sans-serif;
   font-size: 16px;
   font-weight: normal;
-  margin: 0;
+  margin: 0 10px 0 0;
   display: flex;
   align-items: center;
   background-color: white;
@@ -933,8 +933,33 @@ option:disabled {
   background-color: #badeff87;
 }
 
+.select-link {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+
+.form__section--select {
+  flex: 1 1 80%;
+  max-width: 100%;
+}
+
 .block__container:last-child {
   margin-bottom: 0px;
+}
+
+.crm-link-container.active {
+  margin: 0 0 10px 0;
+}
+
+.crm-link-container a {
+  color: black;
+  text-decoration: none;
+  margin-left: 10px;
+}
+
+.crm-link-container a:visited {
+  color: black;
 }
 
 .block__header {
