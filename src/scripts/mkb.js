@@ -904,10 +904,7 @@ function setExamText() {
   if (!mkbData) return;
 
   const ageToggleElem = document.getElementById('age-toggle');
-  const examStageToggleFirstElem = document.getElementById(
-      'exam-stage-toggle-first'
-  );
-
+  const examStageToggleFirstElem = document.getElementById('exam-stage-toggle-first');
   const currentAge = ageToggleElem.checked ? 'grownup' : 'child';
   const currentStage = examStageToggleFirstElem.classList.contains('stage__selected') ? 1 : 2;
   const standardInd = getStandardInd('exam');
@@ -924,11 +921,11 @@ function setExamText() {
   if (crmId !== undefined) {
     crmLinkContainer.innerHTML =
         `<a href="https://cr.minzdrav.gov.ru/view-cr/${crmId}" 
-      target="_blank" rel="noopener noreferrer" 
-      class="crm-link">
-     ${crmId}
-     <img src="../images/link-icon.png" alt="link" class="crm-link-img" />
-   </a>`;
+          target="_blank" rel="noopener noreferrer" 
+          class="crm-link">
+          ${crmId}
+          <img src="../images/link-icon.png" alt="link" class="crm-link-img" />
+        </a>`;
     crmLinkContainer.classList.add('active');
   }
 
@@ -950,27 +947,39 @@ function setExamText() {
           )
   );
 
-  let prevName = "";
-  requiredExaminationsByCategory.forEach((category) => {
-    createGroupTitle(examCardRequiredElem, category.name);
-    prevName = "";
-    category.values.forEach((exam) => {
-      createExamBlock(examCardRequiredElem, exam, prevName);
-      prevName = exam.name;
-    })
-  });
+  // Проверка на наличие данных
+  let hasRequired = requiredExaminationsByCategory.length > 0;
+  let hasOptional = optionalExaminationsByCategory.length > 0;
 
-  optionalExaminationsByCategory.forEach((category) => {
-    createGroupTitle(examCardOptionalElem, category.name);
-    prevName = "";
-    category.values.forEach((exam) => {
-      createExamBlock(examCardOptionalElem, exam, prevName);
-      prevName = exam.name;
-    })
-  });
+  if (hasRequired) {
+    let prevName = "";
+    requiredExaminationsByCategory.forEach((category) => {
+      createGroupTitle(examCardRequiredElem, category.name);
+      prevName = "";
+      category.values.forEach((exam) => {
+        createExamBlock(examCardRequiredElem, exam, prevName);
+        prevName = exam.name;
+      });
+    });
+    examCardRequiredElem.classList.remove('hidden');
+  } else {
+    examCardRequiredElem.classList.add('hidden');
+  }
 
-  examCardRequiredElem.classList.remove('hidden');
-  examCardOptionalElem.classList.remove('hidden');
+  if (hasOptional) {
+    let prevName = "";
+    optionalExaminationsByCategory.forEach((category) => {
+      createGroupTitle(examCardOptionalElem, category.name);
+      prevName = "";
+      category.values.forEach((exam) => {
+        createExamBlock(examCardOptionalElem, exam, prevName);
+        prevName = exam.name;
+      });
+    });
+    examCardOptionalElem.classList.remove('hidden');
+  } else {
+    examCardOptionalElem.classList.add('hidden');
+  }
 }
 
 function setTreatText() {
