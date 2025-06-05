@@ -993,17 +993,30 @@ function setTreatText() {
       .filter(t => t.is_stationary !== 1 && t.is_offlabel !== 1)
       .sort((a, b) => a.name.localeCompare(b.name));
 
+  let hasAction = false;
+  let hasDrug = false;
+
   treatments.forEach((treatment) => {
     if (treatment.type === "drug") {
       createTreatBlock(treatCardDrugElem, treatment);
-    }
-    else if (treatment.type === "service") {
+      hasDrug = true; // [добавлено]
+    } else if (treatment.type === "service") {
       createTreatBlock(treatCardActionElem, treatment);
+      hasAction = true;
     }
   });
 
-  treatCardActionElem.classList.remove('hidden');
-  treatCardDrugElem.classList.remove('hidden');
+  if (hasAction) {
+    treatCardActionElem.classList.remove('hidden');
+  } else {
+    treatCardActionElem.classList.add('hidden');
+  }
+
+  if (hasDrug) {
+    treatCardDrugElem.classList.remove('hidden');
+  } else {
+    treatCardDrugElem.classList.add('hidden');
+  }
 }
 
 function groupByCategoryAndSort(arr, key) {
