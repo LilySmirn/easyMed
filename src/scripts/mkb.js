@@ -720,7 +720,7 @@ async function searchMkb() {
     }
 
     // fire and forget: the additional data should be loaded in background
-    fetchPopupDataOnce();
+    await fetchPopupDataOnce();
 
 
     // const encryptedText  = await response.text();
@@ -1420,35 +1420,103 @@ function createExamBlock(blockParentElem, examData, prevName) {
 function createTreatBlock(parentElem, treatData) {
   const treatContainer = document.createElement('div');
   treatContainer.classList.add('block__container');
+
+  const treatHeaderWrapper = document.createElement('div');
+  treatHeaderWrapper.classList.add('block__header');
+  treatHeaderWrapper.style.display = 'flex';
+  treatHeaderWrapper.style.justifyContent = 'space-between';
+  treatHeaderWrapper.style.alignItems = 'center';
+
+  // Левая часть: [img + span] + название
   const treatHeader = document.createElement('h4');
-  treatHeader.classList.add('block__header');
   treatHeader.innerText = treatData.name;
+  treatHeader.style.margin = '0';
+
+  const infoBox = document.createElement('div');
+  infoBox.style.display = 'flex';
+  infoBox.style.alignItems = 'center';
+  infoBox.style.gap = '4px';
+
+  const urrImg = document.createElement('img');
+  urrImg.src = '../images/circle-icon.png';
+  urrImg.alt = 'urr';
+  urrImg.classList.add('circle__img');
+  urrImg.style.width = '20px';
+  urrImg.style.height = '20px';
+
+  const uddText = document.createElement('span');
+  uddText.style.fontWeight = 'normal';
+
+  if (treatData.pers && typeof treatData.pers === 'object') {
+    const u = treatData.pers["уур"];
+    const d = treatData.pers["удд"];
+    if (u && d) {
+      uddText.textContent = `${u}${+d < 10 ? '0' : ''}${d}`;
+    } else {
+      uddText.textContent = '';
+    }
+  } else {
+    uddText.textContent = '';
+  }
+
+  // Отображаем/скрываем иконку
+  if (treatData.is_qualitative === 1) {
+    urrImg.classList.remove('hidden');
+  } else {
+    urrImg.classList.add('hidden');
+  }
+
+  infoBox.appendChild(urrImg);
+  infoBox.appendChild(uddText);
+
+  const leftBlock = document.createElement('div');
+  leftBlock.style.display = 'flex';
+  leftBlock.style.alignItems = 'center';
+  leftBlock.style.gap = '8px';
+
+  leftBlock.appendChild(infoBox);
+  leftBlock.appendChild(treatHeader);
+
+  treatHeaderWrapper.appendChild(leftBlock);
+
+  // Кнопка "i"
+  if (treatData.cr_db_id && popupData && popupData[treatData.cr_db_id]) {
+    const infoIcon = document.createElement('img');
+    infoIcon.src = '../images/info-icon.png';
+    infoIcon.alt = 'Info';
+    infoIcon.classList.add('block__info-icon');
+    infoIcon.addEventListener('click', () => openInfoPopupByTitle(treatData));
+    treatHeaderWrapper.appendChild(infoIcon);
+  }
+
+  treatContainer.appendChild(treatHeaderWrapper);
+
   const treatComment = document.createElement('p');
   treatComment.classList.add('block__comment');
   treatComment.innerText = treatData.comment;
+  treatContainer.appendChild(treatComment);
+
+  if (treatData.plan) {
+    const treatPlan = document.createElement('p');
+    treatPlan.classList.add('block__comment', 'block__comment--plan');
+    treatPlan.innerHTML = '<strong>Схема лечения: </strong>' + treatData.plan;
+    treatContainer.appendChild(treatPlan);
+  }
+
+  if (treatData.duration) {
+    const treatDuration = document.createElement('p');
+    treatDuration.classList.add('block__comment', 'block__comment--duration');
+    treatDuration.innerHTML = '<strong>Длительность курса: </strong>' + treatData.duration;
+    treatContainer.appendChild(treatDuration);
+  }
+
   const treatQuality = document.createElement('div');
   treatQuality.classList.add('block__quality');
   treatQuality.classList.add(
       treatData.is_qualitative ? 'block__quality--green' : 'block__quality--gray'
   );
-  treatContainer.appendChild(treatHeader);
-  treatContainer.appendChild(treatComment);
-  if (treatData.plan) {
-    const treatPlan = document.createElement('p');
-    treatPlan.classList.add('block__comment');
-    treatPlan.classList.add('block__comment--plan');
-    treatPlan.innerHTML = '<strong>Схема лечения: </strong>' + treatData.plan;
-    treatContainer.appendChild(treatPlan);
-  }
-  if (treatData.duration) {
-    const treatDuration = document.createElement('p');
-    treatDuration.classList.add('block__comment');
-    treatDuration.classList.add('block__comment--duration');
-    treatDuration.innerHTML =
-        '<strong>Длительность курса: </strong>' + treatData.duration;
-    treatContainer.appendChild(treatDuration);
-  }
   treatContainer.appendChild(treatQuality);
+
   parentElem.appendChild(treatContainer);
 }
 
