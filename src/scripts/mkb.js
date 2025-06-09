@@ -1168,7 +1168,8 @@ function openInfoPopupByTitle(examData) {
   const popupOverlay = document.getElementById('popup-overlay');
   const titleEl = popupOverlay.querySelector('.popup__title');
   const descEl = popupOverlay.querySelector('.popup__description');
-  const commentEl = popupOverlay.querySelector('.popup__comment-text');
+  const commentTitleEl = popupOverlay.querySelector('.popup__comment');       // <p><b>Комментарий:</b></p>
+  const commentEl = popupOverlay.querySelector('.popup__comment-text');       // <p>...</p>
   const urrImg = popupOverlay.querySelector('.circle__img');
   const uddText = popupOverlay.querySelector('.udd__text');
 
@@ -1196,16 +1197,28 @@ function openInfoPopupByTitle(examData) {
       urrImg.classList.add('hidden');
     }
 
-    // 4. Описание и комментарий
+    // 4. Описание
     descEl.textContent = popupInfo.text || "Описание отсутствует";
-    commentEl.innerHTML = `<i>${popupInfo.comment || '-'}</i>`;
 
-    // 5. Показываем попап
+    // 5. Комментарий (заголовок + текст)
+    const commentText = popupInfo.comment?.trim();
+    if (commentText) {
+      commentEl.innerHTML = `<i>${commentText}</i>`;
+      commentTitleEl.classList.remove('hidden');
+      commentEl.classList.remove('hidden');
+    } else {
+      commentEl.innerHTML = '';
+      commentTitleEl.classList.add('hidden');
+      commentEl.classList.add('hidden');
+    }
+
+    // 6. Показываем попап
     popupOverlay.classList.remove('hidden');
   } else {
     console.warn("Нет данных из второго JSON для:", crDbId);
   }
 }
+
 
 //вставка данных в левый блок анализов
 function fillLeftBlockData(examName, uddTextElem, urrImgElem) {
