@@ -384,10 +384,23 @@ function setCardViewTogglers() {
 
 function setTextBlockSelectionEventHandler() {
   const cardElems = Array.from(document.getElementsByClassName('form__card'));
+
   cardElems.forEach((cardElem) => {
     cardElem.addEventListener('click', (e) => {
+      // Пропускаем клик, если он пришёл от иконки "i"
+      if (e.target.closest('.block__info-icon')) {
+        return;
+      }
+
+      // Пропускаем клик, если он пришёл от заголовка категории
+      if (e.target.closest('.category-name')) {
+        return;
+      }
+
+      // Если клик пришёл напрямую по .block__container
       if (e.target.classList.contains('block__container')) {
         toggleBlockSelection(e.target);
+
         const textToCopy = getCardDataText(
             cardElem,
             cardElem.querySelector('.copy-button__copy-button')
@@ -395,6 +408,7 @@ function setTextBlockSelectionEventHandler() {
         const selectedBlocksAmount = cardElem.getElementsByClassName(
             'block__container--selected'
         ).length;
+
         if (selectedBlocksAmount) {
           const tooltipText = `Скопировано ${selectedBlocksAmount} шт.`;
           copyToClipboard(textToCopy, flashTooltipOnEvent, [
@@ -403,12 +417,17 @@ function setTextBlockSelectionEventHandler() {
             500,
           ]);
         }
+
         e.stopPropagation();
         return;
       }
+
+      // Иначе ищем ближайший .block__container
       const closestBlockElem = e.target.closest('.block__container');
+
       if (closestBlockElem) {
         toggleBlockSelection(closestBlockElem);
+
         const textToCopy = getCardDataText(
             cardElem,
             cardElem.querySelector('.copy-button__copy-button')
@@ -416,6 +435,7 @@ function setTextBlockSelectionEventHandler() {
         const selectedBlocksAmount = cardElem.getElementsByClassName(
             'block__container--selected'
         ).length;
+
         if (selectedBlocksAmount) {
           const tooltipText = `Скопировано ${selectedBlocksAmount} шт.`;
           copyToClipboard(textToCopy, flashTooltipOnEvent, [
@@ -424,6 +444,7 @@ function setTextBlockSelectionEventHandler() {
             500,
           ]);
         }
+
         e.stopPropagation();
         return;
       }
@@ -1154,10 +1175,10 @@ function openInfoPopupByTitle(examData) {
     // 1. Заголовок
     titleEl.textContent = examData.name || "Без названия";
 
-    // 2. Код (уур + удд)
+    // 2. Код
     if (examData.pers) {
       const { уур, удд } = examData.pers;
-      uddText.textContent = `${уур}${+удд < 10 ? '0' : ''}${удд}`;
+      uddText.textContent = `${уур}${удд}`;
     } else {
       uddText.textContent = "";
     }
@@ -1200,18 +1221,24 @@ function fillLeftBlockData(examName, uddTextElem, urrImgElem) {
 function createGroupTitle(blockParentElem, title) {
   const examContainer = document.createElement('div');
   examContainer.classList.add('block__container');
+  examContainer.style.marginBottom = '5px';
 
   const examHeader = document.createElement('div');
   examHeader.classList.add('block__header');
   examHeader.style.display = 'flex';
   examHeader.style.justifyContent = 'space-between';
   examHeader.style.alignItems = 'center';
-  examHeader.style.backgroundColor = '#badeff';
+  examHeader.style.backgroundColor = '#f5f5f5';
   examHeader.style.padding = '5px 5px 5px 10px';
+  examHeader.style.borderRadius = '100px';
+  examHeader.style.cursor = 'default';
+
+  examHeader.classList.add('block__header', 'category-name');
 
   const examTitle = document.createElement('h4');
   examTitle.innerText = title;
   examTitle.style.margin = '0';
+  examTitle.style.fontWeight = 'normal';
 
   examHeader.appendChild(examTitle);
   examContainer.appendChild(examHeader);
@@ -1233,7 +1260,7 @@ function createExamBlock(blockParentElem, examData, prevName) {
 
   if (examData.pers) {
     const { уур, удд } = examData.pers;
-    uddText.textContent = `${уур}${+удд < 10 ? '0' : ''}${удд}`;
+    uddText.textContent = `${уур}${удд}`;
   } else {
     uddText.textContent = "";
   }
@@ -1267,7 +1294,7 @@ function createExamBlock(blockParentElem, examData, prevName) {
     infoBox.style.alignItems = 'center';
     infoBox.style.gap = '4px';
 
-    infoBox.appendChild(urrImg);
+    // infoBox.appendChild(urrImg);
     infoBox.appendChild(uddText);
 
     const examTitle = document.createElement('h4');
@@ -1284,7 +1311,11 @@ function createExamBlock(blockParentElem, examData, prevName) {
       infoIcon.src = '../images/info-icon.png';
       infoIcon.alt = 'Info';
       infoIcon.classList.add('block__info-icon');
-      infoIcon.addEventListener('click', () => openInfoPopupByTitle(examData));
+      infoIcon.addEventListener('click', (event) => {
+        event.stopPropagation();
+        event.preventDefault();
+        openInfoPopupByTitle(examData);
+      });
       examHeader.appendChild(infoIcon);
     }
 
@@ -1321,100 +1352,6 @@ function createExamBlock(blockParentElem, examData, prevName) {
 
   examContainer.appendChild(examQuality);
   blockParentElem.appendChild(examContainer);
-
-
-  // const examContainer = document.createElement('div');
-  // examContainer.classList.add('block__container');
-  //
-  // const examQuality = document.createElement('div');
-  // examQuality.classList.add('block__quality');
-  // examQuality.classList.add(
-  //     examData.is_qualitative ? 'block__quality--green' : 'block__quality--gray'
-  // );
-  //
-  // const uddText = document.createElement('span');
-  // uddText.style.fontWeight = 'normal';
-  //
-  // if (examData.name !== prevName) {
-  //   // === ОТОБРАЖАЕМ ЗАГОЛОВОК С ИКОНКОЙ ===
-  //   const examHeader = document.createElement('div');
-  //   examHeader.classList.add('block__header');
-  //   examHeader.style.display = 'flex';
-  //   examHeader.style.justifyContent = 'space-between';
-  //   examHeader.style.alignItems = 'center';
-  //
-  //   const leftBlock = document.createElement('div');
-  //   leftBlock.style.display = 'flex';
-  //   leftBlock.style.alignItems = 'center';
-  //   leftBlock.style.gap = '8px';
-  //
-  //   const infoBox = document.createElement('div');
-  //   infoBox.style.display = 'flex';
-  //   infoBox.style.alignItems = 'center';
-  //   infoBox.style.gap = '4px';
-  //
-  //   const urrImg = document.createElement('img');
-  //   urrImg.src = '../images/circle-icon.png';
-  //   urrImg.alt = 'urr';
-  //   urrImg.classList.add('circle__img');
-  //   urrImg.style.width = '20px';
-  //   urrImg.style.height = '20px';
-  //
-  //   const examTitle = document.createElement('h4');
-  //   examTitle.innerText = examData.name;
-  //   examTitle.style.margin = '0';
-  //
-  //   infoBox.appendChild(urrImg);
-  //   infoBox.appendChild(uddText);
-  //   leftBlock.appendChild(infoBox);
-  //   leftBlock.appendChild(examTitle);
-  //
-  //   examHeader.appendChild(leftBlock);
-  //
-  //   if (examData.cr_db_id) {
-  //     const infoIcon = document.createElement('img');
-  //     infoIcon.src = '../images/info-icon.png';
-  //     infoIcon.alt = 'Info';
-  //     infoIcon.classList.add('block__info-icon');
-  //     infoIcon.addEventListener('click', () => openInfoPopupByTitle(examData));
-  //     examHeader.appendChild(infoIcon);
-  //   }
-  //
-  //   examContainer.appendChild(examHeader);
-  //
-  //   const examComment = document.createElement('p');
-  //   examComment.classList.add('block__comment');
-  //   examComment.innerText = examData.comment || "";
-  //   examContainer.appendChild(examComment);
-  //
-  // } else {
-  //   const commentWrapper = document.createElement('div');
-  //   commentWrapper.style.display = 'flex';
-  //   commentWrapper.style.justifyContent = 'space-between';
-  //   commentWrapper.style.alignItems = 'flex-start';
-  //
-  //   const examComment = document.createElement('p');
-  //   examComment.classList.add('block__comment');
-  //   examComment.innerText = examData.comment || "";
-  //
-  //   commentWrapper.appendChild(examComment);
-  //
-  //   if (examData.cr_db_id) {
-  //     const infoIcon = document.createElement('img');
-  //     infoIcon.src = '../images/info-icon.png';
-  //     infoIcon.alt = 'Info';
-  //     infoIcon.classList.add('block__info-icon');
-  //     infoIcon.style.marginLeft = '8px';
-  //     infoIcon.addEventListener('click', () => openInfoPopupByTitle(examData));
-  //     commentWrapper.appendChild(infoIcon);
-  //   }
-  //
-  //   examContainer.appendChild(commentWrapper);
-  // }
-  //
-  // examContainer.appendChild(examQuality);
-  // blockParentElem.appendChild(examContainer);
-
 }
 
 function createTreatBlock(parentElem, treatData) {
@@ -1466,7 +1403,7 @@ function createTreatBlock(parentElem, treatData) {
     urrImg.classList.add('hidden');
   }
 
-  infoBox.appendChild(urrImg);
+  // infoBox.appendChild(urrImg);
   infoBox.appendChild(uddText);
 
   const leftBlock = document.createElement('div');
@@ -1485,7 +1422,11 @@ function createTreatBlock(parentElem, treatData) {
     infoIcon.src = '../images/info-icon.png';
     infoIcon.alt = 'Info';
     infoIcon.classList.add('block__info-icon');
-    infoIcon.addEventListener('click', () => openInfoPopupByTitle(treatData));
+    infoIcon.addEventListener('click', (event) => {
+      event.stopPropagation(); // предотвращает всплытие события
+      event.preventDefault();  // отменяет поведение по умолчанию, если оно есть
+      openInfoPopupByTitle(treatData);
+    });
     treatHeaderWrapper.appendChild(infoIcon);
   }
 
