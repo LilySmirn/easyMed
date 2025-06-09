@@ -1026,15 +1026,21 @@ function setTreatText() {
   let hasAction = false;
   let hasDrug = false;
 
+  let prevDrugName = "";
+  let prevActionName = "";
+
   treatments.forEach((treatment) => {
     if (treatment.type === "drug") {
-      createTreatBlock(treatCardDrugElem, treatment);
-      hasDrug = true; // [добавлено]
+      createTreatBlock(treatCardDrugElem, treatment, prevDrugName);
+      prevDrugName = treatment.name;
+      hasDrug = true;
     } else if (treatment.type === "service") {
-      createTreatBlock(treatCardActionElem, treatment);
+      createTreatBlock(treatCardActionElem, treatment, prevActionName);
+      prevActionName = treatment.name;
       hasAction = true;
     }
   });
+
 
   if (hasAction) {
     treatCardActionElem.classList.remove('hidden');
@@ -1354,83 +1360,58 @@ function createExamBlock(blockParentElem, examData, prevName) {
   blockParentElem.appendChild(examContainer);
 }
 
-function createTreatBlock(parentElem, treatData) {
+function createTreatBlock(parentElem, treatData, prevName) {
   const treatContainer = document.createElement('div');
   treatContainer.classList.add('block__container');
 
-  const treatHeaderWrapper = document.createElement('div');
-  treatHeaderWrapper.classList.add('block__header');
-  treatHeaderWrapper.style.display = 'flex';
-  treatHeaderWrapper.style.justifyContent = 'space-between';
-  treatHeaderWrapper.style.alignItems = 'center';
+  if (treatData.name !== prevName) {
+    const treatHeaderWrapper = document.createElement('div');
+    treatHeaderWrapper.classList.add('block__header');
+    treatHeaderWrapper.style.display = 'flex';
+    treatHeaderWrapper.style.justifyContent = 'space-between';
+    treatHeaderWrapper.style.alignItems = 'center';
 
-  // Левая часть: [img + span] + название
-  const treatHeader = document.createElement('h4');
-  treatHeader.innerText = treatData.name;
-  treatHeader.style.margin = '0';
+    const treatHeader = document.createElement('h4');
+    treatHeader.innerText = treatData.name;
+    treatHeader.style.margin = '0';
 
-  const infoBox = document.createElement('div');
-  infoBox.style.display = 'flex';
-  infoBox.style.alignItems = 'center';
-  infoBox.style.gap = '4px';
+    const infoBox = document.createElement('div');
+    infoBox.style.display = 'flex';
+    infoBox.style.alignItems = 'center';
+    infoBox.style.gap = '4px';
 
-  const urrImg = document.createElement('img');
-  urrImg.src = '../images/circle-icon.png';
-  urrImg.alt = 'urr';
-  urrImg.classList.add('circle__img');
-  urrImg.style.width = '20px';
-  urrImg.style.height = '20px';
-
-  const uddText = document.createElement('span');
-  uddText.style.fontWeight = 'normal';
-
-  if (treatData.pers && typeof treatData.pers === 'object') {
-    const u = treatData.pers["уур"];
-    const d = treatData.pers["удд"];
-    if (u && d) {
-      uddText.textContent = `${u}${+d < 10 ? '0' : ''}${d}`;
-    } else {
-      uddText.textContent = '';
+    const uddText = document.createElement('span');
+    uddText.style.fontWeight = 'normal';
+    if (treatData.pers) {
+      const { уур, удд } = treatData.pers;
+      uddText.textContent = `${уур}${удд}`;
     }
-  } else {
-    uddText.textContent = '';
+
+    infoBox.appendChild(uddText);
+
+    const leftBlock = document.createElement('div');
+    leftBlock.style.display = 'flex';
+    leftBlock.style.alignItems = 'center';
+    leftBlock.style.gap = '8px';
+    leftBlock.appendChild(infoBox);
+    leftBlock.appendChild(treatHeader);
+
+    treatHeaderWrapper.appendChild(leftBlock);
+
+    if (treatData.cr_db_id && popupData && popupData[treatData.cr_db_id]) {
+      const infoIcon = document.createElement('img');
+      infoIcon.src = '../images/info-icon.png';
+      infoIcon.alt = 'Info';
+      infoIcon.classList.add('block__info-icon');
+      infoIcon.addEventListener('click', (event) => {
+        event.stopPropagation();
+        openInfoPopupByTitle(treatData);
+      });
+      treatHeaderWrapper.appendChild(infoIcon);
+    }
+
+    treatContainer.appendChild(treatHeaderWrapper);
   }
-
-  // Отображаем/скрываем иконку
-  if (treatData.is_qualitative === 1) {
-    urrImg.classList.remove('hidden');
-  } else {
-    urrImg.classList.add('hidden');
-  }
-
-  // infoBox.appendChild(urrImg);
-  infoBox.appendChild(uddText);
-
-  const leftBlock = document.createElement('div');
-  leftBlock.style.display = 'flex';
-  leftBlock.style.alignItems = 'center';
-  leftBlock.style.gap = '8px';
-
-  leftBlock.appendChild(infoBox);
-  leftBlock.appendChild(treatHeader);
-
-  treatHeaderWrapper.appendChild(leftBlock);
-
-  // Кнопка "i"
-  if (treatData.cr_db_id && popupData && popupData[treatData.cr_db_id]) {
-    const infoIcon = document.createElement('img');
-    infoIcon.src = '../images/info-icon.png';
-    infoIcon.alt = 'Info';
-    infoIcon.classList.add('block__info-icon');
-    infoIcon.addEventListener('click', (event) => {
-      event.stopPropagation(); // предотвращает всплытие события
-      event.preventDefault();  // отменяет поведение по умолчанию, если оно есть
-      openInfoPopupByTitle(treatData);
-    });
-    treatHeaderWrapper.appendChild(infoIcon);
-  }
-
-  treatContainer.appendChild(treatHeaderWrapper);
 
   const treatComment = document.createElement('p');
   treatComment.classList.add('block__comment');
@@ -1460,6 +1441,7 @@ function createTreatBlock(parentElem, treatData) {
 
   parentElem.appendChild(treatContainer);
 }
+
 
 function createList(type, listsData) {
   const listData = listsData[type];
