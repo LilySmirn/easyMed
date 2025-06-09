@@ -1242,13 +1242,18 @@ function createGroupTitle(blockParentElem, title) {
   examHeader.classList.add('block__header', 'category-name');
 
   const examTitle = document.createElement('h4');
-  examTitle.innerText = title;
+  examTitle.innerText = capitalizeFirstLetter(title);
   examTitle.style.margin = '0';
   examTitle.style.fontWeight = 'normal';
 
   examHeader.appendChild(examTitle);
   examContainer.appendChild(examHeader);
   blockParentElem.appendChild(examContainer);
+}
+
+function capitalizeFirstLetter(str) {
+  if (!str) return '';
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 }
 
 function createExamBlock(blockParentElem, examData, prevName) {
@@ -1261,14 +1266,40 @@ function createExamBlock(blockParentElem, examData, prevName) {
       examData.is_qualitative ? 'block__quality--green' : 'block__quality--gray'
   );
 
+  // Заголовок (только если новое имя)
+  if (examData.name !== prevName) {
+    const examHeader = document.createElement('div');
+    examHeader.classList.add('block__header');
+
+    const examTitle = document.createElement('h4');
+    examTitle.innerText = capitalizeFirstLetter(examData.name);
+    examTitle.style.margin = '0';
+
+    examHeader.appendChild(examTitle);
+    examContainer.appendChild(examHeader);
+  }
+
+  // Комментарий + udd + urr + иконка "i"
+  const commentWrapper = document.createElement('div');
+  commentWrapper.style.display = 'flex';
+  commentWrapper.style.justifyContent = 'space-between';
+  commentWrapper.style.alignItems = 'flex-start';
+
+  const leftBlock = document.createElement('div');
+  leftBlock.style.display = 'flex';
+  leftBlock.style.alignItems = 'center';
+  leftBlock.style.gap = '8px';
+
+  const infoBox = document.createElement('div');
+  infoBox.style.display = 'flex';
+  infoBox.style.alignItems = 'center';
+  infoBox.style.gap = '4px';
+
   const uddText = document.createElement('span');
   uddText.style.fontWeight = 'normal';
-
   if (examData.pers) {
     const { уур, удд } = examData.pers;
     uddText.textContent = `${уур}${удд}`;
-  } else {
-    uddText.textContent = "";
   }
 
   const urrImg = document.createElement('img');
@@ -1283,140 +1314,120 @@ function createExamBlock(blockParentElem, examData, prevName) {
     urrImg.classList.add('hidden');
   }
 
-  if (examData.name !== prevName) {
-    const examHeader = document.createElement('div');
-    examHeader.classList.add('block__header');
-    examHeader.style.display = 'flex';
-    examHeader.style.justifyContent = 'space-between';
-    examHeader.style.alignItems = 'center';
+  infoBox.appendChild(uddText);
+  // infoBox.appendChild(urrImg);
 
-    const leftBlock = document.createElement('div');
-    leftBlock.style.display = 'flex';
-    leftBlock.style.alignItems = 'center';
-    leftBlock.style.gap = '8px';
+  const examComment = document.createElement('p');
+  examComment.classList.add('block__comment');
+  examComment.innerText = examData.comment || '';
 
-    const infoBox = document.createElement('div');
-    infoBox.style.display = 'flex';
-    infoBox.style.alignItems = 'center';
-    infoBox.style.gap = '4px';
+  leftBlock.appendChild(infoBox);
+  leftBlock.appendChild(examComment);
+  commentWrapper.appendChild(leftBlock);
 
-    // infoBox.appendChild(urrImg);
-    infoBox.appendChild(uddText);
-
-    const examTitle = document.createElement('h4');
-    examTitle.innerText = examData.name;
-    examTitle.style.margin = '0';
-
-    leftBlock.appendChild(infoBox);
-    leftBlock.appendChild(examTitle);
-
-    examHeader.appendChild(leftBlock);
-
-    if (examData.cr_db_id) {
-      const infoIcon = document.createElement('img');
-      infoIcon.src = '../images/info-icon.png';
-      infoIcon.alt = 'Info';
-      infoIcon.classList.add('block__info-icon');
-      infoIcon.addEventListener('click', (event) => {
-        event.stopPropagation();
-        event.preventDefault();
-        openInfoPopupByTitle(examData);
-      });
-      examHeader.appendChild(infoIcon);
-    }
-
-    examContainer.appendChild(examHeader);
-
-    const examComment = document.createElement('p');
-    examComment.classList.add('block__comment');
-    examComment.innerText = examData.comment || "";
-    examContainer.appendChild(examComment);
-  } else {
-    const commentWrapper = document.createElement('div');
-    commentWrapper.style.display = 'flex';
-    commentWrapper.style.justifyContent = 'space-between';
-    commentWrapper.style.alignItems = 'flex-start';
-
-    const examComment = document.createElement('p');
-    examComment.classList.add('block__comment');
-    examComment.innerText = examData.comment || "";
-
-    commentWrapper.appendChild(examComment);
-
-    if (examData.cr_db_id) {
-      const infoIcon = document.createElement('img');
-      infoIcon.src = '../images/info-icon.png';
-      infoIcon.alt = 'Info';
-      infoIcon.classList.add('block__info-icon');
-      infoIcon.style.marginLeft = '8px';
-      infoIcon.addEventListener('click', () => openInfoPopupByTitle(examData));
-      commentWrapper.appendChild(infoIcon);
-    }
-
-    examContainer.appendChild(commentWrapper);
+  if (examData.cr_db_id) {
+    const infoIcon = document.createElement('img');
+    infoIcon.src = '../images/info-icon.png';
+    infoIcon.alt = 'Info';
+    infoIcon.classList.add('block__info-icon');
+    infoIcon.style.cursor = 'pointer';
+    infoIcon.style.marginLeft = '8px';
+    infoIcon.addEventListener('click', () => openInfoPopupByTitle(examData));
+    commentWrapper.appendChild(infoIcon);
   }
 
+  examContainer.appendChild(commentWrapper);
   examContainer.appendChild(examQuality);
   blockParentElem.appendChild(examContainer);
 }
+
 
 function createTreatBlock(parentElem, treatData, prevName) {
   const treatContainer = document.createElement('div');
   treatContainer.classList.add('block__container');
 
+  const treatQuality = document.createElement('div');
+  treatQuality.classList.add('block__quality');
+  treatQuality.classList.add(
+      treatData.is_qualitative ? 'block__quality--green' : 'block__quality--gray'
+  );
+
+  // Заголовок (только если новое имя)
   if (treatData.name !== prevName) {
     const treatHeaderWrapper = document.createElement('div');
     treatHeaderWrapper.classList.add('block__header');
-    treatHeaderWrapper.style.display = 'flex';
-    treatHeaderWrapper.style.justifyContent = 'space-between';
-    treatHeaderWrapper.style.alignItems = 'center';
 
     const treatHeader = document.createElement('h4');
-    treatHeader.innerText = treatData.name;
+    treatHeader.innerText = capitalizeFirstLetter(treatData.name);
     treatHeader.style.margin = '0';
 
-    const infoBox = document.createElement('div');
-    infoBox.style.display = 'flex';
-    infoBox.style.alignItems = 'center';
-    infoBox.style.gap = '4px';
-
-    const uddText = document.createElement('span');
-    uddText.style.fontWeight = 'normal';
-    if (treatData.pers) {
-      const { уур, удд } = treatData.pers;
-      uddText.textContent = `${уур}${удд}`;
-    }
-
-    infoBox.appendChild(uddText);
-
-    const leftBlock = document.createElement('div');
-    leftBlock.style.display = 'flex';
-    leftBlock.style.alignItems = 'center';
-    leftBlock.style.gap = '8px';
-    leftBlock.appendChild(infoBox);
-    leftBlock.appendChild(treatHeader);
-
-    treatHeaderWrapper.appendChild(leftBlock);
-
-    if (treatData.cr_db_id && popupData && popupData[treatData.cr_db_id]) {
-      const infoIcon = document.createElement('img');
-      infoIcon.src = '../images/info-icon.png';
-      infoIcon.alt = 'Info';
-      infoIcon.classList.add('block__info-icon');
-      infoIcon.addEventListener('click', (event) => {
-        event.stopPropagation();
-        openInfoPopupByTitle(treatData);
-      });
-      treatHeaderWrapper.appendChild(infoIcon);
-    }
-
+    treatHeaderWrapper.appendChild(treatHeader);
     treatContainer.appendChild(treatHeaderWrapper);
   }
 
+  // Комментарий + udd + иконка "i"
+  const commentWrapper = document.createElement('div');
+  commentWrapper.style.display = 'flex';
+  commentWrapper.style.justifyContent = 'space-between';
+  commentWrapper.style.alignItems = 'flex-start';
+
+  const leftBlock = document.createElement('div');
+  leftBlock.style.display = 'flex';
+  leftBlock.style.alignItems = 'center';
+  leftBlock.style.gap = '8px';
+
+  // infoBox (udd + urr)
+  const infoBox = document.createElement('div');
+  infoBox.style.display = 'flex';
+  infoBox.style.alignItems = 'center';
+  infoBox.style.gap = '4px';
+
+  const uddText = document.createElement('span');
+  uddText.style.fontWeight = 'normal';
+  if (treatData.pers) {
+    const { уур, удд } = treatData.pers;
+    uddText.textContent = `${уур}${удд}`;
+  }
+
+  const urrImg = document.createElement('img');
+  urrImg.src = '../images/circle-icon.png';
+  urrImg.alt = 'urr';
+  urrImg.classList.add('circle__img');
+  urrImg.style.width = '20px';
+  urrImg.style.height = '20px';
+  if (treatData.is_qualitative === 1) {
+    urrImg.classList.remove('hidden');
+  } else {
+    urrImg.classList.add('hidden');
+  }
+
+  infoBox.appendChild(uddText);
+  // infoBox.appendChild(urrImg);
+
   const treatComment = document.createElement('p');
   treatComment.classList.add('block__comment');
-  treatComment.innerText = treatData.comment;
-  treatContainer.appendChild(treatComment);
+  treatComment.innerText = treatData.comment || '';
+
+  leftBlock.appendChild(infoBox);
+  leftBlock.appendChild(treatComment);
+  commentWrapper.appendChild(leftBlock);
+
+  if (treatData.cr_db_id && popupData && popupData[treatData.cr_db_id]) {
+    const infoIcon = document.createElement('img');
+    infoIcon.src = '../images/info-icon.png';
+    infoIcon.alt = 'Info';
+    infoIcon.classList.add('block__info-icon');
+    infoIcon.style.cursor = 'pointer';
+    infoIcon.style.marginLeft = '8px';
+    infoIcon.addEventListener('click', (event) => {
+      event.stopPropagation();
+      event.preventDefault();
+      openInfoPopupByTitle(treatData);
+    });
+    commentWrapper.appendChild(infoIcon);
+  }
+
+  treatContainer.appendChild(commentWrapper);
 
   if (treatData.plan) {
     const treatPlan = document.createElement('p');
@@ -1432,15 +1443,11 @@ function createTreatBlock(parentElem, treatData, prevName) {
     treatContainer.appendChild(treatDuration);
   }
 
-  const treatQuality = document.createElement('div');
-  treatQuality.classList.add('block__quality');
-  treatQuality.classList.add(
-      treatData.is_qualitative ? 'block__quality--green' : 'block__quality--gray'
-  );
   treatContainer.appendChild(treatQuality);
-
   parentElem.appendChild(treatContainer);
 }
+
+
 
 
 function createList(type, listsData) {
