@@ -1,6 +1,6 @@
-// import '../css/main.css';
-//
-// import { decryptData } from './crypto.js';
+import '../css/main.css';
+
+import { decryptData } from './crypto.js';
 
 const searchInput = document.getElementById('search-input');
 const clearButton = document.getElementById('clear-button');
@@ -34,7 +34,16 @@ async function fetchPopupDataOnce() {
 
   while (attempt <= maxRetries) {
     try {
-      const response = await fetch('/res_K26.0_second.json');
+      // const response = await fetch('/res_K26.0_second.json');
+
+      // const response = await fetch('/test-s.json');
+
+      const code = searchInput.codeValue;
+
+      // Get credentials from cookies
+      const username = getCookie('username');
+      const password = getCookie('password');
+      const response = await fetch(`../php/get-data-popup.php/login?code=${code}&username=${username}&password=${password}`);
 
       if (!response.ok) {
         throw new Error(`HTTP error: ${response.status}`);
@@ -685,7 +694,11 @@ async function searchMkb() {
   searchInput.disabled = true;
 
   try {
-    const response = await fetch('/res_K26.0_first.json');
+    // const response = await fetch('/res_K26.0_first.json');
+
+    // const response = await fetch('/test-f.json');
+
+    const response = await fetch(`../php/get-data-main.php/login?code=${code}&username=${username}&password=${password}`);
 
     if (!response.ok) {
       throw new Error('Network response was not ok');
@@ -878,7 +891,7 @@ function setExamText() {
   const ageToggleElem = document.getElementById('age-toggle');
   const examStageToggleFirstElem = document.getElementById('exam-stage-toggle-first');
   const currentAge = ageToggleElem.checked ? 'grownup' : 'child';
-  const currentStage = examStageToggleFirstElem.classList.contains('stage__selected') ? 1 : 2;
+  const currentStage = examStageToggleFirstElem.classList.contains('stage__selected') ? "1" : "2";
   const standardInd = getStandardInd('exam');
 
   const examCardRequiredElem = document.getElementById('exam-card-required');
