@@ -47,22 +47,23 @@ $method = "AES-256-CBC";
 $iv = openssl_random_pseudo_bytes(16);
 
 // Convert data to JSON string
-$jsonData = json_encode($data, JSON_UNESCAPED_UNICODE);
+header('Content-Type: application/json; charset=utf-8');
+echo json_encode($data, JSON_UNESCAPED_UNICODE);
 
-// Encrypt the data
-$encrypted = openssl_encrypt(
-    $jsonData,
-    $method,
-    $key,
-    OPENSSL_RAW_DATA,
-    $iv
-);
+// // Encrypt the data
+// $encrypted = openssl_encrypt(
+//     $jsonData,
+//     $method,
+//     $key,
+//     OPENSSL_RAW_DATA,
+//     $iv
+// );
 
-// Combine IV and encrypted data
-$combined = $iv . $encrypted;
+// // Combine IV and encrypted data
+// $combined = $iv . $encrypted;
 
-// Encode the result in base64
-$result = base64_encode($combined);
+// // Encode the result in base64
+// $result = base64_encode($combined);
 
-echo $result;
+// echo $result;
 ?>
