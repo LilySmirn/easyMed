@@ -1406,14 +1406,14 @@ function createTreatBlock(parentElem, treatData, prevName) {
   if (treatData.plan) {
     const treatPlan = document.createElement('p');
     treatPlan.classList.add('block__comment', 'block__comment--plan');
-    treatPlan.innerHTML = 'Схема лечения: ' + treatData.plan;
+    treatPlan.innerHTML = '<b>Схема лечения: </b>>' + treatData.plan;
     treatContainer.appendChild(treatPlan);
   }
 
   if (treatData.duration) {
     const treatDuration = document.createElement('p');
     treatDuration.classList.add('block__comment', 'block__comment--duration');
-    treatDuration.innerHTML = 'Длительность курса: ' + treatData.duration;
+    treatDuration.innerHTML = '<b>Длительность курса: </b>' + treatData.duration;
     treatContainer.appendChild(treatDuration);
   }
 

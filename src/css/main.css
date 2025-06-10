@@ -1005,6 +1005,16 @@ option:disabled {
   margin-bottom: 0;
 }
 
+.block__comment--plan {
+  margin-top: 7px;
+  margin-left: 24px;
+}
+
+.block__comment--duration {
+  margin-top: 7px;
+  margin-left: 24px;
+}
+
 .block__quality {
   position: absolute;
   left: 0;
