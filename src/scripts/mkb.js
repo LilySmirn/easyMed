@@ -722,14 +722,14 @@ async function searchMkb() {
   }
   catch (error) {
     console.error('Ошибка:', error);
-    searchInput.placeholder = 'Название или код болезни';
+    searchInput.placeholder = 'Название нозологии или код МКБ';
     searchInput.disabled = false;
   }
 }
 
 function setMkbName() {
   searchInput.value = `${document.mkbData.child.code} ${document.mkbData.child.name}`;
-  searchInput.placeholder = 'Название или код болезни';
+  searchInput.placeholder = 'Название нозологии или код МКБ';
   searchInput.disabled = false;
 }
 
