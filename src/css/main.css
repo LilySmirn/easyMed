@@ -127,6 +127,7 @@ html,
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 100px;
   z-index: 10000;
 }
 
@@ -149,8 +150,10 @@ html,
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  width: 636px;
-  height: 305px;
+  min-width: 636px;
+  max-width: 66%;
+  max-height: 100%;
+  min-height: 305px;
   background-color: white;
   padding: 19px 8px 18px 24px;
   position: relative;
@@ -233,7 +236,7 @@ hr {
   font-family: Arial, sans-serif;
   font-size: 16px;
   line-height: 130%;
-  width: 560px;
+  width: 100%;
 }
 
 .dot-description::before {
@@ -628,6 +631,8 @@ input {
   flex-shrink: 0;
   align-self: stretch;
 }
+
+
 
 .block__quality--green {
   background-color: #5DB475;
