@@ -540,15 +540,11 @@ function addCopyCardAllTextDataEventListeners(cardCopyElem) {
   cardCopyElem.addEventListener('click', function (e) {
     const cardElem = e.target.closest('.form__card');
     const textToCopy = getCardDataText(cardElem, e.target);
-    let selectedBlocksAmount = cardElem.getElementsByClassName(
-        'block__container--selected'
-    ).length;
-    if (!selectedBlocksAmount)
-      selectedBlocksAmount =
-          cardElem.getElementsByClassName('block__container').length;
+    const copiedCount = getCopiedBlockCount(cardElem);
+
     copyToClipboard(textToCopy, flashTooltipOnEvent, [
       e,
-      `Скопировано ${selectedBlocksAmount} шт.`,
+      `Скопировано ${copiedCount} шт.`,
     ]);
   });
 }
@@ -602,34 +598,30 @@ function flashTooltipOnEvent(event, tooltipText, timeout) {
 
 function getCardDataText(cardElem, copyButtonElem) {
   const allBlocks = Array.from(cardElem.getElementsByClassName('block__container'));
-
   const selectionModeIsOn = allBlocks.some(block =>
       block.classList.contains('block__container--selected')
   );
 
-  let lastKnownTitle = '';
   const linesToCopy = [];
 
   for (const blockElem of allBlocks) {
-    const headerElem = blockElem.querySelector('.block__header');
-    const titleText = headerElem ? headerElem.innerText.trim() : null;
-
-    if (titleText) {
-      lastKnownTitle = titleText;
-    }
-
-    // Пропускаем, если блок не выделен, а режим выделения включён
+    // Пропускаем, если режим выделения включён, но блок не выделен
     if (selectionModeIsOn && !blockElem.classList.contains('block__container--selected')) {
       continue;
     }
 
-    // Используем сохранённый заголовок, если у текущего блока его нет
-    const effectiveTitle = titleText || lastKnownTitle;
+    const headerElem = blockElem.querySelector('.block__header');
 
+    // Пропускаем заголовки категорий (category-name)
+    if (!headerElem || headerElem.classList.contains('category-name')) {
+      continue;
+    }
+
+    const titleText = headerElem.innerText.trim();
     const planElem = blockElem.querySelector('.block__comment--plan');
     const durationElem = blockElem.querySelector('.block__comment--duration');
 
-    const blockLines = [effectiveTitle];
+    const blockLines = [titleText];
     if (planElem) {
       blockLines.push(planElem.innerText.trim());
     }
@@ -641,72 +633,31 @@ function getCardDataText(cardElem, copyButtonElem) {
   }
 
   return linesToCopy.join('\n\n').trim();
-
-  // const selectionModeIsOn = copyButtonElem
-  //     .closest('.form__card--copy-button')
-  //     .classList.contains('copy-button--selected');
-  //
-  // const dataString = Array.from(
-  //     cardElem.getElementsByClassName('block__container')
-  // ).reduce((string, blockElem) => {
-  //
-  //   //получаем заголовок
-  //   const headerElem = blockElem.querySelector('.block__header');
-  //   const titleText = headerElem ? headerElem.innerText.trim() : '';
-  //
-  //   const planElem = blockElem.querySelector('.block__comment--plan');
-  //   const durationELem = blockElem.querySelector('.block__comment--duration');
-  //
-  //   if (
-  //       selectionModeIsOn &&
-  //       !blockElem.classList.contains('block__container--selected')
-  //   ) {
-  //     return string;
-  //   }
-  //
-  //   let newString = titleText;
-  //   if (planElem) {
-  //     newString += '\n' + planElem.innerText.trim();
-  //   }
-  //   if (durationELem) {
-  //     newString += '\n' + durationELem.innerText.trim();
-  //   }
-  //
-  //   return string + '\n\n' + newString.trim();
-  // }, '');
-  //
-  // return dataString.trim();
-
-  // const selectionModeIsOn = copyButtonElem
-  //   .closest('.form__card--copy-button')
-  //   .classList.contains('copy-button--selected');
-  // const dataString = Array.from(
-  //   cardElem.getElementsByClassName('block__container')
-  // ).reduce((string, blockElem) => {
-  //   const titleText =
-  //     blockElem.querySelector('.block__header').innerText;
-  //
-  //   const planElem = blockElem.querySelector('.block__comment--plan');
-  //
-  //   const durationELem = blockElem.querySelector('.block__comment--duration');
-  //
-  //   if (
-  //     selectionModeIsOn &&
-  //     !blockElem.classList.contains('block__container--selected')
-  //   ) {
-  //     return string;
-  //   }
-  //   let newString = titleText;
-  //   if (planElem) {
-  //     newString += '\n' + planElem.innerText;
-  //   }
-  //   if (durationELem) {
-  //     newString += '\n' + durationELem.innerText;
-  //   }
-  //   return string + '\n' + '\n' + newString;
-  // }, '');
-  // return dataString.trim();
 }
+
+function getCopiedBlockCount(cardElem) {
+  const allBlocks = Array.from(cardElem.getElementsByClassName('block__container'));
+  const selectionModeIsOn = allBlocks.some(block =>
+      block.classList.contains('block__container--selected')
+  );
+
+  let copiedCount = 0;
+  for (const block of allBlocks) {
+    if (selectionModeIsOn && !block.classList.contains('block__container--selected')) {
+      continue;
+    }
+
+    const header = block.querySelector('.block__header');
+    if (!header || header.classList.contains('category-name')) {
+      continue;
+    }
+
+    copiedCount++;
+  }
+
+  return copiedCount;
+}
+
 
 function getSelectedBlocksAmount(cardElem) {
   return Array.from(
@@ -1205,13 +1156,6 @@ function openInfoPopupByTitle(examData) {
           examData.is_qualitative === 1 ? 'block__quality--green' : 'block__quality--gray'
       );
     }
-
-    // // 4. Иконка urr (по-прежнему можно использовать, если нужно)
-    // if (examData.is_qualitative === 1) {
-    //   urrImg.classList.remove('hidden');
-    // } else {
-    //   urrImg.classList.add('hidden');
-    // }
 
     // 5. Описание
     descEl.textContent = popupInfo.text || "Описание отсутствует";
