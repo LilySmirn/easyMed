@@ -3,7 +3,7 @@ header('Content-Type: application/json; charset=utf-8');
 $servername = "localhost"; // Хост, скорее всего, "localhost"
 $username = "u3100553_default"; // Имя пользователя MySQL u3100553_default
 $password = "9g6Gpiyp70NOM9Iu"; // Пароль от базы данных 9g6Gpiyp70NOM9Iu
-$dbname = "u2791988_10_06_25_DB"; // Имя базы данных u3100553_test-db
+$dbname = "u3100553_test_10.06"; // Имя базы данных u3100553_test-db
 
 // Создаем соединение
 $conn = new mysqli($servername, $username, $password, $dbname);
