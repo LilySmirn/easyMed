@@ -141,7 +141,7 @@ html,
 }
 
 .udd__text {
-  margin: 0 10px 0 5px;
+  margin: 0 5px 0 5px;
 }
 
 .exam-popup {
@@ -614,6 +614,27 @@ input {
   margin-bottom: 4px;
   color: rgba(0, 24, 47, 0.6);
   padding-left: 20px;
+}
+
+.popup__quality-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.popup__quality {
+  width: 2px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  align-self: stretch;
+}
+
+.block__quality--green {
+  background-color: #5DB475;
+}
+
+.block__quality--gray {
+  background-color: #BEBEBE;
 }
 
 .form {

@@ -1168,8 +1168,8 @@ function openInfoPopupByTitle(examData) {
   const popupOverlay = document.getElementById('popup-overlay');
   const titleEl = popupOverlay.querySelector('.popup__title');
   const descEl = popupOverlay.querySelector('.popup__description');
-  const commentTitleEl = popupOverlay.querySelector('.popup__comment');       // <p><b>Комментарий:</b></p>
-  const commentEl = popupOverlay.querySelector('.popup__comment-text');       // <p>...</p>
+  const commentTitleEl = popupOverlay.querySelector('.popup__comment');
+  const commentEl = popupOverlay.querySelector('.popup__comment-text');
   const urrImg = popupOverlay.querySelector('.circle__img');
   const uddText = popupOverlay.querySelector('.udd__text');
 
@@ -1190,17 +1190,33 @@ function openInfoPopupByTitle(examData) {
       uddText.textContent = "";
     }
 
-    // 3. Иконка
-    if (examData.is_qualitative === 1) {
-      urrImg.classList.remove('hidden');
-    } else {
-      urrImg.classList.add('hidden');
+    // 3. Полоска качества (зелёная/серая)
+    const qualityWrapper = popupOverlay.querySelector('.popup__quality-wrapper');
+    if (qualityWrapper) {
+      let qualityIndicator = qualityWrapper.querySelector('.popup__quality');
+      if (!qualityIndicator) {
+        qualityIndicator = document.createElement('div');
+        qualityIndicator.classList.add('popup__quality');
+        qualityWrapper.prepend(qualityIndicator);
+      }
+
+      qualityIndicator.classList.remove('block__quality--green', 'block__quality--gray');
+      qualityIndicator.classList.add(
+          examData.is_qualitative === 1 ? 'block__quality--green' : 'block__quality--gray'
+      );
     }
 
-    // 4. Описание
+    // // 4. Иконка urr (по-прежнему можно использовать, если нужно)
+    // if (examData.is_qualitative === 1) {
+    //   urrImg.classList.remove('hidden');
+    // } else {
+    //   urrImg.classList.add('hidden');
+    // }
+
+    // 5. Описание
     descEl.textContent = popupInfo.text || "Описание отсутствует";
 
-    // 5. Комментарий (заголовок + текст)
+    // 6. Комментарий
     const commentText = popupInfo.comment?.trim();
     if (commentText) {
       commentEl.innerHTML = `<i>${commentText}</i>`;
@@ -1212,12 +1228,13 @@ function openInfoPopupByTitle(examData) {
       commentEl.classList.add('hidden');
     }
 
-    // 6. Показываем попап
+    // 7. Показать попап
     popupOverlay.classList.remove('hidden');
   } else {
     console.warn("Нет данных из второго JSON для:", crDbId);
   }
 }
+
 
 
 //вставка данных в левый блок анализов
