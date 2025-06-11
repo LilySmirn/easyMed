@@ -150,8 +150,8 @@ function resetFileSelection() {
 document.getElementById('popupForm').addEventListener('submit', function (e) {
   e.preventDefault();
 
-  const token = '7936795213:AAGRgurZVGGQIJcCuU1bZpodJtRqvqsuFLs';
-  const chatId = '284467225';
+  const token = '7860976863:AAE2Y43llKvWPkhnV7_MtGHGHUIMBxb4270';
+  const chatId = '-2653556555';
 
   const email = this.email.value.trim();
   const name = this.name.value.trim();
@@ -961,17 +961,34 @@ function setExamText() {
   // Add recommendations link
   crmLinkContainer.innerHTML = '';
   crmLinkContainer.classList.remove('active');
+
   let crmId = mkbData[currentAge].standards[standardInd].cr_m_id;
+
   if (crmId !== undefined) {
     crmLinkContainer.innerHTML =
         `<a href="https://cr.minzdrav.gov.ru/view-cr/${crmId}" 
-          target="_blank" rel="noopener noreferrer" 
-          class="crm-link">
-          ${crmId}
-          <img src="../images/link-icon.png" alt="link" class="crm-link-img" />
-        </a>`;
+        target="_blank" rel="noopener noreferrer" 
+        class="crm-link" title="Перейти на Рубрикатор">
+      <img src="../images/eagle.svg" alt="eagle" class="crm-link-img eagle" />
+      <img src="../images/link-icon.png" alt="link" class="crm-link-img link-icon" />
+    </a>`;
     crmLinkContainer.classList.add('active');
   }
+
+
+  // crmLinkContainer.innerHTML = '';
+  // crmLinkContainer.classList.remove('active');
+  // let crmId = mkbData[currentAge].standards[standardInd].cr_m_id;
+  // if (crmId !== undefined) {
+  //   crmLinkContainer.innerHTML =
+  //       `<a href="https://cr.minzdrav.gov.ru/view-cr/${crmId}"
+  //         target="_blank" rel="noopener noreferrer"
+  //         class="crm-link">
+  //         ${crmId}
+  //         <img src="../images/link-icon.png" alt="link" class="crm-link-img" />
+  //       </a>`;
+  //   crmLinkContainer.classList.add('active');
+  // }
 
   let requiredExaminationsByCategory = groupByCategoryAndSort(
       mkbData[currentAge].standards[standardInd].examinations

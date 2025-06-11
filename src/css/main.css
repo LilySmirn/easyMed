@@ -1018,17 +1018,28 @@ option:disabled {
 }
 
 .crm-link-container.active {
-  margin: 0 0 10px 0;
+  margin: 0;
 }
 
 .crm-link-container a {
   color: black;
   text-decoration: none;
   margin-left: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .crm-link-container a:visited {
   color: black;
+}
+
+.link-icon {
+  margin-top: 10px;
+}
+
+.eagle {
+  margin-right: 8px;
 }
 
 .block__header {
