@@ -16,7 +16,7 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap"
       rel="stylesheet"
     />
-<!--    <link href="../css/main.css?v8>" rel="stylesheet" />-->
+    <link href="../css/main.css?v8>" rel="stylesheet" />
     <title>EASYMED</title>
     <link
       rel="icon"
@@ -118,21 +118,36 @@
       <div class="overlay hidden">
         <div class="call-popup">
           <div class="call-popup__text">
-            <h2>Свяжитесь с нами</h2>
-            <p>мы вам перезвоним</p>
+            <h2>Нашли ошибку<br>или есть пожелания?</h2>
+            <p>Напишите нам</p>
           </div>
 
           <form id="popupForm" class="call-popup__form">
             <input type="email" name="email" placeholder="Ваш email" required />
             <input type="text" name="name" placeholder="Ваше имя" required />
             <input type="tel" name="phone" placeholder="Введите номер телефона" required />
-            <input type="text" name="crm" placeholder="МИС или CRM" />
+            <input type="text" name="crm" placeholder="Название Вашей клиники" />
             <div class="add-img">
               <img src="../images/add-img.png" alt="img" class="add-img__img" />
               <p class="add-img__text">Прикрепить изображение</p>
+              <p id="fileName" class="file-name"></p>
+              <button id="removeFileBtn" style="display:none; margin-top: 5px; cursor: pointer;">Удалить</button>
+              <input
+                      type="file"
+                      id="fileInput"
+                      name="attachment"
+                      accept="image/*"
+                      style="display: none;"
+              />
             </div>
+            <textarea
+                    name="description"
+                    placeholder="Опишите Вашу проблему"
+                    class="popup__textarea"
+                    rows="4"
+            ></textarea>
             <div class="call-popup__btn">
-              <button type="submit" class="popup__btn">Оставить заявку</button>
+              <button type="submit" class="popup__btn">Отправить</button>
             </div>
           </form>
 
@@ -558,6 +573,6 @@
       </div>
     </div>
     <div id="tooltip" class="tooltip"></div>
-<!--    <script type="module" src="../scripts/mkb.js?v16"></script>-->
+    <script type="module" src="../scripts/mkb.js?v16"></script>
   </body>
 </html>

@@ -256,7 +256,7 @@ hr {
   align-items: center;
   z-index: 10000;
   opacity: 0;
-  transition: opacity 0.8s ease;
+  transition: opacity 0.3s ease-out;
   pointer-events: none;
 }
 .overlay.active {
@@ -271,10 +271,11 @@ hr {
   /*justify-content: center;*/
   align-items: center;
   width: 690px;
-  height: 425px;
+  height: 600px;
   background-color: #99CEFF;
   padding: 0;
   position: relative;
+  border-radius: 20px;
 }
 
 .call-popup__close {
@@ -295,8 +296,8 @@ hr {
   font-weight: bold;
   font-size: 30px;
   text-align: center;
-  margin-top: 45px;
-  margin-bottom: 0;
+  margin-top: 30px;
+  margin-bottom: 10px;
 }
 
 .call-popup__text p {
@@ -313,7 +314,7 @@ hr {
   justify-content: space-between;
   align-items: center;
   width: 472px;
-  height: 200px;
+  min-height: 200px; /* вместо height */
   margin-top: 30px;
 }
 
@@ -349,6 +350,34 @@ input {
   margin: 0;
 }
 
+.file-name {
+  color: #333;
+  font-family: Arial, sans-serif;
+  font-weight: normal;
+  font-size: 14px;
+  text-align: left;
+  margin: 0;
+}
+
+#removeFileBtn {
+  background: none;
+  border: none;
+  color: #0085FF;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 0;
+  margin-left: 7px;
+  text-decoration: underline;
+  display: none;
+  margin-top: 0; !important;
+}
+
+#removeFileBtn:hover {
+  color: #004589;
+  text-decoration: none;
+}
+
+
 .popup__btn {
   font-family: Arial, sans-serif;
   font-weight: bold;
@@ -364,6 +393,19 @@ input {
   width: 472px;
   border-radius: 10px;
   margin: 20px;
+}
+
+.popup__textarea {
+  width: 100%;
+  min-height: 80px;
+  border-radius: 10px;
+  border: 1px solid #0085FF;
+  outline: none;
+  padding: 10px;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  resize: vertical;
+  margin-top: 10px;
 }
 
 .page__login {

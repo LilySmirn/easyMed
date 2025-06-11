@@ -1,6 +1,6 @@
-import '../css/main.css';
-
-import { decryptData } from './crypto.js';
+// import '../css/main.css';
+//
+// import { decryptData } from './crypto.js';
 
 const searchInput = document.getElementById('search-input');
 const clearButton = document.getElementById('clear-button');
@@ -25,6 +25,11 @@ const closeBtn = overlay.querySelector('.call-popup__close');
 const popupOverlay = document.getElementById("popup-overlay");
 const closeButton = document.querySelector(".exam-popup__close");
 const crmLinkContainer = document.getElementById('crm-link-container');
+const addImageBlock = document.querySelector('.add-img');
+const fileInput = document.getElementById('fileInput');
+const addImgText = document.querySelector('.add-img__text');
+const removeFileBtn = document.getElementById('removeFileBtn');
+const fileNameText = document.getElementById('fileName');
 let popupData = null;
 
 async function fetchPopupDataOnce() {
@@ -108,8 +113,41 @@ overlay.addEventListener('click', (e) => {
   }
 });
 
+// Открыть окно выбора файла для отправки
+if (addImageBlock && fileInput) {
+  addImageBlock.addEventListener('click', (event) => {
+    // Проверка: если клик был по кнопке удаления, не открывать окно выбора файла
+    if (event.target === removeFileBtn) return;
+    fileInput.click();
+  });
+}
+
+fileInput.addEventListener('change', function () {
+  const file = this.files[0];
+  if (file) {
+    addImgText.style.display = 'none'; // скрыть "Прикрепить изображение"
+    fileNameText.textContent = `Выбран файл: ${file.name}`;
+    removeFileBtn.style.display = 'inline-block'; // показать кнопку удаления
+  } else {
+    resetFileSelection();
+  }
+});
+
+removeFileBtn.addEventListener('click', function (event) {
+  event.stopPropagation();
+  fileInput.value = '';
+  resetFileSelection();   // сбрасываем интерфейс
+});
+
+//сбросить прикрепленный файл
+function resetFileSelection() {
+  addImgText.style.display = 'block';   // показать "Прикрепить изображение"
+  fileNameText.textContent = '';        // убрать название файла
+  removeFileBtn.style.display = 'none'; // скрыть кнопку удаления
+}
+
 //отправка заявки с mkb в бот
-document.getElementById('popupForm').addEventListener('submit', function(e) {
+document.getElementById('popupForm').addEventListener('submit', function (e) {
   e.preventDefault();
 
   const token = '7936795213:AAGRgurZVGGQIJcCuU1bZpodJtRqvqsuFLs';
@@ -119,9 +157,12 @@ document.getElementById('popupForm').addEventListener('submit', function(e) {
   const name = this.name.value.trim();
   const phone = this.phone.value.trim();
   const crm = this.crm.value.trim() || '—';
+  const description = this.description.value.trim() || '—';
+  const file = this.attachment.files[0]; // input name="attachment"
 
-  const message = `📥 Новая заявка с сайта:\n\n📧 Email: ${email}\n👤 Имя: ${name}\n📞 Телефон: ${phone}\n🗂 МИС/CRM: ${crm}`;
+  const message = `📥 Новая заявка с сайта:\n\n📧 Email: ${email}\n👤 Имя: ${name}\n📞 Телефон: ${phone}\n🗂 МИС/CRM: ${crm}\n📝 Проблема: ${description}`;
 
+  // 1. Сначала отправляем текстовое сообщение
   fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -131,19 +172,37 @@ document.getElementById('popupForm').addEventListener('submit', function(e) {
     })
   })
       .then(response => {
-        if (response.ok) {
-          alert('✅ Заявка успешно отправлена!');
-          this.reset();
-          closePopup();
-        } else {
-          alert('⚠️ Ошибка при отправке.');
+        if (!response.ok) throw new Error('Ошибка отправки текста');
+
+        // 2. Если есть файл — отправим его отдельным запросом
+        if (file) {
+          const formData = new FormData();
+          formData.append('chat_id', chatId);
+          formData.append('photo', file); // можно заменить на document
+          formData.append('caption', `📎 Файл от ${name}`);
+
+          return fetch(`https://api.telegram.org/bot${token}/sendPhoto`, {
+            method: 'POST',
+            body: formData
+          });
         }
+
+        return Promise.resolve(); // ничего не делаем, если файла нет
+      })
+      .then(response => {
+        if (response && !response.ok) throw new Error('Ошибка при отправке изображения');
+
+        alert('✅ Заявка успешно отправлена!');
+        this.reset();
+        resetFileSelection();
+        closePopup();
       })
       .catch(error => {
         console.error('Ошибка:', error);
         alert('⚠️ Не удалось отправить заявку.');
       });
 });
+
 
 
 exitButtonElem.addEventListener('click', () => {
