@@ -151,7 +151,7 @@ document.getElementById('popupForm').addEventListener('submit', function (e) {
   e.preventDefault();
 
   const token = '7860976863:AAE2Y43llKvWPkhnV7_MtGHGHUIMBxb4270';
-  const chatId = '-2653556555';
+  const chatId = '308103705';
 
   const email = this.email.value.trim();
   const name = this.name.value.trim();
