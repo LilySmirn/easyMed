@@ -369,7 +369,7 @@ input {
   margin-left: 7px;
   text-decoration: underline;
   display: none;
-  margin-top: 0; !important;
+  margin-top: 0 !important;
 }
 
 #removeFileBtn:hover {
