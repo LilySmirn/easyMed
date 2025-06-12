@@ -439,9 +439,15 @@ function setCardViewTogglers() {
         currentElem = currentElem.parentElement;
       }
       currentElem.classList.toggle('minimized');
-      currentElem
-          .querySelector('.form__card-toggle')
-          .classList.toggle('rotated');
+      const toggleElem = currentElem.querySelector('.form__card-toggle');
+      toggleElem.classList.toggle('rotated');
+
+      // Обновляем title в зависимости от состояния стрелки
+      if (toggleElem.classList.contains('rotated')) {
+        toggleElem.title = 'Свернуть';
+      } else {
+        toggleElem.title = 'Развернуть';
+      }
     });
   });
 }
