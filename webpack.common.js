@@ -4,33 +4,33 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { version } = require('./package.json');
 
-class AppendQueryPlugin {
-    constructor(version) {
-        this.version = version;
-    }
-
-    apply(compiler) {
-        compiler.hooks.compilation.tap('AppendQueryPlugin', (compilation) => {
-            HtmlWebpackPlugin.getHooks(compilation).alterAssetTagGroups.tapAsync(
-                'AppendQueryPlugin',
-                (data, cb) => {
-                    const appendVersion = (tag) => {
-                        if (tag.tagName === 'script' && tag.attributes.src) {
-                            tag.attributes.src += `?v=${this.version}`;
-                        }
-                        if (tag.tagName === 'link' && tag.attributes.href) {
-                            tag.attributes.href += `?v=${this.version}`;
-                        }
-                        return tag;
-                    };
-                    data.headTags = data.headTags.map(appendVersion);
-                    data.bodyTags = data.bodyTags.map(appendVersion);
-                    cb(null, data);
-                }
-            );
-        });
-    }
-}
+// class AppendQueryPlugin {
+//     constructor(version) {
+//         this.version = version;
+//     }
+//
+//     apply(compiler) {
+//         compiler.hooks.compilation.tap('AppendQueryPlugin', (compilation) => {
+//             HtmlWebpackPlugin.getHooks(compilation).alterAssetTagGroups.tapAsync(
+//                 'AppendQueryPlugin',
+//                 (data, cb) => {
+//                     const appendVersion = (tag) => {
+//                         if (tag.tagName === 'script' && tag.attributes.src) {
+//                             tag.attributes.src += `?v=${this.version}`;
+//                         }
+//                         if (tag.tagName === 'link' && tag.attributes.href) {
+//                             tag.attributes.href += `?v=${this.version}`;
+//                         }
+//                         return tag;
+//                     };
+//                     data.headTags = data.headTags.map(appendVersion);
+//                     data.bodyTags = data.bodyTags.map(appendVersion);
+//                     cb(null, data);
+//                 }
+//             );
+//         });
+//     }
+// }
 
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -46,7 +46,7 @@ module.exports = {
     },
     output: {
         path: path.resolve(__dirname, 'dist'),
-        filename: '[name].js',
+        filename: '[name].[contenthash].js',
         clean: true,
     },
     plugins: [
@@ -70,7 +70,7 @@ module.exports = {
             inject: 'body',
         }),
         new MiniCssExtractPlugin({
-            filename: '[name].css',
+            filename: '[name].[contenthash].css',
         }),
         new CopyWebpackPlugin({
             patterns: [
@@ -99,10 +99,20 @@ module.exports = {
                         /\.(json|conf|config|js\.bak|md)$/i.test(path.basename(resourcePath)),
                     noErrorOnMissing: true,
                 },
+                {
+                    from: 'src/yandex_9ea3b3d57a5a717d.html',
+                    to: 'yandex_9ea3b3d57a5a717d.html',
+                    noErrorOnMissing: true,
+                },
+                {
+                    from: 'src/zen_koYwyNQtBX8jHIJrKmzuOyUazRek5BzJTckcR5QpRae2rWGA2kiNUCc9N3mwkjot.html',
+                    to: 'zen_koYwyNQtBX8jHIJrKmzuOyUazRek5BzJTckcR5QpRae2rWGA2kiNUCc9N3mwkjot.html',
+                    noErrorOnMissing: true,
+                },
             ],
         }),
 
-        new AppendQueryPlugin(version),
+        // new AppendQueryPlugin(version),
     ],
     module: {
         rules: [
