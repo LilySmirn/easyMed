@@ -1395,6 +1395,7 @@ function createExamBlock(blockParentElem, examData, prevName) {
     infoIcon.classList.add('block__info-icon');
     infoIcon.style.cursor = 'pointer';
     infoIcon.style.marginLeft = '8px';
+    infoIcon.title = 'Показать расширенные комментарии';
     infoIcon.addEventListener('click', () => openInfoPopupByTitle(examData));
     commentWrapper.appendChild(infoIcon);
   }
