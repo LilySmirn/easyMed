@@ -43,6 +43,7 @@ module.exports = {
         'index/script': './src/index/script.js',
         'index/styles': './src/index/styles.css',
         'css/main': './src/css/main.css',
+
     },
     output: {
         path: path.resolve(__dirname, 'dist'),
@@ -66,7 +67,7 @@ module.exports = {
         new HtmlWebpackPlugin({
             template: './src/login/index.html',
             filename: 'login/index.html',
-            chunks: ['scripts/login'],
+            chunks: ['scripts/login', 'css/main'],
             inject: 'body',
         }),
         new MiniCssExtractPlugin({
