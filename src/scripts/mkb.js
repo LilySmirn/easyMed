@@ -692,8 +692,8 @@ function getCardDataText(cardElem, copyButtonElem) {
     const planElem = blockElem.querySelector('.block__comment--plan');
     const durationElem = blockElem.querySelector('.block__comment--duration');
 
-    const planText = planElem ? planElem.innerText.replace(/^.*?:\s*/, '').trim() : '';
-    const durationText = durationElem ? durationElem.innerText.replace(/^.*?:\s*/, '').trim() : '';
+    const planText = planElem ? `Схема лечения: ${planElem.innerText.replace(/^.*?:\s*>?/, '').trim()}` : '';
+    const durationText = durationElem ? `Длительность курса: ${durationElem.innerText.replace(/^.*?:\s*/, '').trim()}` : '';
 
     const blockLines = [titleText];
     if (planText) blockLines.push(planText);
@@ -704,6 +704,7 @@ function getCardDataText(cardElem, copyButtonElem) {
 
   return linesToCopy.join('\n\n').trim();
 }
+
 
 
 function getCopiedBlockCount(cardElem) {
