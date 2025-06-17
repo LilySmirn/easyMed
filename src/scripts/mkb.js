@@ -671,43 +671,40 @@ function flashTooltipOnEvent(event, tooltipText, timeout) {
 }
 
 function getCardDataText(cardElem, copyButtonElem) {
-  const allBlocks = Array.from(cardElem.getElementsByClassName('block__container'));
-  const selectionModeIsOn = allBlocks.some(block =>
-      block.classList.contains('block__container--selected')
-  );
+  const selectedBlocks = Array.from(cardElem.getElementsByClassName('block__container--selected'));
 
-  const linesToCopy = [];
+  const linesToCopy = selectedBlocks.map(blockElem => {
+    // Ищем заголовок
+    let headerElem = blockElem.querySelector('.block__header');
 
-  for (const blockElem of allBlocks) {
-    // Пропускаем, если режим выделения включён, но блок не выделен
-    if (selectionModeIsOn && !blockElem.classList.contains('block__container--selected')) {
-      continue;
-    }
-
-    const headerElem = blockElem.querySelector('.block__header');
-
-    // Пропускаем заголовки категорий (category-name)
     if (!headerElem || headerElem.classList.contains('category-name')) {
-      continue;
+      let prev = blockElem.previousElementSibling;
+      while (prev && (!prev.querySelector('.block__header') || prev.querySelector('.block__header').classList.contains('category-name'))) {
+        prev = prev.previousElementSibling;
+      }
+      if (prev) {
+        headerElem = prev.querySelector('.block__header');
+      }
     }
 
-    const titleText = headerElem.innerText.trim();
+    const titleText = headerElem?.innerText.trim() || '';
+
     const planElem = blockElem.querySelector('.block__comment--plan');
     const durationElem = blockElem.querySelector('.block__comment--duration');
 
-    const blockLines = [titleText];
-    if (planElem) {
-      blockLines.push(planElem.innerText.trim());
-    }
-    if (durationElem) {
-      blockLines.push(durationElem.innerText.trim());
-    }
+    const planText = planElem ? planElem.innerText.replace(/^.*?:\s*/, '').trim() : '';
+    const durationText = durationElem ? durationElem.innerText.replace(/^.*?:\s*/, '').trim() : '';
 
-    linesToCopy.push(blockLines.join('\n'));
-  }
+    const blockLines = [titleText];
+    if (planText) blockLines.push(planText);
+    if (durationText) blockLines.push(durationText);
+
+    return blockLines.join('\n');
+  });
 
   return linesToCopy.join('\n\n').trim();
 }
+
 
 function getCopiedBlockCount(cardElem) {
   const allBlocks = Array.from(cardElem.getElementsByClassName('block__container'));
@@ -1059,14 +1056,23 @@ function setTreatText() {
 
   const treatCardActionElem = document.getElementById('treat-card-action');
   const treatCardDrugElem = document.getElementById('treat-card-drug');
+  const treatCardDrugOfflabelElem = document.getElementById('treat-card-drug-offlabel');
+  clearCard(treatCardDrugOfflabelElem);
 
   clearCard(treatCardActionElem);
   clearCard(treatCardDrugElem);
 
-  let treatments = mkbData[currentAge]
+  const allTreatments = mkbData[currentAge]
       .standards[standardInd]
       .treatments
-      .filter(t => t.is_stationary !== 1 && t.is_offlabel !== 1)
+      .filter(t => t.is_stationary !== 1);
+
+  const treatments = allTreatments
+      .filter(t => !t.is_offlabel)
+      .sort((a, b) => a.name.localeCompare(b.name));
+
+  const offlabelTreatments = allTreatments
+      .filter(t => t.is_offlabel)
       .sort((a, b) => a.name.localeCompare(b.name));
 
   let hasAction = false;
@@ -1087,6 +1093,22 @@ function setTreatText() {
     }
   });
 
+  let hasOfflabel = false;
+  let prevDrugNameOff = "";
+  offlabelTreatments.forEach((treatment) => {
+    if (treatment.type === "drug") {
+      createTreatBlock(treatCardDrugOfflabelElem, treatment, prevDrugNameOff);
+      prevDrugNameOff = treatment.name;
+      hasOfflabel = true;
+    }
+  });
+
+  if (hasOfflabel) {
+    treatCardDrugOfflabelElem.classList.remove('hidden');
+    treatCardDrugOfflabelElem.classList.add('minimized');
+  } else {
+    treatCardDrugOfflabelElem.classList.add('hidden');
+  }
 
   if (hasAction) {
     treatCardActionElem.classList.remove('hidden');
