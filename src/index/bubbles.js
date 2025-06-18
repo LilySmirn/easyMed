@@ -75,7 +75,7 @@
     }, 250));
 
     // Start animation loop
-    requestAnimationFrame(animationLoop);
+    startAnimationLoop();
   }
 
   function debounce(func, wait) {
@@ -551,4 +551,31 @@
     // Adjusted rotation amount for new bubble size
     bubble.rotation = (bubble.rotation || 0) + (Math.sin((animationTime * FLOAT_FREQUENCY * 0.5) + bubble.phaseOffsetX) * 0.18);
   }
+
+
+  let animationFrameId = null;
+
+  function startAnimationLoop() {
+    updateBubbles();
+    animationFrameId = requestAnimationFrame(startAnimationLoop);
+  }
+
+  // Заменяем начальный запуск на этот метод
+  startAnimationLoop();
+
+  // Экспортируем в window
+  window.pauseBubbles = () => {
+    if (animationFrameId !== null) {
+      cancelAnimationFrame(animationFrameId);
+      animationFrameId = null;
+    }
+  };
+
+  window.resumeBubbles = () => {
+    if (animationFrameId === null) {
+      animationFrameId = requestAnimationFrame(startAnimationLoop);
+    }
+  };
+
+
 })();

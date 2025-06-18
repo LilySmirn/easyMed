@@ -5,11 +5,9 @@ import './bubbles.css';
 // Convert HTMLCollection to Array to use forEach
 Array.from(document.getElementsByClassName('demo-button')).forEach((button) =>
     button.addEventListener('click', function (e) {
-      // e.preventDefault();
+      e.preventDefault();
 
       const contactForm = document.querySelector('.contact-form-wrapper');
-
-      if (!contactForm) return;
 
       const scrollToElement = (element) => {
         const startPosition = window.scrollY;
@@ -37,11 +35,12 @@ Array.from(document.getElementsByClassName('demo-button')).forEach((button) =>
         window.requestAnimationFrame(step);
       };
 
-      // Запуск прокрутки сразу, без задержки
-      scrollToElement(contactForm);
+      // Добавляем небольшую задержку, чтобы избежать дергания
+      setTimeout(() => {
+        scrollToElement(contactForm);
+      }, 50);
     })
 );
-
 
 function handleScroll () {
   const sections = document.querySelectorAll('.advantages, .differences, .faq')

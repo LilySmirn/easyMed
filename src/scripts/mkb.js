@@ -397,20 +397,50 @@ async function delayFor(delay) {
 }
 
 function setCardCopyButtonsEventHandler() {
-  Array.from(document.getElementsByClassName('form__card')).forEach(
-      (cardElem) => {
-        addCopyCardAllTextDataEventListeners(
-            cardElem.querySelector('.copy-button__copy-button')
-        );
-        cardElem
-            .querySelector('.copy-button__close-button')
-            .addEventListener('click', (e) => {
-              const cardElem = e.target.closest('.form__card');
-              removeBlockSelections(cardElem);
-            });
-      }
-  );
+  // Перебираем все карточки
+  Array.from(document.getElementsByClassName('form__card')).forEach((cardElem) => {
+    const copyButton = cardElem.querySelector('.copy-button__copy-button');
+    const closeButton = cardElem.querySelector('.copy-button__close-button');
+    const copyAllButton = cardElem.querySelector(
+        '.form__card--copy-button[data-copy-all="true"]'
+    );
+
+    // Кнопка "копировать выделенные блоки"
+    if (copyButton) {
+      addCopyCardAllTextDataEventListeners(copyButton);
+    }
+
+    // Кнопка "закрыть выделение"
+    if (closeButton) {
+      closeButton.addEventListener('click', (e) => {
+        const card = e.target.closest('.form__card');
+        removeBlockSelections(card);
+      });
+    }
+
+    // Кнопка "копировать всё в этой карточке"
+    if (copyAllButton) {
+      copyAllButton.addEventListener('click', (e) => {
+        const blocks = cardElem.querySelectorAll('.block__container');
+        blocks.forEach(block => block.classList.add('block__container--selected'));
+
+        const text = getCardDataText(cardElem, copyAllButton);
+        const count = getCopiedBlockCount(cardElem);
+
+        if (text) {
+          copyToClipboard(text, flashTooltipOnEvent, [
+            e,
+            `Скопировано ${count} шт.`,
+            1000,
+          ]);
+        }
+
+        removeBlockSelections(cardElem);
+      });
+    }
+  });
 }
+
 
 function showInputListLoader() {
   const loadingElem = createLoadingElement();
@@ -708,26 +738,17 @@ function getCardDataText(cardElem, copyButtonElem) {
 
 
 function getCopiedBlockCount(cardElem) {
-  const allBlocks = Array.from(cardElem.getElementsByClassName('block__container'));
-  const selectionModeIsOn = allBlocks.some(block =>
-      block.classList.contains('block__container--selected')
-  );
+  const selectedBlocks = Array.from(cardElem.querySelectorAll('.block__container--selected'));
 
-  let copiedCount = 0;
-  for (const block of allBlocks) {
-    if (selectionModeIsOn && !block.classList.contains('block__container--selected')) {
-      continue;
-    }
+  const blocksToCount = selectedBlocks.length > 0
+      ? selectedBlocks
+      : Array.from(cardElem.querySelectorAll('.block__container'))
+          .filter(block => {
+            const header = block.querySelector('.block__header');
+            return header && !header.classList.contains('category-name');
+          });
 
-    const header = block.querySelector('.block__header');
-    if (!header || header.classList.contains('category-name')) {
-      continue;
-    }
-
-    copiedCount++;
-  }
-
-  return copiedCount;
+  return blocksToCount.length;
 }
 
 
