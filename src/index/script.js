@@ -4,40 +4,44 @@ import './bubbles.css';
 
 // Convert HTMLCollection to Array to use forEach
 Array.from(document.getElementsByClassName('demo-button')).forEach((button) =>
-  button.addEventListener('click', function (e) {
-    e.preventDefault();
+    button.addEventListener('click', function (e) {
+      // e.preventDefault();
 
-    const contactForm = document.querySelector('.contact-form-wrapper');
+      const contactForm = document.querySelector('.contact-form-wrapper');
 
-    // Smooth scroll implementation
-    const scrollToElement = (element) => {
-      const startPosition = window.pageYOffset;
-      const targetPosition = element.getBoundingClientRect().top + window.pageYOffset;
-      const distance = targetPosition - startPosition;
-      const duration = 800; // milliseconds
-      let start = null;
+      if (!contactForm) return;
 
-      const step = (timestamp) => {
-        if (!start) start = timestamp;
-        const progress = timestamp - start;
-        const percentage = Math.min(progress / duration, 1);
+      const scrollToElement = (element) => {
+        const startPosition = window.scrollY;
+        const targetPosition = element.getBoundingClientRect().top + window.scrollY;
+        const distance = targetPosition - startPosition;
+        const duration = 800;
+        let start = null;
 
-        // Easing function for smoother animation
-        const easeInOutQuad = t => t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+        const easeInOutCubic = t =>
+            t < 0.5
+                ? 4 * t * t * t
+                : 1 - Math.pow(-2 * t + 2, 3) / 2;
 
-        window.scrollTo(0, startPosition + distance * easeInOutQuad(percentage));
+        const step = (timestamp) => {
+          if (!start) start = timestamp;
+          const progress = timestamp - start;
+          const percentage = Math.min(progress / duration, 1);
+          window.scrollTo(0, startPosition + distance * easeInOutCubic(percentage));
 
-        if (progress < duration) {
-          window.requestAnimationFrame(step);
-        }
+          if (progress < duration) {
+            window.requestAnimationFrame(step);
+          }
+        };
+
+        window.requestAnimationFrame(step);
       };
 
-      window.requestAnimationFrame(step);
-    };
+      // Запуск прокрутки сразу, без задержки
+      scrollToElement(contactForm);
+    })
+);
 
-    scrollToElement(contactForm);
-  })
-)
 
 function handleScroll () {
   const sections = document.querySelectorAll('.advantages, .differences, .faq')

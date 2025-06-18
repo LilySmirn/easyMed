@@ -56,11 +56,11 @@
     bubblesContainer.className = 'bubbles-container';
     heroSection.appendChild(bubblesContainer);
 
-    // Add CSS link
-    const cssLink = document.createElement('link');
-    cssLink.rel = 'stylesheet';
-    cssLink.href = './index/bubbles.css';
-    document.head.appendChild(cssLink);
+    // // Add CSS link
+    // const cssLink = document.createElement('link');
+    // cssLink.rel = 'stylesheet';
+    // cssLink.href = './index/bubbles.css';
+    // document.head.appendChild(cssLink);
 
     // Store text element boundaries
     storeTextElementBoundaries();
