@@ -92,13 +92,24 @@ document.addEventListener('DOMContentLoaded', function() {
     contactForm.addEventListener('submit', async function(event) {
       event.preventDefault();
 
-      // Get form input values
-      const email = contactForm.querySelector('input[type="email"]').value.trim();
-      const name = contactForm.querySelector('input[type="text"][placeholder="Ваше имя"]').value.trim();
-      const phoneNumber = contactForm.querySelector('input[type="tel"]').value.trim();
-      const misName = contactForm.querySelector('input[type="text"][placeholder="МИС или CRM"]').value.trim();
+      // Получаем поля формы
+      const emailInput = contactForm.querySelector('input[type="email"]');
+      const nameInput = contactForm.querySelector('input[placeholder="Ваше имя"]');
+      const phoneInput = contactForm.querySelector('input[type="tel"]');
+      const misInput = contactForm.querySelector('input[placeholder="МИС или CRM"]');
 
-      // Create contact data object
+      // Проверка наличия всех полей
+      if (!emailInput || !nameInput || !phoneInput || !misInput) {
+        alert('Ошибка: одно из полей формы не найдено. Пожалуйста, обновите страницу.');
+        return;
+      }
+
+      // Чтение значений
+      const email = emailInput.value.trim();
+      const name = nameInput.value.trim();
+      const phoneNumber = phoneInput.value.trim();
+      const misName = misInput.value.trim();
+
       const contactData = {
         email,
         name,
@@ -106,11 +117,10 @@ document.addEventListener('DOMContentLoaded', function() {
         misName
       };
 
-      // Google Apps Script endpoint
       const url = 'https://script.google.com/macros/s/AKfycbwdzgB4VUFVK9V1JG0J762KDaM0VM14MtDwzgrbAYKCooQcsGEHKXevpRKx0Ts8xQxk/exec';
 
       try {
-        const response = await fetch(url, {
+        await fetch(url, {
           method: "POST",
           body: JSON.stringify(contactData),
           headers: {
@@ -119,13 +129,9 @@ document.addEventListener('DOMContentLoaded', function() {
           mode: 'no-cors',
         });
 
-        // Show success message
         alert(`${contactData.name}, заявка отправлена!\nМы свяжемся с Вами в ближайшее время.`);
-
-        // Reset form
         contactForm.reset();
-      } catch(error) {
-        // Show error message
+      } catch (error) {
         alert("Ошибка отправки данных.\nНапишите, пожалуйста, нам в телеграм\nhttps://t.me/easymed_admin");
         console.error('Error sending form data:', error);
       }
