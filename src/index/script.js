@@ -9,36 +9,10 @@ Array.from(document.getElementsByClassName('demo-button')).forEach((button) =>
 
       const contactForm = document.querySelector('.contact-form-wrapper');
 
-      const scrollToElement = (element) => {
-        const startPosition = window.scrollY;
-        const targetPosition = element.getBoundingClientRect().top + window.scrollY;
-        const distance = targetPosition - startPosition;
-        const duration = 800;
-        let start = null;
-
-        const easeInOutCubic = t =>
-            t < 0.5
-                ? 4 * t * t * t
-                : 1 - Math.pow(-2 * t + 2, 3) / 2;
-
-        const step = (timestamp) => {
-          if (!start) start = timestamp;
-          const progress = timestamp - start;
-          const percentage = Math.min(progress / duration, 1);
-          window.scrollTo(0, startPosition + distance * easeInOutCubic(percentage));
-
-          if (progress < duration) {
-            window.requestAnimationFrame(step);
-          }
-        };
-
-        window.requestAnimationFrame(step);
-      };
-
-      // Добавляем небольшую задержку, чтобы избежать дергания
-      setTimeout(() => {
-        scrollToElement(contactForm);
-      }, 50);
+      if (contactForm) {
+        const y = contactForm.getBoundingClientRect().top + window.scrollY;
+        window.scrollTo(0, y); // мгновенная прокрутка без анимации
+      }
     })
 );
 
