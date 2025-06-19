@@ -21,6 +21,10 @@ if (
 
 usernameInputElem.focus()
 
+document.querySelector('.header__logo-container')?.addEventListener('click', function () {
+  window.location.href = '../index.html';
+});
+
 function authorize() {
   document
     .getElementsByClassName('login__form--error')[0]
