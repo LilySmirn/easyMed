@@ -33,6 +33,8 @@ const fileNameText = document.getElementById('fileName');
 let popupData = null;
 
 async function fetchPopupDataOnce() {
+  console.log('fetchPopupDataOnce вызвана')
+
   const maxRetries = 2; //2 попытки
   const retryDelay = 1000; // между попытками, ms
   let attempt = 0;
@@ -70,6 +72,7 @@ async function fetchPopupDataOnce() {
     }
   }
 }
+
 
 function initPage() {
   if (urlCode) {
