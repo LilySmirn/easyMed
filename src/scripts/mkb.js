@@ -1591,6 +1591,7 @@ function createList(type, listsData) {
     }
     if (monolistElem.id === 'treat-monolist') {
       setTreatText();
+      monolistElem.classList.add('hidden');
     }
   } else {
     hideCard(type);
