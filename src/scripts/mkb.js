@@ -151,14 +151,14 @@ document.getElementById('popupForm').addEventListener('submit', function (e) {
   e.preventDefault();
 
   const token = '7860976863:AAE2Y43llKvWPkhnV7_MtGHGHUIMBxb4270';
-  const chatId = '1786114744';
+  const chatId = '-1002653556555';
 
   const email = this.email.value.trim();
   const name = this.name.value.trim();
   const phone = this.phone.value.trim();
   const crm = this.crm.value.trim() || '—';
   const description = this.description.value.trim() || '—';
-  const file = this.attachment.files[0]; // input name="attachment"
+  const file = this.attachment.files[0];
 
   const message = `📥 Новая заявка с сайта:\n\n📧 Email: ${email}\n👤 Имя: ${name}\n📞 Телефон: ${phone}\n🗂 МИС/CRM: ${crm}\n📝 Проблема: ${description}`;
 
