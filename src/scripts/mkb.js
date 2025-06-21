@@ -1,6 +1,6 @@
-import '../css/main.css';
-
-import { decryptData } from './crypto.js';
+// import '../css/main.css';
+//
+// import { decryptData } from './crypto.js';
 
 const searchInput = document.getElementById('search-input');
 const clearButton = document.getElementById('clear-button');
@@ -33,8 +33,6 @@ const fileNameText = document.getElementById('fileName');
 let popupData = null;
 
 async function fetchPopupDataOnce() {
-  console.log('fetchPopupDataOnce вызвана')
-
   const maxRetries = 2; //2 попытки
   const retryDelay = 1000; // между попытками, ms
   let attempt = 0;
@@ -42,7 +40,6 @@ async function fetchPopupDataOnce() {
   while (attempt <= maxRetries) {
     try {
       // const response = await fetch('/res_K26.0_second.json');
-
       // const response = await fetch('/test-s.json');
 
       const code = searchInput.codeValue;
@@ -295,33 +292,10 @@ searchListElem.addEventListener('click', function (e) {
 
 ageToggleElem.addEventListener('click', setLists);
 standardToggleElem.addEventListener('click', setLists);
-standardToggleElem.addEventListener('change', () => {
-  // standardToggleElem.setAttribute('data-user-touched', 'true');
-});
 
 setCardViewTogglers();
 setTextBlockSelectionEventHandler();
 setCardCopyButtonsEventHandler();
-
-// document.addEventListener('DOMContentLoaded', () => {
-//   const loadingContainer = document.querySelector('.form__loading-container');
-//
-//   if (urlCode) {
-//     pageMkb.classList.remove('page__mkb--start');
-//     const searchInput = document.getElementById('search-input');
-//     searchInput.codeValue = urlCode;
-//     hideMkbData();
-//     searchMkb();
-//     if (loadingContainer) loadingContainer.remove();
-//     const newURL = window.location.origin + '/mkb';
-//     history.replaceState({}, '', newURL);
-//   } else {
-//     setTimeout(() => {
-//       if (loadingContainer) loadingContainer.remove();
-//       createHistoryPanel();
-//     }, 3000);
-//   }
-// });
 
 async function createHistoryPanel() {
   const username = getCookie('username');
@@ -484,10 +458,6 @@ function setCardViewTogglers() {
     });
   });
 }
-// window.setCardViewTogglers = setCardViewTogglers;
-// document.addEventListener('DOMContentLoaded', () => {
-//   window.setCardViewTogglers();
-// });
 
 function setTextBlockSelectionEventHandler() {
   const cardElems = Array.from(document.getElementsByClassName('form__card'));
@@ -782,8 +752,10 @@ async function searchMkb() {
 
   try {
     // const response = await fetch('/res_K26.0_first.json');
-
     // const response = await fetch('/test-f.json');
+
+    document.tablesData = await loadTableData();
+    console.log(document.tablesData);
 
     const response = await fetch(`../php/get-data-main.php/login?code=${code}&username=${username}&password=${password}`);
 
@@ -793,7 +765,6 @@ async function searchMkb() {
 
     // fire and forget: the additional data should be loaded in background
     await fetchPopupDataOnce();
-
 
     // const encryptedText  = await response.text();
     // const data = await decryptData(encryptedText);
@@ -809,6 +780,7 @@ async function searchMkb() {
     }
 
     document.mkbData = data;
+    console.log(document.mkbData);
     const newSearchData = {
       valueData: data.child.code,
       textContent: data.child.code + ': ' + data.child.name,
@@ -871,14 +843,13 @@ function setLists() {
   sectionToggles.classList.remove('hidden');
   const mkbData = document.mkbData;
   if (!mkbData) return;
-  // console.log(mkbData)
+
   const examRequiredTextElem = document.getElementById('exam-required');
   const examOptionalTextElem = document.getElementById('exam-optional');
   const treatActionTextElem = document.getElementById('treat-action');
   const treatDrugTextElem = document.getElementById('treat-drug');
   const noDataPopup = document.getElementById('no-data-popup-section');
-  // const ageToggleElem = document.getElementById('age-toggle');
-  // const standardToggleElem = document.getElementById('standard-toggle');
+
   if (
       mkbData.child.standards.length === 0 &&
       mkbData.grownup.standards.length === 0
@@ -921,10 +892,69 @@ function setLists() {
       currentAge
   );
 
-  createList('exam', listsData);
-  createList('treat', listsData);
+  createList('exam', listsData.exam);
+  createList('treat', listsData.treat);
+  createTableSection(document.tablesData);
 
   return true;
+}
+
+function createList(type, listData) {
+  const listElem = document.getElementById(type + '-list');
+  listElem.removeEventListener(
+      'change',
+      type === 'exam' ? setExamText : type === 'treat' ? setTreatText : setTableText
+  );
+  removeOptions(listElem);
+  const listParentElem = listElem.parentElement;
+  const sectionElem = listParentElem.parentElement;
+  const monolistElem = listParentElem.getElementsByTagName('p')[0];
+
+  if (listData.length === 0) {
+    sectionElem.classList.add('hidden');
+    listElem.classList.add('hidden');
+    monolistElem.classList.add('hidden');
+
+    return;
+  }
+
+  if (listData.length === 1) {
+    listElem.classList.add('hidden');
+    monolistElem.classList.remove('hidden');
+    monolistElem.innerText = listData[0].name;
+    monolistElem.value = listData[0].index;
+    if (monolistElem.id === 'exam-monolist') {
+      setExamText();
+    }
+    if (monolistElem.id === 'treat-monolist') {
+      setTreatText();
+      monolistElem.classList.add('hidden');
+    }
+    if (monolistElem.id === 'tables-monolist') {
+      setTableText();
+      monolistElem.classList.add('hidden');
+    }
+  } else {
+    hideCard(type);
+    monolistElem.classList.add('hidden');
+    listElem.classList.remove('hidden');
+    listData.forEach((data) => {
+      const optionElem = document.createElement('option');
+      optionElem.innerText = data.name;
+      optionElem.value = data.index;
+      listElem.appendChild(optionElem);
+    });
+  }
+  listElem.value = '';
+  listElem.addEventListener(
+      'change',
+      type === 'exam' ? setExamText : type === 'treat' ? setTreatText : setTableText
+  );
+  revealSection(type);
+
+  if (type === 'exam') {
+    setTimeout(updateButtonsVisibility, 0);
+  }
 }
 
 function setTogglers(mkbData) {
@@ -994,29 +1024,15 @@ function setExamText() {
 
   if (crmId !== undefined) {
     crmLinkContainer.innerHTML =
-        `<a href="https://cr.minzdrav.gov.ru/view-cr/${crmId}" 
+      `<a href="https://cr.minzdrav.gov.ru/view-cr/${crmId}" 
         target="_blank" rel="noopener noreferrer" 
         class="crm-link" title="Перейти на Рубрикатор">
-      <img src="../images/eagle.svg" alt="eagle" class="crm-link-img eagle" />
-      <img src="../images/link-icon.png" alt="link" class="crm-link-img link-icon" />
-    </a>`;
+        <img src="../images/eagle.svg" alt="eagle" class="crm-link-img eagle" />
+        <img src="../images/link-icon.png" alt="link" class="crm-link-img link-icon" />
+      </a>`;
+
     crmLinkContainer.classList.add('active');
   }
-
-
-  // crmLinkContainer.innerHTML = '';
-  // crmLinkContainer.classList.remove('active');
-  // let crmId = mkbData[currentAge].standards[standardInd].cr_m_id;
-  // if (crmId !== undefined) {
-  //   crmLinkContainer.innerHTML =
-  //       `<a href="https://cr.minzdrav.gov.ru/view-cr/${crmId}"
-  //         target="_blank" rel="noopener noreferrer"
-  //         class="crm-link">
-  //         ${crmId}
-  //         <img src="../images/link-icon.png" alt="link" class="crm-link-img" />
-  //       </a>`;
-  //   crmLinkContainer.classList.add('active');
-  // }
 
   let requiredExaminationsByCategory = groupByCategoryAndSort(
       mkbData[currentAge].standards[standardInd].examinations
@@ -1148,6 +1164,89 @@ function setTreatText() {
   }
 }
 
+function createTableSection(tablesData) {
+  clearTablesData();
+
+  const crmId = getCurrentCrmId(document.mkbData);
+  const tableData = tablesData.find(x => x.crId === crmId);
+
+  if (tableData === undefined) {
+    return;
+  }
+
+  const tables = tableData.sections?.drugTables?.content?.attachments;
+  const tablesDataElement = document.getElementById('tables-data');
+  tablesDataElement.classList.remove('hidden');
+
+  tables?.forEach((table) => {
+    tablesDataElement.innerHTML += createTableBlock(table);
+  });
+
+  tablesDataElement.querySelectorAll('.form__card-header').forEach(header => {
+    header.addEventListener('click', () => header.parentElement.classList.toggle("minimized"));
+  });
+}
+
+function clearTablesData() {
+  const tablesDataElement = document.getElementById('tables-data');
+  tablesDataElement.innerHTML = '';
+  tablesDataElement.classList.add('hidden');
+}
+
+function createTableBlock(tableData) {
+  return `<div class="form__section form__section--tables">
+              <div class="form__card minimized">
+                <div class="form__card-header">
+                  <div class="form__card-header--container">
+                    <h3 class="form__card-title">${tableData.name}</h3>
+                  </div>
+                  <button class="form__card-toggle">
+                    <svg width="16" height="16" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                </div>
+                ${createTableBlockSections(tableData.sections)}
+              </div>
+            </div>`;
+}
+
+function createTableBlockSections(sections) {
+  let sectionsHtml = '';
+
+  sections.forEach(section => {
+    sectionsHtml += `<div class="block__container" style="margin-bottom: 5px;">
+                        <div class="block__header category-name" style="display: flex; justify-content: space-between; align-items: center; background-color: rgb(245, 245, 245); padding: 5px 5px 5px 10px; border-radius: 100px; cursor: default;">
+                            <h4 style="margin: 0px; font-weight: normal;">${section.name}</h4>
+                        </div>
+                     </div>`;
+
+    let tablesCounter = 0;
+    section?.tables?.forEach(table => {
+      tablesCounter++;
+      sectionsHtml += `<div class="block__container">
+                         <div class="block__header">
+                           <h4 style="margin: 0px;">${table.name?.startsWith("Таблица") ? table.name : "Таблица " + tablesCounter}</h4>
+                         </div>
+                       </div>`;
+    })
+  });
+
+  return sectionsHtml;
+}
+
+function getCurrentCrmId(mkbData) {
+  const ageToggleElem = document.getElementById('age-toggle');
+  const currentAge = ageToggleElem.checked ? 'grownup' : 'child';
+  const standardInd = getStandardInd('exam');
+
+  console.log(mkbData);
+  console.log(currentAge);
+  console.log(standardInd);
+
+  return mkbData[currentAge].standards[standardInd].cr_m_id;
+}
+
 function groupByCategoryAndSort(arr, key) {
   const groups = {};
 
@@ -1184,24 +1283,6 @@ function groupByCategoryAndSort(arr, key) {
   }
 
   return result;
-
-
-  // const groups = {};
-  //
-  // arr.forEach(item => {
-  //   const groupKey = item['category_name'];
-  //
-  //   if (!groups[groupKey]) {
-  //     groups[groupKey] = [];
-  //   }
-  //
-  //   groups[groupKey].push(item);
-  // });
-  //
-  // return Object.entries(groups).map(([groupName, values]) => ({
-  //   name: groupName,
-  //   values: values.sort((a, b) => a.name.localeCompare(b.name))
-  // }));
 }
 
 function toggleStage(e) {
@@ -1458,7 +1539,6 @@ function createExamBlock(blockParentElem, examData, prevName) {
   blockParentElem.appendChild(examContainer);
 }
 
-
 function createTreatBlock(parentElem, treatData, prevName) {
   const treatContainer = document.createElement('div');
   treatContainer.classList.add('block__container');
@@ -1564,61 +1644,6 @@ function createTreatBlock(parentElem, treatData, prevName) {
   parentElem.appendChild(treatContainer);
 }
 
-
-function createList(type, listsData) {
-  const listData = listsData[type];
-  const listElem = document.getElementById(type + '-list');
-  listElem.removeEventListener(
-      'change',
-      type === 'exam' ? setExamText : setTreatText
-  );
-  removeOptions(listElem);
-  const listParentElem = listElem.parentElement;
-  const sectionElem = listParentElem.parentElement;
-  const monolistElem = listParentElem.getElementsByTagName('p')[0];
-
-  if (listData.length === 0) {
-    sectionElem.classList.add('hidden');
-    listElem.classList.add('hidden');
-    monolistElem.classList.add('hidden');
-    return;
-  }
-
-  if (listData.length === 1) {
-    listElem.classList.add('hidden');
-    monolistElem.classList.remove('hidden');
-    monolistElem.innerText = listData[0].name;
-    monolistElem.value = listData[0].index;
-    if (monolistElem.id === 'exam-monolist') {
-      setExamText();
-    }
-    if (monolistElem.id === 'treat-monolist') {
-      setTreatText();
-      monolistElem.classList.add('hidden');
-    }
-  } else {
-    hideCard(type);
-    monolistElem.classList.add('hidden');
-    listElem.classList.remove('hidden');
-    listData.forEach((data) => {
-      const optionElem = document.createElement('option');
-      optionElem.innerText = data.name;
-      optionElem.value = data.index;
-      listElem.appendChild(optionElem);
-    });
-  }
-  listElem.value = '';
-  listElem.addEventListener(
-      'change',
-      type === 'exam' ? setExamText : setTreatText
-  );
-  revealSection(type);
-
-  if (type === 'exam') {
-    setTimeout(updateButtonsVisibility, 0);
-  }
-}
-
 function updateButtonsVisibility() {
   const standardToggle = document.getElementById('standard-toggle');
   const selectElem = document.getElementById('exam-list');
@@ -1716,6 +1741,23 @@ function displayResults(data) {
   } else {
     searchListElem.textContent = 'Совпадений не найдено';
   }
+}
+
+async function loadTableData() {
+  try {
+    const response = await fetch('/cr_387_3_corrected.json');
+    if (!response.ok) {
+      throw new Error(`Ошибка загрузки: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    return [data];
+  } catch (error) {
+    console.error('Ошибка при загрузке таблиц:', error);
+  }
+
+  return [];
 }
 
 function createLoadingElement(className = '') {

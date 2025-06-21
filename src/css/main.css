@@ -1042,6 +1042,42 @@ option:disabled {
   margin-right: 8px;
 }
 
+.table-popup__overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.table-popup {
+  background: white;
+  padding: 20px;
+  max-width: 90%;
+  max-height: 90%;
+  overflow: auto;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.3);
+  position: relative;
+}
+
+.table-popup__close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  font-size: 24px;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.table-popup__overlay.hidden {
+  display: none;
+}
+
 .block__header {
   font-family: Arial, sans-serif;
   font-weight: bold;
