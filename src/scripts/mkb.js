@@ -30,6 +30,13 @@ const fileInput = document.getElementById('fileInput');
 const addImgText = document.querySelector('.add-img__text');
 const removeFileBtn = document.getElementById('removeFileBtn');
 const fileNameText = document.getElementById('fileName');
+const tablePopup = document.getElementById('table-popup-overlay');
+const tablePopupContent = document.getElementById('table-popup-content');
+const tablePopupCloseBtn = document.getElementById('table-popup-close');
+tablePopupCloseBtn.addEventListener('click', () => {
+  tablePopup.classList.add('hidden');
+  tablePopupContent.innerHTML = '';
+})
 let popupData = null;
 
 async function fetchPopupDataOnce() {
@@ -1185,12 +1192,28 @@ function createTableSection(tablesData) {
   tablesDataElement.querySelectorAll('.form__card-header').forEach(header => {
     header.addEventListener('click', () => header.parentElement.classList.toggle("minimized"));
   });
+
+  tablesDataElement.querySelectorAll('.table-container').forEach(tableContainer => {
+    tableContainer.addEventListener('click', () => {
+      openTablePopup(tableContainer.id);
+    });
+  });
+}
+
+function openTablePopup(id) {
+  if (!document.tablesObject.hasOwnProperty(id)) {
+    return;
+  }
+
+  tablePopup.classList.remove('hidden');
+  tablePopupContent.innerHTML = document.tablesObject[id].html;
 }
 
 function clearTablesData() {
   const tablesDataElement = document.getElementById('tables-data');
   tablesDataElement.innerHTML = '';
   tablesDataElement.classList.add('hidden');
+  document.tablesObject = {};
 }
 
 function createTableBlock(tableData) {
@@ -1224,7 +1247,10 @@ function createTableBlockSections(sections) {
     let tablesCounter = 0;
     section?.tables?.forEach(table => {
       tablesCounter++;
-      sectionsHtml += `<div class="block__container">
+      const id = generateGUID();
+      document.tablesObject[id] = table;
+
+      sectionsHtml += `<div class="block__container table-container" id="${id}">
                          <div class="block__header">
                            <h4 style="margin: 0px;">${table.name?.startsWith("Таблица") ? table.name : "Таблица " + tablesCounter}</h4>
                          </div>
@@ -1233,6 +1259,25 @@ function createTableBlockSections(sections) {
   });
 
   return sectionsHtml;
+}
+
+function generateGUID() {
+  const cryptoObj = window.crypto || window.msCrypto; // поддержка IE11
+  const buffer = new Uint8Array(16);
+  cryptoObj.getRandomValues(buffer);
+
+  buffer[6] = (buffer[6] & 0x0f) | 0x40;
+  buffer[8] = (buffer[8] & 0x3f) | 0x80;
+
+  const hex = Array.from(buffer).map(b => b.toString(16).padStart(2, '0'));
+
+  return [
+    hex.slice(0, 4).join(''),
+    hex.slice(4, 6).join(''),
+    hex.slice(6, 8).join(''),
+    hex.slice(8, 10).join(''),
+    hex.slice(10, 16).join('')
+  ].join('-');
 }
 
 function getCurrentCrmId(mkbData) {
