@@ -120,6 +120,22 @@ overlay.addEventListener('click', (e) => {
   }
 });
 
+//закрыть table popup
+document.getElementById('table-popup-overlay').addEventListener('click', function (e) {
+  const popup = document.querySelector('.table-popup');
+  if (!popup.contains(e.target)) {
+    closeTablePopup();
+  }
+});
+
+document.getElementById('table-popup-close').addEventListener('click', closeTablePopup);
+
+function closeTablePopup() {
+  document.getElementById('table-popup-overlay').classList.add('hidden');
+  document.getElementById('table-popup-content').innerHTML = '';
+}
+
+
 // Открыть окно выбора файла для отправки
 if (addImageBlock && fileInput) {
   addImageBlock.addEventListener('click', (event) => {
@@ -1193,6 +1209,12 @@ function createTableSection(tablesData) {
     header.addEventListener('click', () => header.parentElement.classList.toggle("minimized"));
   });
 
+  tablesDataElement.querySelectorAll('.form__card-toggle').forEach(toggle => {
+    toggle.addEventListener('click', (e) => {
+      toggle.classList.toggle('rotated');
+    });
+  });
+
   tablesDataElement.querySelectorAll('.table-container').forEach(tableContainer => {
     tableContainer.addEventListener('click', () => {
       openTablePopup(tableContainer.id);
@@ -1238,6 +1260,10 @@ function createTableBlockSections(sections) {
   let sectionsHtml = '';
 
   sections.forEach(section => {
+    // if (!section.name || section.name.trim() === '') {
+    //   return;
+    // }
+
     sectionsHtml += `<div class="block__container" style="margin-bottom: 5px;">
                         <div class="block__header category-name" style="display: flex; justify-content: space-between; align-items: center; background-color: rgb(245, 245, 245); padding: 5px 5px 5px 10px; border-radius: 100px; cursor: default;">
                             <h4 style="margin: 0px; font-weight: normal;">${section.name}</h4>
@@ -1252,7 +1278,7 @@ function createTableBlockSections(sections) {
 
       sectionsHtml += `<div class="block__container table-container" id="${id}">
                          <div class="block__header">
-                           <h4 style="margin: 0px;">${table.name?.startsWith("Таблица") ? table.name : "Таблица " + tablesCounter}</h4>
+                           <h4 style="margin: 0px; font-weight: normal">${table.name?.startsWith("Таблица") ? table.name : "Таблица " + tablesCounter}</h4>
                          </div>
                        </div>`;
     })
