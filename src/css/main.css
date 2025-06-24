@@ -1127,6 +1127,15 @@ th, td {
 
 .table-container {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.04);
+  display: flex !important;
+  align-items: baseline;
+  padding-right: 10px;
+  justify-content: space-between;
+}
+
+.table-eye {
+  height: 15px;
+  cursor: pointer;
 }
 
 /*.table-popup__close {*/

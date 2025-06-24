@@ -1292,6 +1292,7 @@ function createTableBlockSections(sections) {
                          <div class="block__header">
                            <h4 style="margin: 0px; font-weight: normal">${table.name?.startsWith("Таблица") ? table.name : "Таблица " + tablesCounter}</h4>
                          </div>
+                         <img src="../images/eye.svg" alt="table" class="table-eye">
                        </div>`;
     })
   });
