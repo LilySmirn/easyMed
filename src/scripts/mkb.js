@@ -1,6 +1,6 @@
-// import '../css/main.css';
-//
-// import { decryptData } from './crypto.js';
+import '../css/main.css';
+
+import { decryptData } from './crypto.js';
 
 const searchInput = document.getElementById('search-input');
 const clearButton = document.getElementById('clear-button');
@@ -1288,13 +1288,29 @@ function createTableBlockSections(sections) {
       const id = generateGUID();
       document.tablesObject[id] = table;
 
+      const fullName = table.name?.trim() || '';
+      const defaultTitle = `Таблица ${tablesCounter}`;
+
+      let mainTitle = defaultTitle;
+      let subtitle = '';
+
+      const match = fullName.match(/^Таблица\s*\d+[.:]?\s*(.+)$/i);
+      if (match) {
+        subtitle = match[1].trim();
+      } else if (fullName !== '') {
+        subtitle = fullName;
+      }
+
       sectionsHtml += `<div class="block__container table-container" id="${id}">
-                         <div class="block__header">
-                           <h4 style="margin: 0px; font-weight: normal">${table.name?.startsWith("Таблица") ? table.name : "Таблица " + tablesCounter}</h4>
-                         </div>
-                         <img src="../images/eye.svg" alt="table" class="table-eye">
-                       </div>`;
-    })
+                     <div class="block__header">
+                       <h4 style="margin: 0; font-weight: normal; line-height: 1.3;">
+                         <strong>${mainTitle}</strong>
+                         ${subtitle ? `<div style="margin-top: 8px; font-weight: normal;">${subtitle}</div>` : ''}
+                       </h4>
+                     </div>
+                     <img src="../images/eye.svg" alt="table" class="table-eye">
+                   </div>`;
+    });
   });
 
   return sectionsHtml;
