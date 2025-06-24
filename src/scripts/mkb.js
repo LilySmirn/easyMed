@@ -1239,11 +1239,23 @@ function clearTablesData() {
 }
 
 function createTableBlock(tableData) {
+  const title = tableData.name || "";
+  const match = title.match(/^(Приложение\s+[АA]?\d+(\.\d+)?\.?)\s*(.*)$/i);
+
+  let formattedTitle;
+  if (match) {
+    const boldPart = match[1]; // "Приложение А3.2."
+    const normalPart = match[3]; // Остальной текст
+    formattedTitle = `<strong>${boldPart}</strong> ${normalPart}`;
+  } else {
+    formattedTitle = title; // если не совпадает, оставить как есть
+  }
+
   return `<div class="form__section form__section--tables">
               <div class="form__card minimized">
                 <div class="form__card-header">
                   <div class="form__card-header--container">
-                    <h3 class="form__card-title">${tableData.name}</h3>
+                    <h3 class="form__card-title">${formattedTitle}</h3>
                   </div>
                   <button class="form__card-toggle">
                     <svg width="16" height="16" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
