@@ -1125,6 +1125,10 @@ th, td {
   display: none;
 }
 
+.table-container {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.04);
+}
+
 /*.table-popup__close {*/
 /*  position: absolute;*/
 /*  top: 10px;*/
@@ -1137,6 +1141,10 @@ th, td {
 
 .table-popup__overlay.hidden {
   display: none;
+}
+
+.form__section--tables .form__card {
+  padding-bottom: 30px;
 }
 
 .block__header {
