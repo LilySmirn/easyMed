@@ -16,7 +16,7 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap"
       rel="stylesheet"
     />
-<!--    <link href="../css/main.css?v8>" rel="stylesheet" />-->
+    <link href="../css/main.css?v8>" rel="stylesheet" />
     <title>EASYMED</title>
     <link
       rel="icon"
@@ -281,21 +281,33 @@
 
 
             </div>
-            <!-- Examination Buttons Section -->
-            <div class="form__section form__section--buttons">
-              <button
-                class="form__button form__button--stage stage__selected"
-                id="exam-stage-toggle-first"
-              >
-                Первичный приём
-              </button>
-              <button
-                class="form__button form__button--stage"
-                id="exam-stage-toggle-second"
-              >
-                Повторный приём
-              </button>
+
+            <div class="button--stage-sorting">
+              <!-- Examination Buttons Section -->
+              <div class="form__section form__section--buttons">
+                <button
+                        class="form__button form__button--stage stage__selected"
+                        id="exam-stage-toggle-first"
+                >
+                  Первичный приём
+                </button>
+                <button
+                        class="form__button form__button--stage"
+                        id="exam-stage-toggle-second"
+                >
+                  Повторный приём
+                </button>
+              </div>
+              <div class="sorting-select">
+                <select class="form__select-sorting">
+                  <option value="one">Сортировка по алфавиту</option>
+                  <option value="two">Сортировка по УРР</option>
+                  <option value="three">Сортировка по КК</option>
+                  <option value="four">Сортировка по id КР</option>
+                </select>
+              </div>
             </div>
+
 
             <!-- Examination Data Section -->
             <div class="form__section form__section--exam">
@@ -653,7 +665,7 @@
       </div>
     </div>
     <div id="tooltip" class="tooltip"></div>
-<!--    <script type="module" src="../scripts/mkb.js?v16"></script>-->
+
   <div class="table-popup__overlay hidden" id="table-popup-overlay">
     <div class="table-popup">
 
@@ -666,6 +678,6 @@
       </div>
     </div>
   </div>
-
+  <script type="module" src="../scripts/mkb.js?v16" defer></script>
   </body>
 </html>

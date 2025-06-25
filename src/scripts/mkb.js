@@ -1,6 +1,6 @@
-import '../css/main.css';
+// import '../css/main.css';
 
-import { decryptData } from './crypto.js';
+// import { decryptData } from './crypto.js';
 
 const searchInput = document.getElementById('search-input');
 const clearButton = document.getElementById('clear-button');
@@ -38,6 +38,10 @@ tablePopupCloseBtn.addEventListener('click', () => {
   tablePopupContent.innerHTML = '';
 })
 let popupData = null;
+
+if (ageToggleElem) {
+  ageToggleElem.addEventListener('click', setLists);
+}
 
 async function fetchPopupDataOnce() {
   const maxRetries = 2; //2 попытки
@@ -570,12 +574,12 @@ function toggleBlockSelection(blockElem) {
 }
 
 function removeBlockSelections(cardElem) {
-  cardElem
-      .querySelector('.form__card--copy-button')
-      .classList.remove('copy-button--selected');
-  cardElem
-      .querySelector('.copy-button__close-button')
-      .classList.add('hidden');
+  const copyButton = cardElem.querySelector('.form__card--copy-button');
+  const closeButton = cardElem.querySelector('.copy-button__close-button');
+
+  if (copyButton) copyButton.classList.remove('copy-button--selected');
+  if (closeButton) closeButton.classList.add('hidden');
+
   Array.from(cardElem.getElementsByClassName('block__container')).forEach(
       (someBlockElem) => {
         someBlockElem.classList.remove('block__container--selected');
@@ -697,10 +701,15 @@ function flashTooltipOnEvent(event, tooltipText, timeout) {
 }
 
 function getCardDataText(cardElem, copyButtonElem) {
-  const selectedBlocks = Array.from(cardElem.getElementsByClassName('block__container--selected'));
+  const selectedBlocks = Array.from(cardElem.getElementsByClassName('block__container--selected'))
+      .filter(block => {
+        const header = block.querySelector('.block__header');
+        return !(header && header.classList.contains('category-name'));
+      });
+
+  let lastTitle = '';
 
   const linesToCopy = selectedBlocks.map(blockElem => {
-    // Ищем заголовок
     let headerElem = blockElem.querySelector('.block__header');
 
     if (!headerElem || headerElem.classList.contains('category-name')) {
@@ -714,7 +723,6 @@ function getCardDataText(cardElem, copyButtonElem) {
     }
 
     const titleText = headerElem?.innerText.trim() || '';
-
     const planElem = blockElem.querySelector('.block__comment--plan');
     const durationElem = blockElem.querySelector('.block__comment--duration');
 
@@ -725,19 +733,27 @@ function getCardDataText(cardElem, copyButtonElem) {
     if (planText) blockLines.push(planText);
     if (durationText) blockLines.push(durationText);
 
-    return blockLines.join('\n');
+    // Удалить дублирующийся заголовок
+    if (titleText === lastTitle) {
+      blockLines[0] = '';
+    } else {
+      lastTitle = titleText;
+    }
+
+    return blockLines.filter(Boolean).join('\n');
   });
 
-  return linesToCopy.join('\n\n').trim();
+  return linesToCopy.filter(Boolean).join('\n\n').trim();
 }
-
-
 
 function getCopiedBlockCount(cardElem) {
   const selectedBlocks = Array.from(cardElem.querySelectorAll('.block__container--selected'));
 
   const blocksToCount = selectedBlocks.length > 0
-      ? selectedBlocks
+      ? selectedBlocks.filter(block => {
+        const header = block.querySelector('.block__header');
+        return header && !header.classList.contains('category-name');
+      })
       : Array.from(cardElem.querySelectorAll('.block__container'))
           .filter(block => {
             const header = block.querySelector('.block__header');
