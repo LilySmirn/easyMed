@@ -43,6 +43,794 @@ if (ageToggleElem) {
   ageToggleElem.addEventListener('click', setLists);
 }
 
+
+// селект параметров сортировки
+const selectElement = document.getElementById("select-sorting");
+
+function initSortSelect(selectId) {
+
+  if (!selectElement) return;
+
+  function handleSelection(value) {
+    switch (value) {
+      case "one":
+        sortByAlphabet();
+        sortByAlphabetTreatment();
+        break;
+      case "two":
+        sortByUur();
+        sortByUurTreatment();
+        break;
+      case "three":
+        sortByQuality();
+        sortByQualityTreatment();
+        break;
+      case "four":
+        sortById();
+        sortByIdTreatment();
+        break;
+      default:
+        sortByAlphabet();
+        sortByAlphabetTreatment();
+        break;
+    }
+  }
+
+  handleSelection(selectElement.value || "one");
+
+  selectElement.addEventListener("change", function () {
+    handleSelection(this.value);
+  });
+}
+
+initSortSelect("select-sorting");
+
+
+function sortByAlphabet() {
+  const mkbData = document.mkbData;
+  if (!mkbData) return;
+
+  const currentAge = document.getElementById('age-toggle').checked ? 'grownup' : 'child';
+  const currentStandardIndex = getStandardInd('exam');
+  const standard = mkbData[currentAge].standards[currentStandardIndex];
+
+  setExamText(standard.examinations);
+}
+function sortByAlphabetTreatment() {
+  const mkbData = document.mkbData;
+  if (!mkbData) return;
+
+  const currentAge = document.getElementById('age-toggle').checked ? 'grownup' : 'child';
+  const currentStandardIndex = getStandardInd('treat');
+  const standard = mkbData[currentAge].standards[currentStandardIndex];
+
+  setTreatText(standard.treatments);
+}
+
+function groupByCategoryAndSortByQuality(arr) {
+  const groups = {};
+
+  arr.forEach(item => {
+    const rawCategory = item['category_name'];
+    const category = typeof rawCategory === 'string' ? rawCategory.trim() : '';
+    const groupKey = category === '' || category === 'null' ? 'Прочее' : category;
+
+    if (!groups[groupKey]) groups[groupKey] = [];
+
+    const cloned = { ...item };
+    groups[groupKey].push(cloned);
+  });
+
+  const result = Object.entries(groups)
+      .filter(([groupName]) => groupName !== 'Прочее')
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([groupName, values]) => {
+        const split = splitByNameAndQuality(values);
+        const sorted = split.sort((a, b) => {
+          if (b.is_qualitative !== a.is_qualitative) {
+            return b.is_qualitative - a.is_qualitative;
+          }
+          return a.name.localeCompare(b.name);
+        });
+        return {
+          name: groupName,
+          values: sorted
+        };
+      });
+
+  if (groups['Прочее']) {
+    const split = splitByNameAndQuality(groups['Прочее']);
+    const sorted = split.sort((a, b) => {
+      if (b.is_qualitative !== a.is_qualitative) {
+        return b.is_qualitative - a.is_qualitative;
+      }
+      return a.name.localeCompare(b.name);
+    });
+    result.push({ name: 'Прочее', values: sorted });
+  }
+
+  return result;
+}
+function splitByNameAndQuality(arr) {
+  const map = new Map();
+
+  arr.forEach((item, i) => {
+    const key = `${item.name}___${item.is_qualitative}_${item.cr_db_id || ""}_${i}`;
+    if (!map.has(key)) map.set(key, []);
+    map.get(key).push(item);
+  });
+
+  return Array.from(map.values()).flat();
+}
+function sortByQuality() {
+  const mkbData = document.mkbData;
+  if (!mkbData) return;
+
+  const currentAge = document.getElementById('age-toggle').checked ? 'grownup' : 'child';
+  const currentStandardIndex = getStandardInd('exam'); // для диагностики
+  const standard = mkbData[currentAge].standards[currentStandardIndex];
+
+  const examCardRequiredElem = document.getElementById('exam-card-required');
+  const examCardOptionalElem = document.getElementById('exam-card-optional');
+
+  clearCard(examCardRequiredElem);
+  clearCard(examCardOptionalElem);
+
+  const examsRequired = standard.examinations.filter(e =>
+      e.is_required && e.is_stationary !== 1
+  );
+  const examsOptional = standard.examinations.filter(e =>
+      !e.is_required && e.is_stationary !== 1
+  );
+
+  const requiredGrouped = groupByCategoryAndSortByQuality(examsRequired);
+  const optionalGrouped = groupByCategoryAndSortByQuality(examsOptional);
+
+  let hasRequired = requiredGrouped.length > 0;
+  let hasOptional = optionalGrouped.length > 0;
+
+  if (hasRequired) {
+    let prevName = "";
+    requiredGrouped.forEach(group => {
+      createGroupTitle(examCardRequiredElem, group.name);
+      prevName = "";
+      group.values.forEach(item => {
+        createExamBlock(examCardRequiredElem, item, prevName);
+        prevName = item.name;
+      });
+    });
+    examCardRequiredElem.classList.remove('hidden');
+  } else {
+    examCardRequiredElem.classList.add('hidden');
+  }
+
+  if (hasOptional) {
+    let prevName = "";
+    optionalGrouped.forEach(group => {
+      createGroupTitle(examCardOptionalElem, group.name);
+      prevName = "";
+      group.values.forEach(item => {
+        createExamBlock(examCardOptionalElem, item, prevName);
+        prevName = item.name;
+      });
+    });
+    examCardOptionalElem.classList.remove('hidden');
+  } else {
+    examCardOptionalElem.classList.add('hidden');
+  }
+
+  revealSection('exam');
+}
+function sortByQualityTreatment() {
+  const mkbData = document.mkbData;
+  if (!mkbData) return;
+
+  const currentAge = document.getElementById('age-toggle').checked ? 'grownup' : 'child';
+  const currentStandardIndex = getStandardInd('treat');
+  const standard = mkbData[currentAge].standards[currentStandardIndex];
+
+  const treatCardActionElem = document.getElementById('treat-card-action');
+  const treatCardDrugElem = document.getElementById('treat-card-drug');
+  const treatCardDrugOfflabelElem = document.getElementById('treat-card-drug-offlabel');
+
+  clearCard(treatCardActionElem);
+  clearCard(treatCardDrugElem);
+  clearCard(treatCardDrugOfflabelElem);
+
+  const allTreatments = standard.treatments.filter(t => t.is_stationary !== 1);
+
+  const drugTreatments = allTreatments.filter(t => t.type === "drug" && !t.is_offlabel);
+  const actionTreatments = allTreatments.filter(t => t.type === "service");
+  const offlabelTreatments = allTreatments.filter(t => t.is_offlabel && t.type === "drug");
+
+  const groupedDrugs = groupTreatByCategoryAndSortByQuality(drugTreatments);
+  const groupedActions = groupTreatByCategoryAndSortByQuality(actionTreatments);
+  const groupedOfflabel = groupTreatByCategoryAndSortByQuality(offlabelTreatments);
+
+  let hasDrug = false;
+  let hasAction = false;
+  let hasOfflabel = false;
+
+  groupedDrugs.forEach(group => {
+    createGroupTitle(treatCardDrugElem, group.name);
+    let prevName = "";
+    group.values.forEach(item => {
+      createTreatBlock(treatCardDrugElem, item, prevName);
+      prevName = item.name;
+    });
+    hasDrug = true;
+  });
+
+  groupedActions.forEach(group => {
+    createGroupTitle(treatCardActionElem, group.name);
+    let prevName = "";
+    group.values.forEach(item => {
+      createTreatBlock(treatCardActionElem, item, prevName);
+      prevName = item.name;
+    });
+    hasAction = true;
+  });
+
+  groupedOfflabel.forEach(group => {
+    createGroupTitle(treatCardDrugOfflabelElem, group.name);
+    let prevName = "";
+    group.values.forEach(item => {
+      createTreatBlock(treatCardDrugOfflabelElem, item, prevName);
+      prevName = item.name;
+    });
+    hasOfflabel = true;
+  });
+
+  if (hasDrug) treatCardDrugElem.classList.remove('hidden');
+  else treatCardDrugElem.classList.add('hidden');
+
+  if (hasAction) treatCardActionElem.classList.remove('hidden');
+  else treatCardActionElem.classList.add('hidden');
+
+  if (hasOfflabel) {
+    treatCardDrugOfflabelElem.classList.remove('hidden');
+    treatCardDrugOfflabelElem.classList.add('minimized');
+  } else {
+    treatCardDrugOfflabelElem.classList.add('hidden');
+  }
+
+  revealSection('treat');
+}
+function groupTreatByCategoryAndSortByQuality(arr) {
+  const groups = {};
+
+  arr.forEach(item => {
+    const rawCategory = item['category_name'];
+    const category = typeof rawCategory === 'string' ? rawCategory.trim() : '';
+    const groupKey = category === '' || category === 'null' ? 'Прочее' : category;
+
+    if (!groups[groupKey]) groups[groupKey] = [];
+    groups[groupKey].push({ ...item });
+  });
+
+  const result = Object.entries(groups)
+      .filter(([groupName]) => groupName !== 'Прочее')
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([groupName, values]) => {
+        const split = splitByNameAndQuality(values);
+        const sorted = split.sort((a, b) => {
+          if (b.is_qualitative !== a.is_qualitative) {
+            return b.is_qualitative - a.is_qualitative;
+          }
+          return a.name.localeCompare(b.name);
+        });
+        return {
+          name: groupName,
+          values: sorted
+        };
+      });
+
+  if (groups['Прочее']) {
+    const split = splitByNameAndQuality(groups['Прочее']);
+    const sorted = split.sort((a, b) => {
+      if (b.is_qualitative !== a.is_qualitative) {
+        return b.is_qualitative - a.is_qualitative;
+      }
+      return a.name.localeCompare(b.name);
+    });
+
+    result.push({ name: 'Прочее', values: sorted });
+  }
+
+  return result;
+}
+
+function groupByCategoryAndSortByUur(arr) {
+  const groups = {};
+
+  arr.forEach(item => {
+    const rawCategory = item['category_name'];
+    const category = typeof rawCategory === 'string' ? rawCategory.trim() : '';
+    const groupKey = category === '' || category === 'null' ? 'Прочее' : category;
+
+    if (!groups[groupKey]) groups[groupKey] = [];
+    groups[groupKey].push({ ...item });
+  });
+
+  const result = Object.entries(groups)
+      .filter(([groupName]) => groupName !== 'Прочее')
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([groupName, values]) => {
+        const sorted = values.sort((a, b) => {
+          const uurA = (a.pers?.["уур"] || "").toUpperCase();
+          const uurB = (b.pers?.["уур"] || "").toUpperCase();
+
+          const uddA = parseInt(a.pers?.["удд"], 10) || 0;
+          const uddB = parseInt(b.pers?.["удд"], 10) || 0;
+
+          const cmp = uurA.localeCompare(uurB, 'en', { sensitivity: 'base' });
+          if (cmp !== 0) return cmp;
+
+          if (uddA !== uddB) return uddA - uddB;
+
+          return a.name.localeCompare(b.name);
+        });
+
+        return {
+          name: groupName,
+          values: sorted
+        };
+      });
+
+  // Прочее — в конец
+  if (groups['Прочее']) {
+    const sorted = groups['Прочее'].sort((a, b) => {
+      const uurA = a.pers?.["уур"] || "";
+      const uurB = b.pers?.["уур"] || "";
+
+      const uddA = parseInt(a.pers?.["удд"]) || 0;
+      const uddB = parseInt(b.pers?.["удд"]) || 0;
+
+      const cmp = uurA.localeCompare(uurB, 'en', { sensitivity: 'base' });
+      if (cmp !== 0) return cmp;
+
+      if (uddA !== uddB) return uddA - uddB;
+
+      return a.name.localeCompare(b.name);
+    });
+
+    result.push({ name: 'Прочее', values: sorted });
+  }
+
+  return result;
+}
+function sortByUur() {
+  const mkbData = document.mkbData;
+  if (!mkbData) return;
+
+  const currentAge = document.getElementById('age-toggle').checked ? 'grownup' : 'child';
+  const currentStandardIndex = getStandardInd('exam');
+  const standard = mkbData[currentAge].standards[currentStandardIndex];
+
+  const examCardRequiredElem = document.getElementById('exam-card-required');
+  const examCardOptionalElem = document.getElementById('exam-card-optional');
+
+  clearCard(examCardRequiredElem);
+  clearCard(examCardOptionalElem);
+
+  const examsRequired = standard.examinations.filter(e =>
+      e.is_required && e.is_stationary !== 1
+  );
+  const examsOptional = standard.examinations.filter(e =>
+      !e.is_required && e.is_stationary !== 1
+  );
+
+  const requiredGrouped = groupByCategoryAndSortByUur(examsRequired);
+  const optionalGrouped = groupByCategoryAndSortByUur(examsOptional);
+
+  if (requiredGrouped.length > 0) {
+    let prevName = "";
+    requiredGrouped.forEach(group => {
+      createGroupTitle(examCardRequiredElem, group.name);
+      prevName = "";
+      group.values.forEach(item => {
+        createExamBlock(examCardRequiredElem, item, prevName);
+        prevName = item.name;
+      });
+    });
+    examCardRequiredElem.classList.remove('hidden');
+  } else {
+    examCardRequiredElem.classList.add('hidden');
+  }
+
+  if (optionalGrouped.length > 0) {
+    let prevName = "";
+    optionalGrouped.forEach(group => {
+      createGroupTitle(examCardOptionalElem, group.name);
+      prevName = "";
+      group.values.forEach(item => {
+        createExamBlock(examCardOptionalElem, item, prevName);
+        prevName = item.name;
+      });
+    });
+    examCardOptionalElem.classList.remove('hidden');
+  } else {
+    examCardOptionalElem.classList.add('hidden');
+  }
+
+  revealSection('exam');
+}
+function groupTreatByCategoryAndSortByUur(arr) {
+  const groups = {};
+
+  arr.forEach(item => {
+    const rawCategory = item['category_name'];
+    const category = typeof rawCategory === 'string' ? rawCategory.trim() : '';
+    const groupKey = category === '' || category === 'null' ? 'Прочее' : category;
+
+    if (!groups[groupKey]) groups[groupKey] = [];
+    groups[groupKey].push({ ...item });
+  });
+
+  const result = Object.entries(groups)
+      .filter(([groupName]) => groupName !== 'Прочее')
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([groupName, values]) => {
+        const sorted = values.sort((a, b) => {
+          const uurA = (a.pers?.["уур"] || "").toUpperCase();
+          const uurB = (b.pers?.["уур"] || "").toUpperCase();
+
+          const uddA = parseInt(a.pers?.["удд"], 10) || 0;
+          const uddB = parseInt(b.pers?.["удд"], 10) || 0;
+
+          const cmp = uurA.localeCompare(uurB, 'en', { sensitivity: 'base' });
+          if (cmp !== 0) return cmp;
+
+          if (uddA !== uddB) return uddA - uddB;
+
+          return a.name.localeCompare(b.name);
+        });
+
+        return {
+          name: groupName,
+          values: sorted
+        };
+      });
+
+  if (groups['Прочее']) {
+    const sorted = groups['Прочее'].sort((a, b) => {
+      const uurA = a.pers?.["уур"] || "";
+      const uurB = b.pers?.["уур"] || "";
+      const uddA = parseInt(a.pers?.["удд"]) || 0;
+      const uddB = parseInt(b.pers?.["удд"]) || 0;
+
+      const cmp = uurA.localeCompare(uurB, 'en', { sensitivity: 'base' });
+      if (cmp !== 0) return cmp;
+
+      if (uddA !== uddB) return uddA - uddB;
+
+      return a.name.localeCompare(b.name);
+    });
+
+    result.push({ name: 'Прочее', values: sorted });
+  }
+
+  return result;
+}
+function sortByUurTreatment() {
+  const mkbData = document.mkbData;
+  if (!mkbData) return;
+
+  const currentAge = document.getElementById('age-toggle').checked ? 'grownup' : 'child';
+  const standardInd = getStandardInd('treat');
+  const standard = mkbData[currentAge].standards[standardInd];
+
+  const treatCardActionElem = document.getElementById('treat-card-action');
+  const treatCardDrugElem = document.getElementById('treat-card-drug');
+  const treatCardDrugOfflabelElem = document.getElementById('treat-card-drug-offlabel');
+
+  clearCard(treatCardActionElem);
+  clearCard(treatCardDrugElem);
+  clearCard(treatCardDrugOfflabelElem);
+
+  const allTreatments = standard.treatments.filter(t => t.is_stationary !== 1);
+
+  const drugTreatments = allTreatments.filter(t => t.type === "drug" && !t.is_offlabel);
+  const actionTreatments = allTreatments.filter(t => t.type === "service");
+  const offlabelTreatments = allTreatments.filter(t => t.is_offlabel && t.type === "drug");
+
+  const groupedDrugs = groupTreatByCategoryAndSortByUur(drugTreatments);
+  const groupedActions = groupTreatByCategoryAndSortByUur(actionTreatments);
+  const groupedOfflabel = groupTreatByCategoryAndSortByUur(offlabelTreatments);
+
+  let hasDrug = false;
+  let hasAction = false;
+  let hasOfflabel = false;
+
+  groupedDrugs.forEach(group => {
+    createGroupTitle(treatCardDrugElem, group.name);
+    let prevName = "";
+    group.values.forEach(item => {
+      createTreatBlock(treatCardDrugElem, item, prevName);
+      prevName = item.name;
+    });
+    hasDrug = true;
+  });
+
+  groupedActions.forEach(group => {
+    createGroupTitle(treatCardActionElem, group.name);
+    let prevName = "";
+    group.values.forEach(item => {
+      createTreatBlock(treatCardActionElem, item, prevName);
+      prevName = item.name;
+    });
+    hasAction = true;
+  });
+
+  groupedOfflabel.forEach(group => {
+    createGroupTitle(treatCardDrugOfflabelElem, group.name);
+    let prevName = "";
+    group.values.forEach(item => {
+      createTreatBlock(treatCardDrugOfflabelElem, item, prevName);
+      prevName = item.name;
+    });
+    hasOfflabel = true;
+  });
+
+  if (hasDrug) treatCardDrugElem.classList.remove('hidden');
+  else treatCardDrugElem.classList.add('hidden');
+
+  if (hasAction) treatCardActionElem.classList.remove('hidden');
+  else treatCardActionElem.classList.add('hidden');
+
+  if (hasOfflabel) {
+    treatCardDrugOfflabelElem.classList.remove('hidden');
+    treatCardDrugOfflabelElem.classList.add('minimized');
+  } else {
+    treatCardDrugOfflabelElem.classList.add('hidden');
+  }
+
+  revealSection('treat');
+}
+
+function groupByCategoryAndSortById(arr) {
+  const groups = {};
+
+  arr.forEach(item => {
+    const rawCategory = item['category_name'];
+    const category = typeof rawCategory === 'string' ? rawCategory.trim() : '';
+    const groupKey = category === '' || category === 'null' ? 'Прочее' : category;
+
+    if (!groups[groupKey]) groups[groupKey] = [];
+
+    groups[groupKey].push({ ...item }); // Клонируем объект
+  });
+
+  const result = Object.entries(groups)
+      .filter(([groupName]) => groupName !== 'Прочее')
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([groupName, values]) => {
+        const split = splitByNameAndId(values);
+        const sorted = split.sort((a, b) => {
+          const aId = parseInt(a.cr_db_id) || 0;
+          const bId = parseInt(b.cr_db_id) || 0;
+
+          if (aId !== bId) return aId - bId;
+          return a.name.localeCompare(b.name);
+        });
+
+        return {
+          name: groupName,
+          values: sorted
+        };
+      });
+
+  if (groups['Прочее']) {
+    const split = splitByNameAndId(groups['Прочее']);
+    const sorted = split.sort((a, b) => {
+      const aId = parseInt(a.cr_db_id) || 0;
+      const bId = parseInt(b.cr_db_id) || 0;
+
+      if (aId !== bId) return aId - bId;
+      return a.name.localeCompare(b.name);
+    });
+
+    result.push({ name: 'Прочее', values: sorted });
+  }
+
+  return result;
+}
+function groupTreatByCategoryAndSortById(arr) {
+  const groups = {};
+
+  arr.forEach(item => {
+    const rawCategory = item['category_name'];
+    const category = typeof rawCategory === 'string' ? rawCategory.trim() : '';
+    const groupKey = category === '' || category === 'null' ? 'Прочее' : category;
+
+    if (!groups[groupKey]) groups[groupKey] = [];
+    groups[groupKey].push({ ...item });
+  });
+
+  const result = Object.entries(groups)
+      .filter(([groupName]) => groupName !== 'Прочее')
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([groupName, values]) => {
+        const split = splitByNameAndId(values);
+        const sorted = split.sort((a, b) => {
+          const aId = parseFloat((a.cr_db_id || '').replace(/[^\d.]/g, '')) || 0;
+          const bId = parseFloat((b.cr_db_id || '').replace(/[^\d.]/g, '')) || 0;
+
+          if (aId !== bId) return aId - bId;
+          return a.name.localeCompare(b.name);
+        });
+
+        return {
+          name: groupName,
+          values: sorted
+        };
+      });
+
+  if (groups['Прочее']) {
+    const split = splitByNameAndId(groups['Прочее']);
+    const sorted = split.sort((a, b) => {
+      const aId = parseFloat((a.cr_db_id || '').replace(/[^\d.]/g, '')) || 0;
+      const bId = parseFloat((b.cr_db_id || '').replace(/[^\d.]/g, '')) || 0;
+
+      if (aId !== bId) return aId - bId;
+      return a.name.localeCompare(b.name);
+    });
+
+    result.push({ name: 'Прочее', values: sorted });
+  }
+
+  return result;
+}
+function splitByNameAndId(arr) {
+  const map = new Map();
+
+  arr.forEach(item => {
+    const key = `${item.name}___${item.cr_db_id}`;
+    if (!map.has(key)) map.set(key, []);
+    map.get(key).push(item);
+  });
+
+  return Array.from(map.values()).flat();
+}
+function sortById() {
+  const mkbData = document.mkbData;
+  if (!mkbData) return;
+
+  const currentAge = document.getElementById('age-toggle').checked ? 'grownup' : 'child';
+  const currentStandardIndex = getStandardInd('exam'); // для диагностики
+  const standard = mkbData[currentAge].standards[currentStandardIndex];
+
+  const examCardRequiredElem = document.getElementById('exam-card-required');
+  const examCardOptionalElem = document.getElementById('exam-card-optional');
+
+  clearCard(examCardRequiredElem);
+  clearCard(examCardOptionalElem);
+
+  const examsRequired = standard.examinations.filter(e =>
+      e.is_required && e.is_stationary !== 1
+  );
+  const examsOptional = standard.examinations.filter(e =>
+      !e.is_required && e.is_stationary !== 1
+  );
+
+  const requiredGrouped = groupByCategoryAndSortById(examsRequired);
+  const optionalGrouped = groupByCategoryAndSortById(examsOptional);
+
+  let hasRequired = requiredGrouped.length > 0;
+  let hasOptional = optionalGrouped.length > 0;
+
+  if (hasRequired) {
+    let prevName = "";
+    requiredGrouped.forEach(group => {
+      createGroupTitle(examCardRequiredElem, group.name);
+      prevName = "";
+      group.values.forEach(item => {
+        createExamBlock(examCardRequiredElem, item, prevName);
+        prevName = item.name;
+      });
+    });
+    examCardRequiredElem.classList.remove('hidden');
+  } else {
+    examCardRequiredElem.classList.add('hidden');
+  }
+
+  if (hasOptional) {
+    let prevName = "";
+    optionalGrouped.forEach(group => {
+      createGroupTitle(examCardOptionalElem, group.name);
+      prevName = "";
+      group.values.forEach(item => {
+        createExamBlock(examCardOptionalElem, item, prevName);
+        prevName = item.name;
+      });
+    });
+    examCardOptionalElem.classList.remove('hidden');
+  } else {
+    examCardOptionalElem.classList.add('hidden');
+  }
+
+  revealSection('exam');
+}
+function sortByIdTreatment() {
+  const mkbData = document.mkbData;
+  if (!mkbData) return;
+
+  const currentAge = document.getElementById('age-toggle').checked ? 'grownup' : 'child';
+  const currentStandardIndex = getStandardInd('treat');
+  const standard = mkbData[currentAge].standards[currentStandardIndex];
+
+  const treatCardActionElem = document.getElementById('treat-card-action');
+  const treatCardDrugElem = document.getElementById('treat-card-drug');
+  const treatCardDrugOfflabelElem = document.getElementById('treat-card-drug-offlabel');
+
+  clearCard(treatCardActionElem);
+  clearCard(treatCardDrugElem);
+  clearCard(treatCardDrugOfflabelElem);
+
+  const allTreatments = standard.treatments.filter(t => t.is_stationary !== 1);
+
+  const drugTreatments = allTreatments.filter(t => t.type === "drug" && !t.is_offlabel);
+  const actionTreatments = allTreatments.filter(t => t.type === "service");
+  const offlabelTreatments = allTreatments.filter(t => t.is_offlabel && t.type === "drug");
+
+  const groupedDrugs = groupTreatByCategoryAndSortById(drugTreatments);
+  const groupedActions = groupTreatByCategoryAndSortById(actionTreatments);
+  const groupedOfflabel = groupTreatByCategoryAndSortById(offlabelTreatments);
+
+  let hasDrug = false;
+  let hasAction = false;
+  let hasOfflabel = false;
+
+  groupedDrugs.forEach(group => {
+    createGroupTitle(treatCardDrugElem, group.name);
+    let prevName = "";
+    group.values.forEach(item => {
+      createTreatBlock(treatCardDrugElem, item, prevName);
+      prevName = item.name;
+    });
+    hasDrug = true;
+  });
+
+  groupedActions.forEach(group => {
+    createGroupTitle(treatCardActionElem, group.name);
+    let prevName = "";
+    group.values.forEach(item => {
+      createTreatBlock(treatCardActionElem, item, prevName);
+      prevName = item.name;
+    });
+    hasAction = true;
+  });
+
+  groupedOfflabel.forEach(group => {
+    createGroupTitle(treatCardDrugOfflabelElem, group.name);
+    let prevName = "";
+    group.values.forEach(item => {
+      createTreatBlock(treatCardDrugOfflabelElem, item, prevName);
+      prevName = item.name;
+    });
+    hasOfflabel = true;
+  });
+
+  if (hasDrug) treatCardDrugElem.classList.remove('hidden');
+  else treatCardDrugElem.classList.add('hidden');
+
+  if (hasAction) treatCardActionElem.classList.remove('hidden');
+  else treatCardActionElem.classList.add('hidden');
+
+  if (hasOfflabel) {
+    treatCardDrugOfflabelElem.classList.remove('hidden');
+    treatCardDrugOfflabelElem.classList.add('minimized');
+  } else {
+    treatCardDrugOfflabelElem.classList.add('hidden');
+  }
+
+  revealSection('treat');
+}
+
+
+
+
+
 async function fetchPopupDataOnce() {
   const maxRetries = 2; //2 попытки
   const retryDelay = 1000; // между попытками, ms
