@@ -340,6 +340,27 @@ function groupTreatByCategoryAndSortByQuality(arr) {
   return result;
 }
 
+function sortByPers(groupName, values) {
+  const sortedWithPers = values
+      .filter(x => x.hasOwnProperty('pers'))
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .sort((a, b) => {
+
+        let aValue = `${a.pers["уур"]}${a.pers["удд"]}`;
+        let bValue = `${b.pers["уур"]}${b.pers["удд"]}`;
+
+        return aValue.localeCompare(bValue);
+      });
+
+  const sortedNoPers = values
+      .filter(x => !x.hasOwnProperty('pers'))
+      .sort((a, b) => a.name.localeCompare(b.name));
+
+  return {
+    name: groupName,
+    values: sortedWithPers.concat(sortedNoPers)
+  };
+}
 function groupByCategoryAndSortByUur(arr) {
   const groups = {};
 
@@ -353,49 +374,8 @@ function groupByCategoryAndSortByUur(arr) {
   });
 
   const result = Object.entries(groups)
-      .filter(([groupName]) => groupName !== 'Прочее')
-      .sort(([a], [b]) => a.localeCompare(b))
-      .map(([groupName, values]) => {
-        const sorted = values.sort((a, b) => {
-          const uurA = (a.pers?.["уур"] || "").toUpperCase();
-          const uurB = (b.pers?.["уур"] || "").toUpperCase();
-
-          const uddA = parseInt(a.pers?.["удд"], 10) || 0;
-          const uddB = parseInt(b.pers?.["удд"], 10) || 0;
-
-          const cmp = uurA.localeCompare(uurB, 'en', { sensitivity: 'base' });
-          if (cmp !== 0) return cmp;
-
-          if (uddA !== uddB) return uddA - uddB;
-
-          return a.name.localeCompare(b.name);
-        });
-
-        return {
-          name: groupName,
-          values: sorted
-        };
-      });
-
-  // Прочее — в конец
-  if (groups['Прочее']) {
-    const sorted = groups['Прочее'].sort((a, b) => {
-      const uurA = a.pers?.["уур"] || "";
-      const uurB = b.pers?.["уур"] || "";
-
-      const uddA = parseInt(a.pers?.["удд"]) || 0;
-      const uddB = parseInt(b.pers?.["удд"]) || 0;
-
-      const cmp = uurA.localeCompare(uurB, 'en', { sensitivity: 'base' });
-      if (cmp !== 0) return cmp;
-
-      if (uddA !== uddB) return uddA - uddB;
-
-      return a.name.localeCompare(b.name);
-    });
-
-    result.push({ name: 'Прочее', values: sorted });
-  }
+      .sort(([a], [b]) => a === 'Прочее' ? 1 : b === 'Прочее' ? -1 : a.localeCompare(b))
+      .map(([groupName, values]) => sortByPers(groupName, values));
 
   return result;
 }
@@ -427,10 +407,8 @@ function sortByUur() {
     let prevName = "";
     requiredGrouped.forEach(group => {
       createGroupTitle(examCardRequiredElem, group.name);
-      prevName = "";
       group.values.forEach(item => {
-        createExamBlock(examCardRequiredElem, item, prevName);
-        prevName = item.name;
+        createExamBlock(examCardRequiredElem, item, null);
       });
     });
     examCardRequiredElem.classList.remove('hidden');
@@ -442,10 +420,8 @@ function sortByUur() {
     let prevName = "";
     optionalGrouped.forEach(group => {
       createGroupTitle(examCardOptionalElem, group.name);
-      prevName = "";
       group.values.forEach(item => {
-        createExamBlock(examCardOptionalElem, item, prevName);
-        prevName = item.name;
+        createExamBlock(examCardOptionalElem, item, null);
       });
     });
     examCardOptionalElem.classList.remove('hidden');
@@ -468,47 +444,8 @@ function groupTreatByCategoryAndSortByUur(arr) {
   });
 
   const result = Object.entries(groups)
-      .filter(([groupName]) => groupName !== 'Прочее')
-      .sort(([a], [b]) => a.localeCompare(b))
-      .map(([groupName, values]) => {
-        const sorted = values.sort((a, b) => {
-          const uurA = (a.pers?.["уур"] || "").toUpperCase();
-          const uurB = (b.pers?.["уур"] || "").toUpperCase();
-
-          const uddA = parseInt(a.pers?.["удд"], 10) || 0;
-          const uddB = parseInt(b.pers?.["удд"], 10) || 0;
-
-          const cmp = uurA.localeCompare(uurB, 'en', { sensitivity: 'base' });
-          if (cmp !== 0) return cmp;
-
-          if (uddA !== uddB) return uddA - uddB;
-
-          return a.name.localeCompare(b.name);
-        });
-
-        return {
-          name: groupName,
-          values: sorted
-        };
-      });
-
-  if (groups['Прочее']) {
-    const sorted = groups['Прочее'].sort((a, b) => {
-      const uurA = a.pers?.["уур"] || "";
-      const uurB = b.pers?.["уур"] || "";
-      const uddA = parseInt(a.pers?.["удд"]) || 0;
-      const uddB = parseInt(b.pers?.["удд"]) || 0;
-
-      const cmp = uurA.localeCompare(uurB, 'en', { sensitivity: 'base' });
-      if (cmp !== 0) return cmp;
-
-      if (uddA !== uddB) return uddA - uddB;
-
-      return a.name.localeCompare(b.name);
-    });
-
-    result.push({ name: 'Прочее', values: sorted });
-  }
+      .sort(([a], [b]) => a === 'Прочее' ? 1 : b === 'Прочее' ? -1 : a.localeCompare(b))
+      .map(([groupName, values]) => sortByPers(groupName, values));
 
   return result;
 }
@@ -544,30 +481,24 @@ function sortByUurTreatment() {
 
   groupedDrugs.forEach(group => {
     createGroupTitle(treatCardDrugElem, group.name);
-    let prevName = "";
     group.values.forEach(item => {
-      createTreatBlock(treatCardDrugElem, item, prevName);
-      prevName = item.name;
+      createTreatBlock(treatCardDrugElem, item, null);
     });
     hasDrug = true;
   });
 
   groupedActions.forEach(group => {
     createGroupTitle(treatCardActionElem, group.name);
-    let prevName = "";
     group.values.forEach(item => {
-      createTreatBlock(treatCardActionElem, item, prevName);
-      prevName = item.name;
+      createTreatBlock(treatCardActionElem, item, null);
     });
     hasAction = true;
   });
 
   groupedOfflabel.forEach(group => {
     createGroupTitle(treatCardDrugOfflabelElem, group.name);
-    let prevName = "";
     group.values.forEach(item => {
-      createTreatBlock(treatCardDrugOfflabelElem, item, prevName);
-      prevName = item.name;
+      createTreatBlock(treatCardDrugOfflabelElem, item, null);
     });
     hasOfflabel = true;
   });
@@ -1879,7 +1810,6 @@ function setExamText() {
           )
   );
 
-  // Проверка на наличие данных
   let hasRequired = requiredExaminationsByCategory.length > 0;
   let hasOptional = optionalExaminationsByCategory.length > 0;
 
