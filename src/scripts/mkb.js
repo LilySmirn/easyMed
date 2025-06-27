@@ -1,5 +1,5 @@
 // import '../css/main.css';
-
+//
 // import { decryptData } from './crypto.js';
 
 const searchInput = document.getElementById('search-input');
@@ -1978,45 +1978,53 @@ function createTableBlock(tableData) {
 
   let formattedTitle;
   if (match) {
-    const boldPart = match[1]; // "Приложение А3.2."
-    const normalPart = match[3]; // Остальной текст
+    const boldPart = match[1];
+    const normalPart = match[3];
     formattedTitle = `<strong>${boldPart}</strong> ${normalPart}`;
   } else {
-    formattedTitle = title; // если не совпадает, оставить как есть
+    formattedTitle = title;
   }
 
+  const hasAnyCategoryName = (tableData.sections || []).some(
+      section => section.name && section.name.trim() !== ''
+  );
+  if (!hasAnyCategoryName) return ''; // ничего не показываем
+
+  const sectionsHtml = createTableBlockSections(tableData.sections);
+  if (!sectionsHtml.trim()) return '';
+
   return `<div class="form__section form__section--tables">
-              <div class="form__card minimized">
-                <div class="form__card-header">
-                  <div class="form__card-header--container">
-                    <h3 class="form__card-title">${formattedTitle}</h3>
-                  </div>
-                  <button class="form__card-toggle">
-                    <svg width="16" height="16" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </button>
-                </div>
-                ${createTableBlockSections(tableData.sections)}
-              </div>
-            </div>`;
+    <div class="form__card minimized">
+      <div class="form__card-header">
+        <div class="form__card-header--container">
+          <h3 class="form__card-title">${formattedTitle}</h3>
+        </div>
+        <button class="form__card-toggle">
+          <svg width="16" height="16" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+      </div>
+      ${sectionsHtml}
+    </div>
+  </div>`;
 }
+
 
 function createTableBlockSections(sections) {
   let sectionsHtml = '';
+  let tablesCounter = 0;
 
   sections.forEach(section => {
-    // if (!section.name || section.name.trim() === '') {
-    //   return;
-    // }
+    if (!section.name || section.name.trim() === '') return;
 
+    // Только если есть название секции — рисуем заголовок и таблицы
     sectionsHtml += `<div class="block__container" style="margin-bottom: 5px;">
-                        <div class="block__header category-name" style="display: flex; justify-content: space-between; align-items: center; background-color: rgb(245, 245, 245); padding: 5px 5px 5px 10px; border-radius: 100px; cursor: default;">
-                            <h4 style="margin: 0px; font-weight: normal;">${section.name}</h4>
-                        </div>
-                     </div>`;
+      <div class="block__header category-name" style="display: flex; justify-content: space-between; align-items: center; background-color: rgb(245, 245, 245); padding: 5px 5px 5px 10px; border-radius: 100px; cursor: default;">
+        <h4 style="margin: 0px; font-weight: normal;">${section.name}</h4>
+      </div>
+    </div>`;
 
-    let tablesCounter = 0;
     section?.tables?.forEach(table => {
       tablesCounter++;
       const id = generateGUID();
@@ -2036,19 +2044,20 @@ function createTableBlockSections(sections) {
       }
 
       sectionsHtml += `<div class="block__container table-container" id="${id}">
-                     <div class="block__header">
-                       <h4 style="margin: 0; font-weight: normal; line-height: 1.3;">
-                         <strong>${mainTitle}</strong>
-                         ${subtitle ? `<div style="margin-top: 8px; font-weight: normal;">${subtitle}</div>` : ''}
-                       </h4>
-                     </div>
-                     <img src="../images/eye.svg" alt="table" class="table-eye">
-                   </div>`;
+        <div class="block__header">
+          <h4 style="margin: 0; font-weight: normal; line-height: 1.3;">
+            <strong>${mainTitle}</strong>
+            ${subtitle ? `<div style="margin-top: 8px; font-weight: normal;">${subtitle}</div>` : ''}
+          </h4>
+        </div>
+        <img src="../images/eye.svg" alt="table" class="table-eye">
+      </div>`;
     });
   });
 
   return sectionsHtml;
 }
+
 
 function generateGUID() {
   const cryptoObj = window.crypto || window.msCrypto; // поддержка IE11
@@ -2580,6 +2589,9 @@ function displayResults(data) {
 async function loadTableData() {
   try {
     const response = await fetch('/cr_387_3_corrected.json');
+    // const username = getCookie('username');
+    // const password = getCookie('password');
+    // const response = await fetch(`../php/get-data-tables.php?cr_id=388_3&username=${username}&password=${password}`);
     if (!response.ok) {
       throw new Error(`Ошибка загрузки: ${response.status}`);
     }
