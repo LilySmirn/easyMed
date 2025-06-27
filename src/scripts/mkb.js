@@ -1,6 +1,6 @@
-// import '../css/main.css';
-//
-// import { decryptData } from './crypto.js';
+import '../css/main.css';
+
+import { decryptData } from './crypto.js';
 
 const searchInput = document.getElementById('search-input');
 const clearButton = document.getElementById('clear-button');
@@ -39,9 +39,9 @@ tablePopupCloseBtn.addEventListener('click', () => {
 })
 let popupData = null;
 
-if (ageToggleElem) {
-  ageToggleElem.addEventListener('click', setLists);
-}
+/*if (ageToggleElem) {
+  ageToggleElem.addEventListener('click', async () => await setLists());
+}*/
 
 
 // селект параметров сортировки
@@ -90,11 +90,7 @@ function sortByAlphabet() {
   const mkbData = document.mkbData;
   if (!mkbData) return;
 
-  const currentAge = document.getElementById('age-toggle').checked ? 'grownup' : 'child';
-  const currentStandardIndex = getStandardInd('exam');
-  const standard = mkbData[currentAge].standards[currentStandardIndex];
-
-  setExamText(standard.examinations);
+  setExamText();
 }
 function sortByAlphabetTreatment() {
   const mkbData = document.mkbData;
@@ -1036,8 +1032,8 @@ searchListElem.addEventListener('click', function (e) {
   }
 });
 
-ageToggleElem.addEventListener('click', setLists);
-standardToggleElem.addEventListener('click', setLists);
+ageToggleElem.addEventListener('click', async () => await setLists());
+standardToggleElem.addEventListener('click', async () => await setLists());
 
 setCardViewTogglers();
 setTextBlockSelectionEventHandler();
@@ -1512,7 +1508,6 @@ async function searchMkb() {
     // const response = await fetch('/res_K26.0_first.json');
     // const response = await fetch('/test-f.json');
 
-    document.tablesData = await loadTableData();
     console.log(document.tablesData);
 
     const response = await fetch(`../php/get-data-main.php/login?code=${code}&username=${username}&password=${password}`);
@@ -1523,6 +1518,7 @@ async function searchMkb() {
 
     // fire and forget: the additional data should be loaded in background
     await fetchPopupDataOnce();
+
 
     // const encryptedText  = await response.text();
     // const data = await decryptData(encryptedText);
@@ -1547,7 +1543,7 @@ async function searchMkb() {
     clearButton.classList.remove('hidden');
     searchButton.classList.remove('hidden');
     setMkbName();
-    const listsAreSet = setLists();
+    const listsAreSet = await setLists();
     if (listsAreSet) revealMkbData();
   }
   catch (error) {
@@ -1596,7 +1592,7 @@ function getCookie(cname) {
   return '';
 }
 
-function setLists() {
+async function setLists() {
   removeAllBlockSelections();
   sectionToggles.classList.remove('hidden');
   const mkbData = document.mkbData;
@@ -1652,7 +1648,7 @@ function setLists() {
 
   createList('exam', listsData.exam);
   createList('treat', listsData.treat);
-  createTableSection(document.tablesData);
+  await createTableSection();
 
   return true;
 }
@@ -1921,23 +1917,38 @@ function setTreatText() {
   }
 }
 
-function createTableSection(tablesData) {
+async function createTableSection() {
   clearTablesData();
 
   const crmId = getCurrentCrmId(document.mkbData);
-  const tableData = tablesData.find(x => x.crId === crmId);
+  const tableData = await loadTableData(crmId);
 
-  if (tableData === undefined) {
+  //const tableData = tablesData.find(x => x.crId === crmId);
+  console.log(tableData);
+
+  const tablesSection = document.getElementById('tables-section');
+  const tablesDataElement = document.getElementById('tables-data');
+
+  if (!tableData) {
+    if (tablesSection) tablesSection.classList.add('hidden');
     return;
   }
 
   const tables = tableData.sections?.drugTables?.content?.attachments;
-  const tablesDataElement = document.getElementById('tables-data');
-  tablesDataElement.classList.remove('hidden');
+  let renderedHtml = '';
 
   tables?.forEach((table) => {
-    tablesDataElement.innerHTML += createTableBlock(table);
+    renderedHtml += createTableBlock(table);
   });
+
+  if (!renderedHtml.trim()) {
+    if (tablesSection) tablesSection.classList.add('hidden');
+    return;
+  }
+
+  tablesDataElement.innerHTML = renderedHtml;
+  tablesDataElement.classList.remove('hidden');
+  if (tablesSection) tablesSection.classList.remove('hidden');
 
   tablesDataElement.querySelectorAll('.form__card-header').forEach(header => {
     header.addEventListener('click', () => header.parentElement.classList.toggle("minimized"));
@@ -1955,6 +1966,7 @@ function createTableSection(tablesData) {
     });
   });
 }
+
 
 function openTablePopup(id) {
   if (!document.tablesObject.hasOwnProperty(id)) {
@@ -1985,10 +1997,18 @@ function createTableBlock(tableData) {
     formattedTitle = title;
   }
 
-  const hasAnyCategoryName = (tableData.sections || []).some(
+  tableData.sections.map((section) => {
+    if (section.name === null || section.name.trim() === '') {
+      section.name = '';
+    }
+
+    return section;
+  });
+
+  /*const hasAnyCategoryName = (tableData.sections || []).some(
       section => section.name && section.name.trim() !== ''
   );
-  if (!hasAnyCategoryName) return ''; // ничего не показываем
+  if (!hasAnyCategoryName) return '';*/
 
   const sectionsHtml = createTableBlockSections(tableData.sections);
   if (!sectionsHtml.trim()) return '';
@@ -2016,14 +2036,14 @@ function createTableBlockSections(sections) {
   let tablesCounter = 0;
 
   sections.forEach(section => {
-    if (!section.name || section.name.trim() === '') return;
-
-    // Только если есть название секции — рисуем заголовок и таблицы
-    sectionsHtml += `<div class="block__container" style="margin-bottom: 5px;">
-      <div class="block__header category-name" style="display: flex; justify-content: space-between; align-items: center; background-color: rgb(245, 245, 245); padding: 5px 5px 5px 10px; border-radius: 100px; cursor: default;">
-        <h4 style="margin: 0px; font-weight: normal;">${section.name}</h4>
-      </div>
-    </div>`;
+    if (section.name.trim() !== '') {
+      // Только если есть название секции — рисуем заголовок и таблицы
+      sectionsHtml += `<div class="block__container" style="margin-bottom: 5px;">
+                        <div class="block__header category-name" style="display: flex; justify-content: space-between; align-items: center; background-color: rgb(245, 245, 245); padding: 5px 5px 5px 10px; border-radius: 100px; cursor: default;">
+                          <h4 style="margin: 0px; font-weight: normal;">${section.name}</h4>
+                        </div>
+                      </div>`;
+    }
 
     section?.tables?.forEach(table => {
       tablesCounter++;
@@ -2081,11 +2101,17 @@ function generateGUID() {
 function getCurrentCrmId(mkbData) {
   const ageToggleElem = document.getElementById('age-toggle');
   const currentAge = ageToggleElem.checked ? 'grownup' : 'child';
-  const standardInd = getStandardInd('exam');
+  let standardInd = getStandardInd('exam');
+
+  if (isNaN(parseInt(standardInd))) {
+    return null;
+  }
 
   console.log(mkbData);
   console.log(currentAge);
   console.log(standardInd);
+
+  console.log(mkbData[currentAge].standards[standardInd]);
 
   return mkbData[currentAge].standards[standardInd].cr_m_id;
 }
@@ -2586,24 +2612,24 @@ function displayResults(data) {
   }
 }
 
-async function loadTableData() {
+async function loadTableData(crmId) {
   try {
-    const response = await fetch('/cr_387_3_corrected.json');
-    // const username = getCookie('username');
-    // const password = getCookie('password');
-    // const response = await fetch(`../php/get-data-tables.php?cr_id=388_3&username=${username}&password=${password}`);
+    // const response = await fetch('/cr_387_3_corrected.json');
+    const username = getCookie('username');
+    const password = getCookie('password');
+    const response = await fetch(`../php/get-data-tables.php?cr_id=${crmId}&username=${username}&password=${password}`);
     if (!response.ok) {
       throw new Error(`Ошибка загрузки: ${response.status}`);
     }
 
     const data = await response.json();
 
-    return [data];
+    return data;
   } catch (error) {
     console.error('Ошибка при загрузке таблиц:', error);
   }
 
-  return [];
+  return null;
 }
 
 function createLoadingElement(className = '') {
