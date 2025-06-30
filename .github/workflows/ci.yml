@@ -2,9 +2,9 @@ name: Minimal JS CI
 
 on:
   push:
-    branches: [ main, ci/pipeline ]
+    branches: [ main, ci/pipeline, sorting ]
   pull_request:
-    branches: [ main, ci/pipeline ]
+    branches: [ main, ci/pipeline, sorting ]
   workflow_dispatch:
     inputs:
       mode:
