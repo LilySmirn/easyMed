@@ -62,7 +62,7 @@ jobs:
         if: ${{ inputs.deploy }}
         uses: airvzxf/ftp-deployment-action@latest
         with:
-          server: ${{ vars.DEPLOYMENT_SERVER }}
+          server: ${{ vars.DEPLOYMENT_SERVER }}:${{ vars.DEPLOYMENT_SERVER_PORT }}
           user: ${{ vars.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local_dir: 'publish/'
