@@ -21,6 +21,11 @@ on:
         required: true
         default: false
 
+env:
+  DeploymentServer: '31.31.197.14:21'
+  DeploymentDirectory: '/www/easymed-dev.online'
+  FtpUsername: 'u3100553'
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -61,11 +66,11 @@ jobs:
         if: ${{ inputs.deploy }}
         uses: airvzxf/ftp-deployment-action@latest
         with:
-          server: '31.31.197.14:21'
-          user: 'u3100553'
+          server: $DeploymentServer
+          user: $FtpUsername
           password: 'OPRn8hHC1azx6O95'
           local_dir: 'publish/'
-          remote_dir: '/www/easymed-dev.online'
+          remote_dir: $DeploymentDirectory
           delete: 'true'
           max_retries: '3'
 
