@@ -8,13 +8,18 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: 'Build version'
+        description: 'Build mode'
         type: choice
         options:
         - build
         - dev
         required: true
         default: build
+      deploy:
+        description: 'Should deploy'
+        type: boolean
+        required: true
+        default: false
 
 jobs:
   build:
@@ -53,6 +58,7 @@ jobs:
           cp -r dist/* publish/
 
       - name: Upload to server via FTP
+        if: ${{ input.deploy }}
         uses: airvzxf/ftp-deployment-action@latest
         with:
           server: '31.31.197.14:21'
