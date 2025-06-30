@@ -2,9 +2,19 @@ name: Minimal JS CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, ci/pipeline, sorting ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, ci/pipeline, sorting ]
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Build version'
+        type: choice
+        options:
+        - build
+        - dev
+        required: true
+        default: build
 
 jobs:
   build:
@@ -23,7 +33,15 @@ jobs:
         run: npm ci
 
       - name: Сборка проекта
-        run: npm run build
+        run: npm run ${{ inputs.mode }}
+
+#      - name: Копируем всё из src в dist (кроме уже собранных файлов)
+#        run: |
+#          rsync -av \
+#            --exclude='scripts/mkb.js' \
+#            --exclude='css/main.css' \
+#            --exclude='mkb/index.html' \
+#          src/ dist/
 
       - name: Запуск тестов
         run: npm test
@@ -39,3 +57,4 @@ jobs:
         with:
           name: site-files
           path: publish/
+          retention-days: 7
