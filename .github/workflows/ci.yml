@@ -5,6 +5,16 @@ on:
     branches: [ main, ci/pipeline ]
   pull_request:
     branches: [ main, ci/pipeline ]
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Build version'
+        type: choice
+        options:
+        - build
+        - dev
+        required: true
+        default: build
 
 jobs:
   build:
@@ -23,7 +33,7 @@ jobs:
         run: npm ci
 
       - name: Сборка проекта
-        run: npm run build
+        run: npm run ${{ inputs.mode }}
 
 #      - name: Копируем всё из src в dist (кроме уже собранных файлов)
 #        run: |
