@@ -21,15 +21,16 @@ on:
         required: true
         default: false
 
-env:
-  DEPLOYMENT_SERVER: '31.31.197.14:21'
-  DEPLOYMENT_DIRECTORY: '/www/easymed-dev.online'
-  FTP_USERNAME: 'u3100553'
-  FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+
+ # DEPLOYMENT_SERVER: '31.31.197.14:21'
+ # DEPLOYMENT_DIRECTORY: '/www/easymed-dev.online'
+ # FTP_USERNAME: 'u3100553'
+ # FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment: ${{ inputs.mode }}
 
     steps:
       - name: Клонируем репозиторий
