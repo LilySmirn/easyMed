@@ -52,9 +52,20 @@ jobs:
           mkdir publish
           cp -r dist/* publish/
 
-      - name: Сохраняем артефакты (папку publish)
-        uses: actions/upload-artifact@v4
+      - name: Upload to server via FTP
+        uses: airvzxf/ftp-deployment-action@latest
         with:
-          name: site-files
-          path: publish/
-          retention-days: 7
+          server: '31.31.197.14:21'
+          user: 'u3100553'
+          password: 'OPRn8hHC1azx6O95'
+          local_dir: 'publish/'
+          remote_dir: '/www/easymed-dev.online'
+          delete: 'true'
+          max_retries: '3'
+
+#      - name: Сохраняем артефакты (папку publish)
+#        uses: actions/upload-artifact@v4
+#        with:
+#          name: site-files
+#          path: publish/
+#          retention-days: 7
