@@ -64,7 +64,7 @@ jobs:
         with:
           server: '${{ vars.DEPLOYMENT_SERVER }}:${{ vars.DEPLOYMENT_SERVER_PORT }}'
           user: ${{ vars.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
+          password: OPRn8hHC1azx6O95
           local_dir: 'publish/'
           remote_dir: ${{ vars.DEPLOYMENT_DIRECTORY }}
           delete: 'true'
