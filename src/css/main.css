@@ -360,6 +360,90 @@ html,
   color: #0085FF;
 }
 
+.warnings-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  /*opacity: 0;*/
+  transition: opacity 0.3s ease-out;
+  /*pointer-events: none;*/
+}
+.warnings-overlay.active {
+  display: flex;
+  opacity: 1;
+  pointer-events: all;
+}
+
+.warnings-popup {
+  width: 615px;
+  height: 330px;
+  background-color: #99CEFF;
+  border-radius: 20px;
+  position: relative;
+  text-align: center;
+  padding: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.warnings-popup-text h2 {
+  font-size: 26px;
+  margin: 0;
+}
+
+.warnings-popup-text p {
+  font-size: 16px;
+  line-height: 140%;
+  margin-bottom: 25px;
+}
+
+.warnings-popup-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
+.buy-btn, .tg-btn {
+  width: 234px;
+  height: 57px;
+  border-radius: 10px;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.buy-btn {
+  background-color: #0085ff;
+  color: #F0F8FF;
+  border: none;
+  cursor: pointer;
+}
+
+.buy-btn:hover {
+  background-color: #0065C2;
+}
+
+.tg-btn {
+  border: 1px solid #0085ff;
+  background-color: #F0F8FF;
+  color: #0085ff;
+  cursor: pointer;
+}
+
+.tg-btn:hover {
+  background-color: #D8EDFF;
+}
+
 .form {
   width: 809px;
   margin: 0 auto;
