@@ -338,6 +338,28 @@ html,
   color: rgba(0, 24, 47, 0.6);
 }
 
+.warnings {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 50px;
+}
+
+.warnings-title {
+  font-size: 16px;
+}
+
+.warnings-text {
+  font-size: 16px;
+  line-height: 140%;
+}
+
+.warnings-link {
+  text-decoration: underline;
+  color: #0085FF;
+}
+
 .form {
   width: 809px;
   margin: 0 auto;
