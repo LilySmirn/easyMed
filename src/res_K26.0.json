@@ -2787,7 +2787,7 @@
             "category_name": "Лабораторные исследования",
             "cr_m_id": "277_2",
             "cr_db_id": "277_2-29",
-            "is_qualitative"
+            "is_qualitative": 0,
             "S_CODE": "A08.28.014",
             "is_stationary": 0
           },

@@ -1,6 +1,12 @@
-import '../css/main.css';
+alert('MKB LOADED');
+console.log('MKB JS LOADED');
 
-import { decryptData } from './crypto.js';
+//import '../css/main.css';
+console.log('MKB JS LOADED');
+
+//import { decryptData } from './crypto.js';
+import CryptoJS from 'https://cdn.jsdelivr.net/npm/crypto-js@4.2.0/+esm';
+
 
 const searchInput = document.getElementById('search-input');
 const clearButton = document.getElementById('clear-button');
@@ -16,8 +22,40 @@ const selectElem = document.getElementById('exam-list');
 const buttonsSection = document.querySelector(".form__section--buttons");
 const pageMkb = document.querySelector('.page__mkb');
 const sectionToggles = document.querySelector('.form__section--toggles');
+
+// const resultsContainer = document.querySelector('.form__input--list-container'); //
+// const loadingContainer = document.querySelector('.form__loading-container'); //
+
+// убрать моковые данные (подключены для теста)
 const resultsContainer = document.querySelector('.form__input--list-container');
 const loadingContainer = document.querySelector('.form__loading-container')
+const mockSearchResult = {
+  code: 'K26.0',
+  name: 'Язва двенадцатиперстной кишки острая с кровотечением',
+};
+let mockK26Data = null;
+const shouldAutoLoadMockK26 = true;
+
+function extractCodeFromSearchValue(value) {
+  return value
+    ?.trim()
+    .split(/\s+/)[0]
+    ?.replace(':', '')
+    ?.toUpperCase();
+}
+
+async function getMockK26Data() {
+  if (mockK26Data) {
+    return mockK26Data;
+  }
+  const response = await fetch('../res_K26.0.json');
+  if (!response.ok) {
+    throw new Error('Не удалось загрузить моковые данные K26');
+  }
+  mockK26Data = await response.json();
+  return mockK26Data;
+}
+//конец моковых данных
 
 exitButtonElem.addEventListener('click', () => {
   document.cookie = "username=''; path=/";
@@ -72,15 +110,36 @@ searchInput.addEventListener('keypress', function (e) {
   }
 });
 
-searchInput.addEventListener('input', function () {
+//searchInput.addEventListener('input', function () {
+  //const query = this.value;
+  //searchButton.removeEventListener('click', searchMkb);
+  //searchButton.classList.add('form__button--search-disabled');
+  //if (query.length > 0) {
+    //clearButton.classList.remove('hidden');
+  //} else {
+    //clearButton.classList.add('hidden');
+  //}
+
+
+  //убрать моковые данные (подключены для теста)
+  searchInput.addEventListener('input', function () {
   const query = this.value;
   searchButton.removeEventListener('click', searchMkb);
   searchButton.classList.add('form__button--search-disabled');
+  const extractedCode = extractCodeFromSearchValue(query);
+  searchInput.codeValue = extractedCode;
+  if (extractedCode && extractedCode.startsWith('K26')) {
+    searchButton.classList.remove('form__button--search-disabled');
+    searchButton.addEventListener('click', searchMkb);
+  }
   if (query.length > 0) {
     clearButton.classList.remove('hidden');
   } else {
     clearButton.classList.add('hidden');
   }
+  //конец моковых данных
+
+
   if (query.length > 1) {
     showInputListLoader();
     fetchResults(query);
@@ -114,20 +173,43 @@ setCardViewTogglers();
 setTextBlockSelectionEventHandler();
 setCardCopyButtonsEventHandler();
 
-if (urlCode) {
+//if (urlCode) {
+  //pageMkb.classList.remove('page__mkb--start');
+  //const searchInput = document.getElementById('search-input');
+  //searchInput.codeValue = urlCode;
+  //hideMkbData();
+  //searchMkb();
+  //loadingContainer.remove();
+  //const newURL = window.location.origin + '/mkb';
+  //history.replaceState({}, '', newURL);
+//} else {
+  //setTimeout(() => {
+    //loadingContainer.remove();
+    //createHistoryPanel();
+  //}, 3000);
+
+
+  //удалить моковые данные (сделаны для теста)
+  if (urlCode) {
   pageMkb.classList.remove('page__mkb--start');
-  const searchInput = document.getElementById('search-input');
   searchInput.codeValue = urlCode;
   hideMkbData();
   searchMkb();
   loadingContainer.remove();
   const newURL = window.location.origin + '/mkb';
   history.replaceState({}, '', newURL);
+} else if (shouldAutoLoadMockK26) {
+  pageMkb.classList.remove('page__mkb--start');
+  searchInput.codeValue = 'K26.0';
+  hideMkbData();
+  loadingContainer.remove();
+  searchMkb();
 } else {
   setTimeout(() => {
     loadingContainer.remove();
     createHistoryPanel();
   }, 3000);
+//конец моковых данных
 }
 
 async function createHistoryPanel() {
@@ -489,13 +571,21 @@ function getSelectedBlocksAmount(cardElem) {
   ).length;
 }
 
+//async function searchMkb() {
+  //removeHistoryPanel();
+  //pageMkb.classList.remove('page__mkb--start');
+
+  //const code = searchInput.codeValue;
+
+//убрать моковые данные (подключены для теста)
 async function searchMkb() {
   removeHistoryPanel();
   pageMkb.classList.remove('page__mkb--start');
 
-  const code = searchInput.codeValue;
+  const code =
+    searchInput.codeValue || extractCodeFromSearchValue(searchInput.value);
+  searchInput.codeValue = code;
 
-  // Get credentials from cookies
   const username = getCookie('username');
   const password = getCookie('password');
 
@@ -509,9 +599,105 @@ async function searchMkb() {
   searchInput.disabled = true;
 
   try {
+    if (code && code.toUpperCase().startsWith('K26')) {
+      const data = await getMockK26Data();
+      document.mkbData = data;
+
+      const newSearchData = {
+        valueData: data.child.code,
+        textContent: `${data.child.code}: ${data.child.name}`,
+      };
+
+      updateHistory(newSearchData);
+      clearButton.classList.remove('hidden');
+      searchButton.classList.remove('hidden');
+      setMkbName();
+
+      const listsAreSet = setLists();
+      if (listsAreSet) {
+        revealMkbData();
+      }
+      return;
+    }
+
+    const response = await fetch(
+      `./php/get-data.php/login?code=${code}&username=${username}&password=${password}`
+    );
+
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+
+    const data = await response.json();
+
+    if (!data || !data.child) {
+      throw new Error('Invalid data received');
+    }
+
+    document.mkbData = data;
+
+    const newSearchData = {
+      valueData: data.child.code,
+      textContent: `${data.child.code}: ${data.child.name}`,
+    };
+
+    updateHistory(newSearchData);
+    clearButton.classList.remove('hidden');
+    searchButton.classList.remove('hidden');
+    setMkbName();
+
+    const listsAreSet = setLists();
+    if (listsAreSet) {
+      revealMkbData();
+    }
+  } catch (error) {
+    console.error('Ошибка:', error);
+    searchInput.placeholder = 'Название или код болезни';
+    searchInput.disabled = false;
+  }
+}
+//конец моковых данных
+
+  /*// Get credentials from cookies
+  const username = getCookie('username');
+  const password = getCookie('password');
+
+  clearButton.classList.add('hidden');
+  searchButton.classList.add('hidden');
+  document
+    .querySelector('.form__input--list-container')
+    .classList.add('hidden');
+  searchInput.value = '';
+  searchInput.placeholder = 'ЗАГРУЗКА...';
+  searchInput.disabled = true;
+
+  // try { //
+    // const response = await fetch( //
+      // `../php/get-data.php/login?code=${code}&username=${username}&password=${password}`//
+    // );//*/
+
+// подключены моковые данные (для теста)
+    /*try {
+    if (code && code.toUpperCase().startsWith('K26')) {
+      const data = await getMockK26Data();
+      document.mkbData = data;
+      const newSearchData = {
+        valueData: data.child.code,
+        textContent: data.child.code + ': ' + data.child.name,
+      };
+      updateHistory(newSearchData);
+      clearButton.classList.remove('hidden');
+      searchButton.classList.remove('hidden');
+      setMkbName();
+      const listsAreSet = setLists();
+      if (listsAreSet) revealMkbData();
+      return;
+    }
+
     const response = await fetch(
       `../php/get-data.php/login?code=${code}&username=${username}&password=${password}`
     );
+//конец моковых данных
 
     if (!response.ok) {
       throw new Error('Network response was not ok');
@@ -539,7 +725,7 @@ async function searchMkb() {
     searchInput.placeholder = 'Название или код болезни';
     searchInput.disabled = false;
   }
-}
+}*/
 
 function setMkbName() {
   searchInput.value = `${document.mkbData.child.code} ${document.mkbData.child.name}`;
@@ -681,7 +867,7 @@ function setTogglers(mkbData) {
   }
 }
 
-function setExamText() {
+/*function setExamText() {
   const mkbData = document.mkbData;
   if (!mkbData) return;
 
@@ -703,16 +889,53 @@ function setExamText() {
   clearCard(examCardRequiredElem);
   clearCard(examCardOptionalElem);
   mkbData[currentAge].standards[standardInd].examinations.forEach((exam) => {
-    if (exam.examination_stage_id == currentStage) {
+    if ((exam.examination_stage_id ?? exam.stage) == currentStage) {
       if (exam.is_required) createExamBlock(examCardRequiredElem, exam);
       else createExamBlock(examCardOptionalElem, exam);
     }
   });
   examCardRequiredElem.classList.remove('hidden');
   examCardOptionalElem.classList.remove('hidden');
-}
+}*/
 
-function setTreatText() {
+//моки
+function setExamText() {
+  const mkbData = document.mkbData;
+  if (!mkbData) return;
+
+  const ageToggleElem = document.getElementById('age-toggle');
+  const examStageToggleFirstElem = document.getElementById('exam-stage-toggle-first');
+
+  const currentAge = ageToggleElem.checked ? 'grownup' : 'child';
+  const currentStage = examStageToggleFirstElem.classList.contains('stage__selected') ? 1 : 2;
+  const standardInd = getStandardInd('exam');
+
+  const examCardRequiredElem = document.getElementById('exam-card-required');
+  const examCardOptionalElem = document.getElementById('exam-card-optional');
+
+  clearCard(examCardRequiredElem);
+  clearCard(examCardOptionalElem);
+
+  const examinations = mkbData[currentAge].standards[standardInd].examinations || [];
+
+  examinations.forEach((exam) => {
+    const examStage = exam.examination_stage_id ?? exam.stage;
+
+    if (Number(examStage) === currentStage) {
+      if (Number(exam.is_required) === 1) {
+        createExamBlock(examCardRequiredElem, exam);
+      } else {
+        createExamBlock(examCardOptionalElem, exam);
+      }
+    }
+  });
+
+  examCardRequiredElem.classList.remove('hidden');
+  examCardOptionalElem.classList.remove('hidden');
+}
+//моки
+
+/*function setTreatText() {
   const mkbData = document.mkbData;
   if (!mkbData) return;
 
@@ -731,7 +954,40 @@ function setTreatText() {
   });
   treatCardActionElem.classList.remove('hidden');
   treatCardDrugElem.classList.remove('hidden');
+}*/
+
+//моки
+function setTreatText() {
+  const mkbData = document.mkbData;
+  if (!mkbData) return;
+
+  const ageToggleElem = document.getElementById('age-toggle');
+  const currentAge = ageToggleElem.checked ? 'grownup' : 'child';
+  const standardInd = getStandardInd('treat');
+
+  const treatCardActionElem = document.getElementById('treat-card-action');
+  const treatCardDrugElem = document.getElementById('treat-card-drug');
+
+  clearCard(treatCardActionElem);
+  clearCard(treatCardDrugElem);
+
+  const treatments = mkbData[currentAge].standards[standardInd].treatments || [];
+
+  treatments.forEach((treat) => {
+    const treatmentType = treat.treatment_type_id ?? treat.type;
+
+    if (treatmentType === 1 || treatmentType === 'service') {
+      createExamBlock(treatCardActionElem, treat);
+    } else if (treatmentType === 2 || treatmentType === 'drug') {
+      createTreatBlock(treatCardDrugElem, treat);
+    }
+  });
+
+  treatCardActionElem.classList.remove('hidden');
+  treatCardDrugElem.classList.remove('hidden');
 }
+//конец моков
+
 
 function toggleStage(e) {
   removeAllBlockSelections();
@@ -928,16 +1184,42 @@ function createListData(mkbData, type, status, age) {
   return listData;
 }
 
+// function fetchResults(query) {
+  // fetch(`../php/search.php?q=${encodeURIComponent(query)}`)
+    // .then((response) => response.json())
+    // .then((data) => {
+      // displayResults(data);
+    // })
+    // .catch((error) => {
+      // console.error('Error:', error);
+    // });
+// }
+
+// подключены моковые данные (для теста)
 function fetchResults(query) {
-  fetch(`../php/search.php?q=${encodeURIComponent(query)}`)
-    .then((response) => response.json())
-    .then((data) => {
-      displayResults(data);
-    })
-    .catch((error) => {
-      console.error('Error:', error);
+  const normalizedQuery = query.trim().toLowerCase();
+  const localResults = [mockSearchResult].filter((item) => {
+    const code = item.code.toLowerCase();
+    const name = item.name.toLowerCase();
+    return (
+      code.includes(normalizedQuery) || name.includes(normalizedQuery)
+    );
+  });
+  searchListElem.innerHTML = '';
+  if (localResults.length > 0) {
+    localResults.forEach((item) => {
+      const li = document.createElement('li');
+      li.textContent = item.code + ': ' + item.name;
+      li.valueData = item.code;
+      li.classList.add('form__input--list-item');
+      searchListElem.appendChild(li);
     });
+  } else {
+    searchListElem.textContent = 'Совпадений не найдено';
+  }
+  resultsContainer.classList.remove('hidden');
 }
+//конец моковых данных
 
 // TODO: remove after CryptoJS testing
 // window.testCrypto = testCrypto;
@@ -947,7 +1229,7 @@ function fetchResults(query) {
 //   return decryptData(enc);
 // }
 
-function displayResults(data) {
+/*function displayResults(data) {
   decryptData(data)
       .then((data) => {
         searchListElem.innerHTML = '';
@@ -971,7 +1253,7 @@ function displayResults(data) {
       .catch((error) => {
         console.error('Error:', error);
       });
-}
+}*/
 
 function createLoadingElement(className = '') {
   const lodingElemHtml = `<svg class="rotating" height="30px" width="30px" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512" xml:space="preserve">
