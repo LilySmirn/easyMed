@@ -1,8 +1,4 @@
-alert('MKB LOADED');
-console.log('MKB JS LOADED');
-
 //import '../css/main.css';
-console.log('MKB JS LOADED');
 
 //import { decryptData } from './crypto.js';
 import CryptoJS from 'https://cdn.jsdelivr.net/npm/crypto-js@4.2.0/+esm';
@@ -342,13 +338,8 @@ function setTextBlockSelectionEventHandler() {
     cardElem.addEventListener('click', (e) => {
       if (e.target.classList.contains('block__container')) {
         toggleBlockSelection(e.target);
-        const textToCopy = getCardDataText(
-          cardElem,
-          cardElem.querySelector('.copy-button__copy-button')
-        );
-        const selectedBlocksAmount = cardElem.getElementsByClassName(
-          'block__container--selected'
-        ).length;
+        const textToCopy = getSelectedCardsDataText();
+        const selectedBlocksAmount = getSelectedBlocksAmountAllCards();
         if (selectedBlocksAmount) {
           const tooltipText = `Скопировано ${selectedBlocksAmount} шт.`;
           copyToClipboard(textToCopy, flashTooltipOnEvent, [
@@ -363,13 +354,8 @@ function setTextBlockSelectionEventHandler() {
       const closestBlockElem = e.target.closest('.block__container');
       if (closestBlockElem) {
         toggleBlockSelection(closestBlockElem);
-        const textToCopy = getCardDataText(
-          cardElem,
-          cardElem.querySelector('.copy-button__copy-button')
-        );
-        const selectedBlocksAmount = cardElem.getElementsByClassName(
-          'block__container--selected'
-        ).length;
+        const textToCopy = getSelectedCardsDataText();
+        const selectedBlocksAmount = getSelectedBlocksAmountAllCards();
         if (selectedBlocksAmount) {
           const tooltipText = `Скопировано ${selectedBlocksAmount} шт.`;
           copyToClipboard(textToCopy, flashTooltipOnEvent, [
@@ -469,16 +455,19 @@ function addCopyCardAllTextDataEventListeners(cardCopyElem) {
     tooltipElem.style.visibility = 'hidden';
   });
 
-  // Copy text to clipboard on click
+  /// Copy text to clipboard on click
   cardCopyElem.addEventListener('click', function (e) {
     const cardElem = e.target.closest('.form__card');
-    const textToCopy = getCardDataText(cardElem, e.target);
-    let selectedBlocksAmount = cardElem.getElementsByClassName(
-      'block__container--selected'
-    ).length;
-    if (!selectedBlocksAmount)
+    const selectedBlocksAmountAllCards = getSelectedBlocksAmountAllCards();
+    const textToCopy =
+      selectedBlocksAmountAllCards > 0
+        ? getSelectedCardsDataText()
+        : getCardDataText(cardElem, e.target);
+    let selectedBlocksAmount = selectedBlocksAmountAllCards;
+    if (!selectedBlocksAmount) {
       selectedBlocksAmount =
         cardElem.getElementsByClassName('block__container').length;
+    }
     copyToClipboard(textToCopy, flashTooltipOnEvent, [
       e,
       `Скопировано ${selectedBlocksAmount} шт.`,
@@ -487,9 +476,35 @@ function addCopyCardAllTextDataEventListeners(cardCopyElem) {
 }
 
 function copyToClipboard(textToCopy, callback, args) {
-  if (navigator.clipboard && navigator.clipboard.writeText) {
+  const textToCopyPlain =
+    typeof textToCopy === 'string' ? textToCopy : textToCopy.plainText || '';
+  const textToCopyHtml =
+    typeof textToCopy === 'string' ? '' : textToCopy.htmlText || '';
+
+  if (
+    navigator.clipboard &&
+    navigator.clipboard.write &&
+    typeof ClipboardItem !== 'undefined' &&
+    textToCopyHtml
+  ) {
+    const clipboardItem = new ClipboardItem({
+      'text/plain': new Blob([textToCopyPlain], { type: 'text/plain' }),
+      'text/html': new Blob([textToCopyHtml], { type: 'text/html' }),
+    });
     navigator.clipboard
-      .writeText(textToCopy)
+      .write([clipboardItem])
+      .then(() => {
+        if (callback) {
+          args = args ? args : [];
+          callback(...args);
+        }
+      })
+      .catch((err) => {
+        console.error('Could not copy rich text: ', err);
+      });
+  } else if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard
+      .writeText(textToCopyPlain)
       .then(() => {
         if (callback) {
           args = args ? args : [];
@@ -502,7 +517,7 @@ function copyToClipboard(textToCopy, callback, args) {
   } else {
     // Fallback method using a temporary textarea element
     const tempTextArea = document.createElement('textarea');
-    tempTextArea.value = textToCopy;
+    tempTextArea.value = textToCopyPlain;
     document.body.appendChild(tempTextArea);
     tempTextArea.select();
     try {
@@ -563,6 +578,152 @@ function getCardDataText(cardElem, copyButtonElem) {
     return string + '\n' + '\n' + newString;
   }, '');
   return dataString.trim();
+}
+
+function getCategoryGroupByCardTitle(cardTitle) {
+  const normalizedCardTitle = cardTitle.trim().toLowerCase();
+
+  if (
+    [
+      'диагностические услуги обязательные',
+      'диагностические услуги по показаниям',
+    ].includes(normalizedCardTitle)
+  ) {
+    return 'Диагностические мероприятия';
+  }
+
+  if (
+    [
+      'лечебные манипуляции',
+      'медикаментозное лечение',
+      'медикаменты',
+      'медикаментозное лечение (offlabel)',
+    ].includes(normalizedCardTitle)
+  ) {
+    return 'Лекарственная терапия';
+  }
+
+  if (normalizedCardTitle === 'немедикаментозное лечение') {
+    return 'Немедикаментозное лечение';
+  }
+
+  return cardTitle.trim();
+}
+
+function getSelectedCardsDataText() {
+  const selectedBlocks = Array.from(
+    document.getElementsByClassName('block__container--selected')
+  );
+  if (selectedBlocks.length === 1) {
+    const singleBlock = selectedBlocks[0];
+    const textLines = [];
+    const titleText = singleBlock.querySelector('.block__header')?.innerText;
+    const planElem = singleBlock.querySelector('.block__comment--plan');
+    const durationELem = singleBlock.querySelector('.block__comment--duration');
+
+    if (titleText) textLines.push(titleText);
+    if (planElem) textLines.push(planElem.innerText);
+    if (durationELem) textLines.push(durationELem.innerText);
+
+    const plainText = textLines.join('\n').trim();
+    return {
+      plainText,
+      htmlText: textLines.map((line) => escapeHtml(line)).join('<br/>').trim(),
+    };
+  }
+
+  const groupedBlockData = {
+    'Диагностические мероприятия': [],
+    'Лекарственная терапия': [],
+    'Немедикаментозное лечение': [],
+  };
+  const unknownGroups = {};
+
+  const cardElems = Array.from(document.getElementsByClassName('form__card'));
+  cardElems.forEach((cardElem) => {
+    const cardTitleElem = cardElem.querySelector('.form__card-title');
+    if (!cardTitleElem) return;
+    const cardTitle = cardTitleElem.innerText;
+    const groupTitle = getCategoryGroupByCardTitle(cardTitle);
+
+    Array.from(cardElem.getElementsByClassName('block__container--selected')).forEach(
+      (blockElem) => {
+        const textLines = [];
+        const titleText = blockElem.querySelector('.block__header')?.innerText;
+        const planElem = blockElem.querySelector('.block__comment--plan');
+        const durationELem = blockElem.querySelector('.block__comment--duration');
+
+        if (titleText) textLines.push(titleText);
+        if (planElem) textLines.push(planElem.innerText);
+        if (durationELem) textLines.push(durationELem.innerText);
+
+        if (!textLines.length) return;
+
+        if (groupedBlockData[groupTitle]) {
+          groupedBlockData[groupTitle].push(textLines);
+        } else {
+          if (!unknownGroups[groupTitle]) {
+            unknownGroups[groupTitle] = [];
+          }
+          unknownGroups[groupTitle].push(textLines);
+        }
+      }
+    );
+  });
+
+  const allGroups = [
+    ...Object.entries(groupedBlockData),
+    ...Object.entries(unknownGroups),
+  ].filter(([, blocks]) => blocks.length > 0);
+
+  const plainParts = [];
+  const htmlParts = [];
+
+  allGroups.forEach(([groupTitle, blocks], groupInd) => {
+    if (groupInd !== 0) {
+      plainParts.push('');
+      htmlParts.push('<br/>');
+    }
+
+    plainParts.push(groupTitle);
+    plainParts.push('');
+    htmlParts.push(`<strong>${escapeHtml(groupTitle)}</strong>`);
+    htmlParts.push('<br/>');
+
+    blocks.forEach((textLines, blockInd) => {
+      plainParts.push(textLines.join('\n'));
+      htmlParts.push(textLines.map((line) => escapeHtml(line)).join('<br/>'));
+
+      if (blockInd < blocks.length - 1) {
+        if (groupTitle === 'Лекарственная терапия') {
+          plainParts.push('');
+          htmlParts.push('<br/><br/>');
+        } else {
+          htmlParts.push('<br/>');
+        }
+      }
+    });
+  });
+
+  return {
+    plainText: plainParts.join('\n').trim(),
+    htmlText: htmlParts.join('').trim(),
+  };
+}
+
+function getSelectedBlocksAmountAllCards() {
+  return Array.from(
+    document.getElementsByClassName('block__container--selected')
+  ).length;
+}
+
+function escapeHtml(value) {
+  return value
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
 }
 
 function getSelectedBlocksAmount(cardElem) {
