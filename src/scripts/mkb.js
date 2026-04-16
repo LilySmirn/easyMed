@@ -1143,8 +1143,10 @@ function setCardCopyButtonsEventHandler() {
         const blocks = cardElem.querySelectorAll('.block__container');
         blocks.forEach(block => block.classList.add('block__container--selected'));
 
-        const text = getCardDataText(cardElem, copyAllButton);
-        const count = getCopiedBlockCount(cardElem);
+        const text = getCardDataText(cardElem, copyAllButton, {
+          includeGroupHeaders: true,
+        });
+        const count = getCopiedBlockCount();
 
         if (text) {
           copyToClipboard(text, flashTooltipOnEvent, [
@@ -1220,13 +1222,12 @@ function setTextBlockSelectionEventHandler() {
       if (e.target.classList.contains('block__container')) {
         toggleBlockSelection(e.target);
 
+        const selectedBlocksAmount = getCopiedBlockCount();
         const textToCopy = getCardDataText(
             cardElem,
-            cardElem.querySelector('.copy-button__copy-button')
+            cardElem.querySelector('.copy-button__copy-button'),
+            { includeGroupHeaders: selectedBlocksAmount > 1 }
         );
-        const selectedBlocksAmount = cardElem.getElementsByClassName(
-            'block__container--selected'
-        ).length;
 
         if (selectedBlocksAmount) {
           const tooltipText = `Скопировано ${selectedBlocksAmount} шт.`;
@@ -1247,13 +1248,12 @@ function setTextBlockSelectionEventHandler() {
       if (closestBlockElem) {
         toggleBlockSelection(closestBlockElem);
 
+        const selectedBlocksAmount = getCopiedBlockCount();
         const textToCopy = getCardDataText(
             cardElem,
-            cardElem.querySelector('.copy-button__copy-button')
+            cardElem.querySelector('.copy-button__copy-button'),
+            { includeGroupHeaders: selectedBlocksAmount > 1 }
         );
-        const selectedBlocksAmount = cardElem.getElementsByClassName(
-            'block__container--selected'
-        ).length;
 
         if (selectedBlocksAmount) {
           const tooltipText = `Скопировано ${selectedBlocksAmount} шт.`;
@@ -1358,8 +1358,10 @@ function addCopyCardAllTextDataEventListeners(cardCopyElem) {
   // Copy text to clipboard on click
   cardCopyElem.addEventListener('click', function (e) {
     const cardElem = e.target.closest('.form__card');
-    const textToCopy = getCardDataText(cardElem, e.target);
-    const copiedCount = getCopiedBlockCount(cardElem);
+    const textToCopy = getCardDataText(cardElem, e.target, {
+      includeGroupHeaders: true,
+    });
+    const copiedCount = getCopiedBlockCount();
 
     copyToClipboard(textToCopy, flashTooltipOnEvent, [
       e,
@@ -1415,67 +1417,121 @@ function flashTooltipOnEvent(event, tooltipText, timeout) {
   }
 }
 
-function getCardDataText(cardElem, copyButtonElem) {
-  const selectedBlocks = Array.from(cardElem.getElementsByClassName('block__container--selected'))
-      .filter(block => {
-        const header = block.querySelector('.block__header');
-        return !(header && header.classList.contains('category-name'));
-      });
+function getCardDataText(cardElem, copyButtonElem, options = {}) {
+  const includeGroupHeaders = options.includeGroupHeaders ?? true;
+  const selectedBlocks = getSelectedCopyBlocks();
+  if (!selectedBlocks.length) return '';
 
+  const groupedBlocks = new Map();
   let lastTitle = '';
 
-  const linesToCopy = selectedBlocks.map(blockElem => {
-    let headerElem = blockElem.querySelector('.block__header');
+  selectedBlocks.forEach((blockElem) => {
+    const cardElemForBlock = blockElem.closest('.form__card');
+    const cardTitle =
+      cardElemForBlock?.querySelector('.form__card-title')?.innerText.trim() || '';
+    const groupName = getClipboardGroupName(cardTitle);
 
+    let headerElem = blockElem.querySelector('.block__header');
     if (!headerElem || headerElem.classList.contains('category-name')) {
       let prev = blockElem.previousElementSibling;
-      while (prev && (!prev.querySelector('.block__header') || prev.querySelector('.block__header').classList.contains('category-name'))) {
+      while (
+        prev &&
+        (!prev.querySelector('.block__header') ||
+          prev.querySelector('.block__header').classList.contains('category-name'))
+      ) {
         prev = prev.previousElementSibling;
       }
-      if (prev) {
-        headerElem = prev.querySelector('.block__header');
-      }
+      if (prev) headerElem = prev.querySelector('.block__header');
     }
 
     const titleText = headerElem?.innerText.trim() || '';
     const planElem = blockElem.querySelector('.block__comment--plan');
     const durationElem = blockElem.querySelector('.block__comment--duration');
 
-    const planText = planElem ? `Схема лечения: ${planElem.innerText.replace(/^.*?:\s*>?/, '').trim()}` : '';
-    const durationText = durationElem ? `Длительность курса: ${durationElem.innerText.replace(/^.*?:\s*/, '').trim()}` : '';
+    const planText = planElem
+      ? `Схема лечения: ${planElem.innerText.replace(/^.*?:\s*>?/, '').trim()}`
+      : '';
+    const durationText = durationElem
+      ? `Длительность курса: ${durationElem.innerText.replace(/^.*?:\s*/, '').trim()}`
+      : '';
 
     const blockLines = [titleText];
     if (planText) blockLines.push(planText);
     if (durationText) blockLines.push(durationText);
 
-    // Удалить дублирующийся заголовок
     if (titleText === lastTitle) {
       blockLines[0] = '';
     } else {
       lastTitle = titleText;
     }
 
-    return blockLines.filter(Boolean).join('\n');
+    if (!groupedBlocks.has(groupName)) {
+      groupedBlocks.set(groupName, []);
+    }
+    groupedBlocks.get(groupName).push(blockLines.filter(Boolean).join('\n'));
   });
 
-  return linesToCopy.filter(Boolean).join('\n\n').trim();
+  if (!includeGroupHeaders) {
+    return Array.from(groupedBlocks.values())
+        .flat()
+        .filter(Boolean)
+        .join('\n\n')
+        .trim();
+  }
+
+  const orderedGroups = [
+    'Диагностические мероприятия',
+    'Лекарственная терапия',
+    'Немедикаментозное лечение',
+  ];
+
+  const groupedResult = orderedGroups
+      .filter(groupName => groupedBlocks.has(groupName))
+      .map(groupName => {
+        const items = groupedBlocks.get(groupName).filter(Boolean);
+        const itemSeparator = groupName === 'Лекарственная терапия' ? '\n\n' : '\n';
+        return `**${groupName}**\n\n${items.join(itemSeparator)}`;
+      });
+
+  return groupedResult.join('\n\n').trim();
 }
 
-function getCopiedBlockCount(cardElem) {
-  const selectedBlocks = Array.from(cardElem.querySelectorAll('.block__container--selected'));
+function getClipboardGroupName(cardTitle) {
+  const normalizedTitle = (cardTitle || '').trim().toLowerCase();
 
-  const blocksToCount = selectedBlocks.length > 0
-      ? selectedBlocks.filter(block => {
+  if (
+      normalizedTitle === 'диагностические услуги обязательные' ||
+      normalizedTitle === 'диагностические услуги по показаниям'
+  ) {
+    return 'Диагностические мероприятия';
+  }
+
+  if (
+      normalizedTitle === 'лечебные манипуляции' ||
+      normalizedTitle === 'медикаментозное лечение' ||
+      normalizedTitle === 'медикаменты' ||
+      normalizedTitle === 'медикаментозное лечение (offlabel)'
+  ) {
+    return 'Лекарственная терапия';
+  }
+
+  if (normalizedTitle === 'немедикаментозное лечение') {
+    return 'Немедикаментозное лечение';
+  }
+
+  return cardTitle || 'Прочее';
+}
+
+function getSelectedCopyBlocks() {
+  return Array.from(document.querySelectorAll('.form__card .block__container--selected'))
+      .filter(block => {
         const header = block.querySelector('.block__header');
         return header && !header.classList.contains('category-name');
-      })
-      : Array.from(cardElem.querySelectorAll('.block__container'))
-          .filter(block => {
-            const header = block.querySelector('.block__header');
-            return header && !header.classList.contains('category-name');
-          });
+      });
+}
 
-  return blocksToCount.length;
+function getCopiedBlockCount() {
+  return getSelectedCopyBlocks().length;
 }
 
 
