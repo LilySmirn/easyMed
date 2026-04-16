@@ -1132,6 +1132,8 @@ function setCardCopyButtonsEventHandler() {
     // Кнопка "закрыть выделение"
     if (closeButton) {
       closeButton.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
         const card = e.target.closest('.form__card');
         removeBlockSelections(card);
       });
@@ -1140,6 +1142,9 @@ function setCardCopyButtonsEventHandler() {
     // Кнопка "копировать всё в этой карточке"
     if (copyAllButton) {
       copyAllButton.addEventListener('click', (e) => {
+        if (e.target.closest('.copy-button__close-button')) {
+          return;
+        }
         const blocks = cardElem.querySelectorAll('.block__container');
         blocks.forEach(block => block.classList.add('block__container--selected'));
 
