@@ -1,8 +1,6 @@
 //import '../css/main.css';
 
-//import { decryptData } from './crypto.js';
-import CryptoJS from 'https://cdn.jsdelivr.net/npm/crypto-js@4.2.0/+esm';
-
+import { decryptData } from './crypto.js';
 
 const searchInput = document.getElementById('search-input');
 const clearButton = document.getElementById('clear-button');
@@ -19,18 +17,8 @@ const buttonsSection = document.querySelector(".form__section--buttons");
 const pageMkb = document.querySelector('.page__mkb');
 const sectionToggles = document.querySelector('.form__section--toggles');
 
-// const resultsContainer = document.querySelector('.form__input--list-container'); //
-// const loadingContainer = document.querySelector('.form__loading-container'); //
-
-// убрать моковые данные (подключены для теста)
-const resultsContainer = document.querySelector('.form__input--list-container');
-const loadingContainer = document.querySelector('.form__loading-container')
-const mockSearchResult = {
-  code: 'K26.0',
-  name: 'Язва двенадцатиперстной кишки острая с кровотечением',
-};
-let mockK26Data = null;
-const shouldAutoLoadMockK26 = true;
+const resultsContainer = document.querySelector('.form__input--list-container'); //
+const loadingContainer = document.querySelector('.form__loading-container'); //
 
 function extractCodeFromSearchValue(value) {
   return value
@@ -39,19 +27,6 @@ function extractCodeFromSearchValue(value) {
     ?.replace(':', '')
     ?.toUpperCase();
 }
-
-async function getMockK26Data() {
-  if (mockK26Data) {
-    return mockK26Data;
-  }
-  const response = await fetch('../res_K26.0.json');
-  if (!response.ok) {
-    throw new Error('Не удалось загрузить моковые данные K26');
-  }
-  mockK26Data = await response.json();
-  return mockK26Data;
-}
-//конец моковых данных
 
 exitButtonElem.addEventListener('click', () => {
   document.cookie = "username=''; path=/";
@@ -116,15 +91,13 @@ searchInput.addEventListener('keypress', function (e) {
     //clearButton.classList.add('hidden');
   //}
 
-
-  //убрать моковые данные (подключены для теста)
-  searchInput.addEventListener('input', function () {
+searchInput.addEventListener('input', function () {
   const query = this.value;
   searchButton.removeEventListener('click', searchMkb);
   searchButton.classList.add('form__button--search-disabled');
   const extractedCode = extractCodeFromSearchValue(query);
   searchInput.codeValue = extractedCode;
-  if (extractedCode && extractedCode.startsWith('K26')) {
+  if (extractedCode) {
     searchButton.classList.remove('form__button--search-disabled');
     searchButton.addEventListener('click', searchMkb);
   }
@@ -133,9 +106,6 @@ searchInput.addEventListener('keypress', function (e) {
   } else {
     clearButton.classList.add('hidden');
   }
-  //конец моковых данных
-
-
   if (query.length > 1) {
     showInputListLoader();
     fetchResults(query);
@@ -185,7 +155,6 @@ setCardCopyButtonsEventHandler();
   //}, 3000);
 
 
-  //удалить моковые данные (сделаны для теста)
   if (urlCode) {
   pageMkb.classList.remove('page__mkb--start');
   searchInput.codeValue = urlCode;
@@ -194,18 +163,11 @@ setCardCopyButtonsEventHandler();
   loadingContainer.remove();
   const newURL = window.location.origin + '/mkb';
   history.replaceState({}, '', newURL);
-} else if (shouldAutoLoadMockK26) {
-  pageMkb.classList.remove('page__mkb--start');
-  searchInput.codeValue = 'K26.0';
-  hideMkbData();
-  loadingContainer.remove();
-  searchMkb();
 } else {
   setTimeout(() => {
     loadingContainer.remove();
     createHistoryPanel();
   }, 3000);
-//конец моковых данных
 }
 
 async function createHistoryPanel() {
@@ -760,29 +722,8 @@ async function searchMkb() {
   searchInput.disabled = true;
 
   try {
-    if (code && code.toUpperCase().startsWith('K26')) {
-      const data = await getMockK26Data();
-      document.mkbData = data;
-
-      const newSearchData = {
-        valueData: data.child.code,
-        textContent: `${data.child.code}: ${data.child.name}`,
-      };
-
-      updateHistory(newSearchData);
-      clearButton.classList.remove('hidden');
-      searchButton.classList.remove('hidden');
-      setMkbName();
-
-      const listsAreSet = setLists();
-      if (listsAreSet) {
-        revealMkbData();
-      }
-      return;
-    }
-
     const response = await fetch(
-      `./php/get-data.php/login?code=${code}&username=${username}&password=${password}`
+      `/php/get-data.php/login?code=${code}&username=${username}&password=${password}`
     );
 
     if (!response.ok) {
@@ -817,9 +758,8 @@ async function searchMkb() {
     searchInput.disabled = false;
   }
 }
-//конец моковых данных
 
-  /*// Get credentials from cookies
+  /*//Get credentials from cookies
   const username = getCookie('username');
   const password = getCookie('password');
 
@@ -832,10 +772,11 @@ async function searchMkb() {
   searchInput.placeholder = 'ЗАГРУЗКА...';
   searchInput.disabled = true;
 
-  // try { //
-    // const response = await fetch( //
-      // `../php/get-data.php/login?code=${code}&username=${username}&password=${password}`//
-    // );//*/
+  try {
+    const response = await fetch(
+      `../php/get-data.php/login?code=${code}&username=${username}&password=${password}`
+    );
+  }*/
 
 // подключены моковые данные (для теста)
     /*try {
@@ -1059,7 +1000,6 @@ function setTogglers(mkbData) {
   examCardOptionalElem.classList.remove('hidden');
 }*/
 
-//моки
 function setExamText() {
   const mkbData = document.mkbData;
   if (!mkbData) return;
@@ -1094,7 +1034,6 @@ function setExamText() {
   examCardRequiredElem.classList.remove('hidden');
   examCardOptionalElem.classList.remove('hidden');
 }
-//моки
 
 /*function setTreatText() {
   const mkbData = document.mkbData;
@@ -1117,7 +1056,6 @@ function setExamText() {
   treatCardDrugElem.classList.remove('hidden');
 }*/
 
-//моки
 function setTreatText() {
   const mkbData = document.mkbData;
   if (!mkbData) return;
@@ -1147,8 +1085,6 @@ function setTreatText() {
   treatCardActionElem.classList.remove('hidden');
   treatCardDrugElem.classList.remove('hidden');
 }
-//конец моков
-
 
 function toggleStage(e) {
   removeAllBlockSelections();
@@ -1356,31 +1292,18 @@ function createListData(mkbData, type, status, age) {
     // });
 // }
 
-// подключены моковые данные (для теста)
 function fetchResults(query) {
-  const normalizedQuery = query.trim().toLowerCase();
-  const localResults = [mockSearchResult].filter((item) => {
-    const code = item.code.toLowerCase();
-    const name = item.name.toLowerCase();
-    return (
-      code.includes(normalizedQuery) || name.includes(normalizedQuery)
-    );
-  });
-  searchListElem.innerHTML = '';
-  if (localResults.length > 0) {
-    localResults.forEach((item) => {
-      const li = document.createElement('li');
-      li.textContent = item.code + ': ' + item.name;
-      li.valueData = item.code;
-      li.classList.add('form__input--list-item');
-      searchListElem.appendChild(li);
+  fetch(`/php/search.php?q=${encodeURIComponent(query)}`)
+    .then((response) => response.json())
+    .then((data) => {
+      displayResults(data);
+    })
+    .catch((error) => {
+      console.error('Error:', error);
+      searchListElem.textContent = 'Не удалось выполнить поиск';
+      resultsContainer.classList.remove('hidden');
     });
-  } else {
-    searchListElem.textContent = 'Совпадений не найдено';
-  }
-  resultsContainer.classList.remove('hidden');
 }
-//конец моковых данных
 
 // TODO: remove after CryptoJS testing
 // window.testCrypto = testCrypto;
@@ -1390,7 +1313,7 @@ function fetchResults(query) {
 //   return decryptData(enc);
 // }
 
-/*function displayResults(data) {
+function displayResults(data) {
   decryptData(data)
       .then((data) => {
         searchListElem.innerHTML = '';
@@ -1414,7 +1337,7 @@ function fetchResults(query) {
       .catch((error) => {
         console.error('Error:', error);
       });
-}*/
+}
 
 function createLoadingElement(className = '') {
   const lodingElemHtml = `<svg class="rotating" height="30px" width="30px" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512" xml:space="preserve">
