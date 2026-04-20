@@ -1,8 +1,10 @@
 <?php
 $servername = "localhost"; // Хост, скорее всего, "localhost"
-$username = "u2791988_default"; // Имя пользователя MySQL
-$password = "hylm55YwXBWUEE35"; // Пароль от базы данных
-$dbname = "u2791988_default"; // Имя базы данных
+$username = "u3100553_default"; // Имя пользователя MySQL u3100553_default
+$password = "9g6Gpiyp70NOM9Iu"; // Пароль от базы данных 9g6Gpiyp70NOM9Iu
+// $dbname = "u3100553_test-db"; // Имя базы данных u3100553_test-db
+$dbname = "u3100553_test_10.06"; // Имя базы данных u3100553_test-db
+
 
 // Создаем соединение
 $conn = new mysqli($servername, $username, $password, $dbname);

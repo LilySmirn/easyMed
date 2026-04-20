@@ -2,6 +2,7 @@
 <html>
   <head>
     <meta charset="UTF-8" />
+
 <!--    <script src="../scripts/mkb-start.js?v10"></script>-->
     <link
       href="https://fonts.googleapis.com/css?family=Inter&display=swap"
@@ -15,7 +16,7 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap"
       rel="stylesheet"
     />
-    <link href="../css/main.css?v8>" rel="stylesheet" />
+<!--    <link href="../css/main.css?v8>" rel="stylesheet" />-->
     <title>EASYMED</title>
     <link
       rel="icon"
@@ -26,6 +27,26 @@
     <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"> -->
   </head>
   <body class="page">
+
+  <!-- Yandex.Metrika counter -->
+  <script type="text/javascript" >
+    (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+      m[i].l=1*new Date();
+      for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+      k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+    (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+    ym(102509109, "init", {
+      clickmap:true,
+      trackLinks:true,
+      accurateTrackBounce:true
+    });
+  </script>
+  <noscript>
+    <div><img src="https://mc.yandex.ru/watch/102509109" style="position:absolute; left:-9999px;" alt="" /></div>
+  </noscript>
+  <!-- /Yandex.Metrika counter -->
+
     <div class="page__header">
       <div class="header__logo-container">
         <svg
@@ -60,26 +81,102 @@
           </defs>
         </svg>
       </div>
-      <div class="header__exit-btn-container">
-        <div class="exit-btn__logo">
-          <svg
-            width="12"
-            height="14"
-            viewBox="0 0 12 14"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              opacity="0.6"
-              d="M1.99999 0.352051C1.26499 0.352051 0.666992 0.950051 0.666992 1.68605V12.3521C0.666992 13.0881 1.26499 13.6861 1.99999 13.6861H9.99999C10.736 13.6861 11.334 13.0881 11.334 12.3521V9.18605L10.002 10.1841V12.3521H1.99999V1.68605H9.99999V3.85205L11.334 4.85205V1.68605C11.334 0.950051 10.736 0.352051 9.99999 0.352051H1.99999ZM8.66699 4.51905V6.35205H5.33399V7.68605H8.66699V9.51905L12 7.01905L8.66699 4.51905Z"
-              fill="white"
-            />
-          </svg>
+      <div class="header__call-exit-container">
+        <div class="header__call-container">
+          <div class="call-btn__logo">
+            <img src="../images/phone.png" alt="call">
+          </div>
+          <div class="call-btn__text">
+            Связаться с нами
+          </div>
         </div>
-        <div class="exit-btn__text">Выйти</div>
+        <div class="header__exit-btn-container">
+          <div class="exit-btn__logo">
+            <svg
+                    width="12"
+                    height="14"
+                    viewBox="0 0 12 14"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                      opacity="0.6"
+                      d="M1.99999 0.352051C1.26499 0.352051 0.666992 0.950051 0.666992 1.68605V12.3521C0.666992 13.0881 1.26499 13.6861 1.99999 13.6861H9.99999C10.736 13.6861 11.334 13.0881 11.334 12.3521V9.18605L10.002 10.1841V12.3521H1.99999V1.68605H9.99999V3.85205L11.334 4.85205V1.68605C11.334 0.950051 10.736 0.352051 9.99999 0.352051H1.99999ZM8.66699 4.51905V6.35205H5.33399V7.68605H8.66699V9.51905L12 7.01905L8.66699 4.51905Z"
+                      fill="white"
+              />
+            </svg>
+          </div>
+          <div class="exit-btn__text">Выйти</div>
+        </div>
       </div>
     </div>
     <div class="page__mkb page__mkb--start">
+      <div class="popup-overlay hidden" id="popup-overlay">
+        <div id="exam-popup" class="exam-popup">
+          <div class="exam-popup__close">
+            <img src="../images/popup-exit.png" alt="close">
+          </div>
+          <div class="popup__content">
+            <div class="popup__quality-wrapper">
+              <div class="popup__quality"></div>
+              <div class="urr-udd-h2-container">
+                <div class="urr-udd-container">
+                  <p class="udd__text">C3</p>
+                </div>
+                <h2 class="popup__title">Патолого-анатомическое исследование...</h2>
+              </div>
+            </div>
+            <hr>
+            <p class="popup__description dot-description">Назначается для дифференциальной диагностики идиопатической тромбоцитопенической пурпуры (или первичной иммунной тромбоцитопении) с другими формами нарушений гемостаза</p>
+            <hr>
+            <p class="popup__comment"><b>Комментарий:</b></p>
+            <p class="popup__comment-text"><i>Назначается для дифференциальной диагностики идиопатической тромбоцитопенической пурпуры (или первичной иммунной тромбоцитопении) с другими формами нарушений гемостаза</i></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="overlay hidden">
+        <div class="call-popup">
+          <div class="call-popup__text">
+            <h2>Нашли ошибку<br>или есть пожелания?</h2>
+            <p>Напишите нам</p>
+          </div>
+
+          <form id="popupForm" class="call-popup__form">
+            <input type="email" name="email" placeholder="Ваш email" required />
+            <input type="text" name="name" placeholder="Ваше имя" required />
+            <input type="tel" name="phone" placeholder="Введите номер телефона" required />
+            <input type="text" name="crm" placeholder="Название Вашей клиники" />
+            <div class="add-img">
+              <img src="../images/add-img.png" alt="img" class="add-img__img" />
+              <p class="add-img__text">Прикрепить изображение</p>
+              <p id="fileName" class="file-name"></p>
+              <button id="removeFileBtn" style="display:none; margin-top: 5px; cursor: pointer;">Удалить</button>
+              <input
+                      type="file"
+                      id="fileInput"
+                      name="attachment"
+                      accept="image/*"
+                      style="display: none;"
+              />
+            </div>
+            <textarea
+                    name="description"
+                    placeholder="Опишите Вашу проблему"
+                    class="popup__textarea"
+                    rows="4"
+            ></textarea>
+            <div class="call-popup__btn">
+              <button type="submit" class="popup__btn">Отправить</button>
+            </div>
+          </form>
+
+          <div class="call-popup__close">
+            <img src="../images/popup-exit.png" alt="close">
+          </div>
+        </div>
+      </div>
+
       <div class="form">
         <!-- Search Section -->
         <!-- <label for="mkb" class="mkb__label">Название или код болезни</label> -->
@@ -88,7 +185,7 @@
             type="text"
             class="form__input"
             id="search-input"
-            placeholder="Название или код болезни"
+            placeholder="Название нозологии или код МКБ"
             autocomplete="off"
           />
           <button
@@ -142,6 +239,7 @@
               class="toggles__input"
               name="age-toggle"
               id="age-toggle"
+              checked
             />
             <div class="toggles__toggle"></div>
             <span class="toggles__title">Взрослый</span>
@@ -164,32 +262,53 @@
           <!-- Examination Section -->
           <div id="exam-section" class="hidden">
             <!-- Examination Select Section -->
-            <div class="form__section form__section--select">
-              <label class="mkb__label">Диагностика</label>
-              <select class="form__select" id="exam-list">
-                <option value="" disabled selected>
-                  Выберите нормативный документ по диагностике
-                </option>
-                <option>""</option>
-              </select>
-              <p class="form__select hidden" id="exam-monolist"></p>
+            <div class="select-link">
+              <div class="form__section form__section--select">
+
+                <label for="exam-list"></label><select class="form__select" id="exam-list">
+                  <option value="" disabled selected>
+                    Выберите нормативный документ по диагностике
+                  </option>
+                  <option>""</option>
+                </select>
+                <p class="form__select hidden" id="exam-monolist"></p>
+                <div style="margin-top: 20px;">
+                  <label class="mkb__label">Диагностика</label>
+                </div>
+              </div>
+              <div id="crm-link-container" class="crm-link-container">
             </div>
 
-            <!-- Examination Buttons Section -->
-            <div class="form__section form__section--buttons">
-              <button
-                class="form__button form__button--stage stage__selected"
-                id="exam-stage-toggle-first"
-              >
-                Первичный приём
-              </button>
-              <button
-                class="form__button form__button--stage"
-                id="exam-stage-toggle-second"
-              >
-                Повторный приём
-              </button>
+
             </div>
+
+            <div class="button--stage-sorting">
+              <!-- Examination Buttons Section -->
+              <div class="form__section form__section--buttons">
+                <button
+                        class="form__button form__button--stage stage__selected"
+                        id="exam-stage-toggle-first"
+                >
+                  Первичный приём
+                </button>
+                <button
+                        class="form__button form__button--stage"
+                        id="exam-stage-toggle-second"
+                >
+                  Повторный приём
+                </button>
+              </div>
+              <div class="sorting-select">
+                <p class="sorting-title">Упорядочить:</p>
+                <select class="form__select-sorting" id="select-sorting">
+                  <option value="one">По алфавиту</option>
+                  <option value="two">По УУР и УДД</option>
+                  <option value="three">По критерию качества</option>
+                  <option value="four">Очередность по КР</option>
+                </select>
+              </div>
+            </div>
+
 
             <!-- Examination Data Section -->
             <div class="form__section form__section--exam">
@@ -202,6 +321,7 @@
                     <div
                       class="form__card--copy-button"
                       id="exam-card-required-copy-button"
+                      data-copy-all="true"
                     >
                       <div class="copy-button__copy-button">
                         <svg
@@ -269,6 +389,7 @@
                     <div
                       class="form__card--copy-button"
                       id="exam-card-optional-copy-button"
+                      data-copy-all="true"
                     >
                       <div class="copy-button__copy-button">
                         <svg
@@ -347,10 +468,11 @@
               <div class="form__card minimized hidden" id="treat-card-action">
                 <div class="form__card-header">
                   <div class="form__card-header--container">
-                    <h3 class="form__card-title">Лечебные манипуляции</h3>
+                    <h3 class="form__card-title">Немедикаментозное лечение</h3>
                     <div
                       class="form__card--copy-button"
                       id="treat-card-action-copy-button"
+                      data-copy-all="true"
                     >
                       <div class="copy-button__copy-button">
                         <svg
@@ -412,10 +534,11 @@
               <div class="form__card minimized hidden" id="treat-card-drug">
                 <div class="form__card-header">
                   <div class="form__card-header--container">
-                    <h3 class="form__card-title">Медикаменты</h3>
+                    <h3 class="form__card-title">Медикаментозное лечение</h3>
                     <div
                       class="form__card--copy-button"
                       id="treat-card-drug-copy-button"
+                      data-copy-all="true"
                     >
                       <div class="copy-button__copy-button">
                         <svg
@@ -474,7 +597,60 @@
                   </button>
                 </div>
               </div>
+
+              <div class="form__card minimized hidden" id="treat-card-drug-offlabel">
+                <div class="form__card-header">
+                  <div class="form__card-header--container">
+                    <h3 class="form__card-title">Медикаментозное лечение (offlabel)</h3>
+                    <div class="form__card--copy-button" id="treat-card-drug-offlabel-copy-button" data-copy-all="true">
+                      <div class="copy-button__copy-button">
+                        <svg
+                                class="form__card--copy-button--svg"
+                                width="15"
+                                height="17"
+                                viewBox="0 0 15 17"
+                                fill="none"
+                                xmlns="http://www.w3.org/2000/svg"
+                                style="cursor: pointer"
+                        >
+                          <path
+                                  class="form__card--copy-button--svg"
+                                  d="M10.9997 9.50003V5.54737C11.0019 4.97783 10.8911 4.4135 10.6737 3.88709C10.4562 3.36068 10.1365 2.88265 9.73301 2.4807L9.01634 1.7667C8.61439 1.36319 8.13636 1.04346 7.60995 0.826029C7.08354 0.608599 6.51922 0.497794 5.94967 0.500033H3.99967C3.02754 0.501092 2.09552 0.887741 1.40812 1.57514C0.720715 2.26255 0.334067 3.19456 0.333008 4.1667V9.50003C0.334067 10.4722 0.720715 11.4042 1.40812 12.0916C2.09552 12.779 3.02754 13.1656 3.99967 13.1667H7.33301C8.30514 13.1656 9.23716 12.779 9.92456 12.0916C10.612 11.4042 10.9986 10.4722 10.9997 9.50003ZM2.33301 9.50003V4.1667C2.33301 3.72467 2.5086 3.30075 2.82116 2.98819C3.13372 2.67563 3.55765 2.50003 3.99967 2.50003H5.95234C6.08004 2.50204 6.20735 2.51453 6.33301 2.53737V3.83337C6.33301 4.18699 6.47348 4.52613 6.72353 4.77618C6.97358 5.02623 7.31272 5.1667 7.66634 5.1667H8.96234C8.98518 5.29235 8.99767 5.41967 8.99967 5.54737V9.50003C8.99967 9.94206 8.82408 10.366 8.51152 10.6785C8.19896 10.9911 7.77504 11.1667 7.33301 11.1667H3.99967C3.55765 11.1667 3.13372 10.9911 2.82116 10.6785C2.5086 10.366 2.33301 9.94206 2.33301 9.50003ZM14.333 6.1667V12.8334C14.3319 13.8055 13.9453 14.7375 13.2579 15.4249C12.5705 16.1123 11.6385 16.499 10.6663 16.5H5.33301C5.06779 16.5 4.81344 16.3947 4.6259 16.2071C4.43836 16.0196 4.33301 15.7653 4.33301 15.5C4.33301 15.2348 4.43836 14.9805 4.6259 14.7929C4.81344 14.6054 5.06779 14.5 5.33301 14.5H10.6663C11.1084 14.5 11.5323 14.3244 11.8449 14.0119C12.1574 13.6993 12.333 13.2754 12.333 12.8334V6.1667C12.333 5.90148 12.4384 5.64713 12.6259 5.45959C12.8134 5.27206 13.0678 5.1667 13.333 5.1667C13.5982 5.1667 13.8526 5.27206 14.0401 5.45959C14.2277 5.64713 14.333 5.90148 14.333 6.1667Z"
+                                  fill="#83909B"
+                          />
+                        </svg>
+                      </div>
+                      <div class="copy-button__close-button hidden">✕</div>
+                    </div>
+                  </div>
+                  <button class="form__card-toggle">
+                    <svg
+                            width="16"
+                            height="16"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                    >
+                      <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
             </div>
+          </div>
+
+          <div id="tables-section">
+            <div class="form__section form__section--select">
+              <div class="mkb__label">Приложение А3. Таблицы</div>
+            </div>
+            <div id="tables-data" class="form__section hidden"></div>
           </div>
         </div>
         <div class="form__section form__section--no-data hidden" id="no-data-popup-section">
@@ -490,6 +666,19 @@
       </div>
     </div>
     <div id="tooltip" class="tooltip"></div>
-    <script type="module" src="../scripts/mkb.js?v16"></script>
+
+  <div class="table-popup__overlay hidden" id="table-popup-overlay">
+    <div class="table-popup">
+
+        <div class="exam-popup__close" id="table-popup-close">
+          <img src="../images/popup-exit.png" alt="close">
+        </div>
+
+      <div class="table-popup__content" id="table-popup-content">
+        <!-- сюда будет вставлена таблица -->
+      </div>
+    </div>
+  </div>
+<!--  <script type="module" src="../scripts/mkb.js?v16" defer></script>-->
   </body>
 </html>
