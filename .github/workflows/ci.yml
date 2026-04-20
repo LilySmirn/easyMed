@@ -8,18 +8,13 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: 'Build mode'
+        description: 'Build version'
         type: choice
         options:
         - build
         - dev
         required: true
         default: build
-      deploy:
-        description: 'Should deploy'
-        type: boolean
-        required: true
-        default: false
 
 jobs:
   build:
@@ -59,14 +54,13 @@ jobs:
           cp -r dist/* publish/
 
       - name: Upload to server via FTP
-        if: ${{ inputs.deploy }}
         uses: airvzxf/ftp-deployment-action@latest
         with:
-          server: '${{ vars.DEPLOYMENT_SERVER }}'
-          user: ${{ vars.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
+          server: '31.31.197.14:21'
+          user: 'u3100553'
+          password: 'OPRn8hHC1azx6O95'
           local_dir: 'publish/'
-          remote_dir: ${{ vars.DEPLOYMENT_DIRECTORY }}
+          remote_dir: '/www/easymed-dev.online'
           delete: 'true'
           max_retries: '3'
 
