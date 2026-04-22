@@ -2294,20 +2294,24 @@ function openInfoPopupByTitle(examData) {
       uddText.textContent = "";
     }
 
-    // 3. Полоска качества (зелёная/серая)
+    // 3. Маркер качества (KK для "зелёного" случая)
     const qualityWrapper = popupOverlay.querySelector('.popup__quality-wrapper');
     if (qualityWrapper) {
-      let qualityIndicator = qualityWrapper.querySelector('.popup__quality');
-      if (!qualityIndicator) {
-        qualityIndicator = document.createElement('div');
-        qualityIndicator.classList.add('popup__quality');
-        qualityWrapper.prepend(qualityIndicator);
+      let qualityMark = qualityWrapper.querySelector('.popup__quality-mark');
+      if (!qualityMark) {
+        qualityMark = document.createElement('span');
+        qualityMark.classList.add('popup__quality-mark');
+
+        const headingContainer = qualityWrapper.querySelector('.urr-udd-h2-container');
+        const titleNode = qualityWrapper.querySelector('.popup__title');
+        if (headingContainer && titleNode) {
+          headingContainer.insertBefore(qualityMark, titleNode);
+        }
       }
 
-      qualityIndicator.classList.remove('block__quality--green', 'block__quality--gray');
-      qualityIndicator.classList.add(
-          examData.is_qualitative === 1 ? 'block__quality--green' : 'block__quality--gray'
-      );
+      if (qualityMark) {
+        qualityMark.textContent = examData.is_qualitative === 1 ? 'KK' : '';
+      }
     }
 
     // 5. Описание

@@ -667,11 +667,12 @@ input {
   gap: 0;
 }
 
-.popup__quality {
-  width: 2px;
-  border-radius: 4px;
-  flex-shrink: 0;
-  align-self: stretch;
+.popup__quality-mark {
+  display: inline-block;
+  min-width: 22px;
+  text-align: center;
+  font-weight: normal;
+  margin-right: 8px;
 }
 
 
@@ -1273,8 +1274,8 @@ th, td {
   display: flex;
 }
 
-.copy-button__copy-button {
-}
+/* .copy-button__copy-button {
+}*/
 
 .copy-button--selected {
   background-color: #badeff87;
