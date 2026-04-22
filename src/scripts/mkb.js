@@ -1115,6 +1115,10 @@ async function delayFor(delay) {
   await new Promise((resolve) => setTimeout(resolve, delay));
 }
 
+function isCopyEnabledCard(cardElem) {
+  return cardElem?.id === 'exam-card-required';
+}
+
 function setCardCopyButtonsEventHandler() {
   // Перебираем все карточки
   Array.from(document.getElementsByClassName('form__card')).forEach((cardElem) => {
@@ -1124,10 +1128,18 @@ function setCardCopyButtonsEventHandler() {
         '.form__card--copy-button[data-copy-all="true"]'
     );
 
+    if (!isCopyEnabledCard(cardElem)) {
+      if (copyAllButton) {
+        copyAllButton.remove();
+      }
+      return;
+    }
+
     // Кнопка "копировать выделенные блоки"
     if (copyButton) {
       addCopyCardAllTextDataEventListeners(copyButton);
     }
+
 
     // Кнопка "закрыть выделение"
     if (closeButton) {
@@ -1212,6 +1224,10 @@ function setTextBlockSelectionEventHandler() {
   const cardElems = Array.from(document.getElementsByClassName('form__card'));
 
   cardElems.forEach((cardElem) => {
+    if (!isCopyEnabledCard(cardElem)) {
+      return;
+    }
+
     cardElem.addEventListener('click', (e) => {
       // Пропускаем клик, если он пришёл от иконки "i"
       if (e.target.closest('.block__info-icon')) {
