@@ -2393,30 +2393,6 @@ function createExamBlock(blockParentElem, examData, prevName) {
       examData.is_qualitative ? 'block__quality--green' : 'block__quality--gray'
   );
 
-  // Заголовок (только если новое имя)
-  if (examData.name !== prevName) {
-    const examHeader = document.createElement('div');
-    examHeader.classList.add('block__header');
-
-    const examTitle = document.createElement('h4');
-    examTitle.innerText = capitalizeFirstLetter(examData.name);
-    examTitle.style.margin = '0';
-
-    examHeader.appendChild(examTitle);
-    examContainer.appendChild(examHeader);
-  }
-
-  // Комментарий + udd + urr + иконка "i"
-  const commentWrapper = document.createElement('div');
-  commentWrapper.style.display = 'flex';
-  commentWrapper.style.justifyContent = 'space-between';
-  commentWrapper.style.alignItems = 'flex-start';
-
-  const leftBlock = document.createElement('div');
-  leftBlock.style.display = 'flex';
-  leftBlock.style.alignItems = 'center';
-  leftBlock.style.gap = '8px';
-
   const infoBox = document.createElement('div');
   infoBox.style.display = 'flex';
   infoBox.style.alignItems = 'center';
@@ -2444,27 +2420,34 @@ function createExamBlock(blockParentElem, examData, prevName) {
   infoBox.appendChild(uddText);
   // infoBox.appendChild(urrImg);
 
-  const examComment = document.createElement('p');
-  examComment.classList.add('block__comment');
-  examComment.innerText = examData.comment || '';
+  // Заголовок (только если новое имя)
+  if (examData.name !== prevName) {
+    const examHeader = document.createElement('div');
+    examHeader.classList.add('block__header');
+    examHeader.style.display = 'flex';
+    examHeader.style.alignItems = 'center';
+    examHeader.style.gap = '8px';
 
-  leftBlock.appendChild(infoBox);
-  leftBlock.appendChild(examComment);
-  commentWrapper.appendChild(leftBlock);
+    const examTitle = document.createElement('h4');
+    examTitle.innerText = capitalizeFirstLetter(examData.name);
+    examTitle.style.margin = '0';
 
-  if (examData.cr_db_id) {
-    const infoIcon = document.createElement('img');
-    infoIcon.src = '../images/info-icon.png';
-    infoIcon.alt = 'Info';
-    infoIcon.classList.add('block__info-icon');
-    infoIcon.style.cursor = 'pointer';
-    infoIcon.style.marginLeft = '8px';
-    infoIcon.title = 'Показать расширенные комментарии';
-    infoIcon.addEventListener('click', () => openInfoPopupByTitle(examData));
-    commentWrapper.appendChild(infoIcon);
+    examHeader.appendChild(infoBox);
+    examHeader.appendChild(examTitle);
+    if (examData.cr_db_id) {
+      const infoIcon = document.createElement('img');
+      infoIcon.src = '../images/info-icon.png';
+      infoIcon.alt = 'Info';
+      infoIcon.classList.add('block__info-icon');
+      infoIcon.style.cursor = 'pointer';
+      infoIcon.style.marginLeft = '8px';
+      infoIcon.title = 'Показать расширенные комментарии';
+      infoIcon.addEventListener('click', () => openInfoPopupByTitle(examData));
+      examHeader.appendChild(infoIcon);
+    }
+    examContainer.appendChild(examHeader);
   }
 
-  examContainer.appendChild(commentWrapper);
   examContainer.appendChild(examQuality);
   blockParentElem.appendChild(examContainer);
 }
@@ -2479,31 +2462,6 @@ function createTreatBlock(parentElem, treatData, prevName) {
       treatData.is_qualitative ? 'block__quality--green' : 'block__quality--gray'
   );
 
-  // Заголовок (только если новое имя)
-  if (treatData.name !== prevName) {
-    const treatHeaderWrapper = document.createElement('div');
-    treatHeaderWrapper.classList.add('block__header');
-
-    const treatHeader = document.createElement('h4');
-    treatHeader.innerText = capitalizeFirstLetter(treatData.name);
-    treatHeader.style.margin = '0';
-
-    treatHeaderWrapper.appendChild(treatHeader);
-    treatContainer.appendChild(treatHeaderWrapper);
-  }
-
-  // Комментарий + udd + иконка "i"
-  const commentWrapper = document.createElement('div');
-  commentWrapper.style.display = 'flex';
-  commentWrapper.style.justifyContent = 'space-between';
-  commentWrapper.style.alignItems = 'flex-start';
-
-  const leftBlock = document.createElement('div');
-  leftBlock.style.display = 'flex';
-  leftBlock.style.alignItems = 'center';
-  leftBlock.style.gap = '8px';
-
-  // infoBox (udd + urr)
   const infoBox = document.createElement('div');
   infoBox.style.display = 'flex';
   infoBox.style.alignItems = 'center';
@@ -2531,30 +2489,36 @@ function createTreatBlock(parentElem, treatData, prevName) {
   infoBox.appendChild(uddText);
   // infoBox.appendChild(urrImg);
 
-  const treatComment = document.createElement('p');
-  treatComment.classList.add('block__comment');
-  treatComment.innerText = treatData.comment || '';
+  // Заголовок (только если новое имя)
+  if (treatData.name !== prevName) {
+    const treatHeaderWrapper = document.createElement('div');
+    treatHeaderWrapper.classList.add('block__header');
+    treatHeaderWrapper.style.display = 'flex';
+    treatHeaderWrapper.style.alignItems = 'center';
+    treatHeaderWrapper.style.gap = '8px';
 
-  leftBlock.appendChild(infoBox);
-  leftBlock.appendChild(treatComment);
-  commentWrapper.appendChild(leftBlock);
+    const treatHeader = document.createElement('h4');
+    treatHeader.innerText = capitalizeFirstLetter(treatData.name);
+    treatHeader.style.margin = '0';
 
-  if (treatData.cr_db_id && popupData && popupData[treatData.cr_db_id]) {
-    const infoIcon = document.createElement('img');
-    infoIcon.src = '../images/info-icon.png';
-    infoIcon.alt = 'Info';
-    infoIcon.classList.add('block__info-icon');
-    infoIcon.style.cursor = 'pointer';
-    infoIcon.style.marginLeft = '8px';
-    infoIcon.addEventListener('click', (event) => {
-      event.stopPropagation();
-      event.preventDefault();
-      openInfoPopupByTitle(treatData);
-    });
-    commentWrapper.appendChild(infoIcon);
+    treatHeaderWrapper.appendChild(infoBox);
+    treatHeaderWrapper.appendChild(treatHeader);
+    if (treatData.cr_db_id && popupData && popupData[treatData.cr_db_id]) {
+      const infoIcon = document.createElement('img');
+      infoIcon.src = '../images/info-icon.png';
+      infoIcon.alt = 'Info';
+      infoIcon.classList.add('block__info-icon');
+      infoIcon.style.cursor = 'pointer';
+      infoIcon.style.marginLeft = '8px';
+      infoIcon.addEventListener('click', (event) => {
+        event.stopPropagation();
+        event.preventDefault();
+        openInfoPopupByTitle(treatData);
+      });
+      treatHeaderWrapper.appendChild(infoIcon);
+    }
+    treatContainer.appendChild(treatHeaderWrapper);
   }
-
-  treatContainer.appendChild(commentWrapper);
 
   if (treatData.plan) {
     const treatPlan = document.createElement('p');
