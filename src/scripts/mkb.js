@@ -2387,12 +2387,6 @@ function createExamBlock(blockParentElem, examData, prevName) {
   const examContainer = document.createElement('div');
   examContainer.classList.add('block__container');
 
-  const examQuality = document.createElement('div');
-  examQuality.classList.add('block__quality');
-  examQuality.classList.add(
-      examData.is_qualitative ? 'block__quality--green' : 'block__quality--gray'
-  );
-
   const infoBox = document.createElement('div');
   infoBox.style.display = 'flex';
   infoBox.style.alignItems = 'center';
@@ -2431,16 +2425,26 @@ function createExamBlock(blockParentElem, examData, prevName) {
     const examTitle = document.createElement('h4');
     examTitle.innerText = capitalizeFirstLetter(examData.name);
     examTitle.style.margin = '0';
+    examTitle.style.fontWeight = 'normal';
+
+    const examQualityMark = document.createElement('span');
+    examQualityMark.style.display = 'inline-block';
+    examQualityMark.style.minWidth = '22px';
+    examQualityMark.style.textAlign = 'center';
+    examQualityMark.style.fontWeight = 'normal';
+    examQualityMark.textContent = examData.is_qualitative ? 'KK' : '';
 
     examHeader.appendChild(infoBox);
+    examHeader.appendChild(examQualityMark);
     examHeader.appendChild(examTitle);
+
     if (examData.cr_db_id) {
       const infoIcon = document.createElement('img');
       infoIcon.src = '../images/info-icon.png';
       infoIcon.alt = 'Info';
       infoIcon.classList.add('block__info-icon');
       infoIcon.style.cursor = 'pointer';
-      infoIcon.style.marginLeft = '8px';
+      infoIcon.style.marginLeft = 'auto';
       infoIcon.title = 'Показать расширенные комментарии';
       infoIcon.addEventListener('click', () => openInfoPopupByTitle(examData));
       examHeader.appendChild(infoIcon);
@@ -2448,19 +2452,12 @@ function createExamBlock(blockParentElem, examData, prevName) {
     examContainer.appendChild(examHeader);
   }
 
-  examContainer.appendChild(examQuality);
   blockParentElem.appendChild(examContainer);
 }
 
 function createTreatBlock(parentElem, treatData, prevName) {
   const treatContainer = document.createElement('div');
   treatContainer.classList.add('block__container');
-
-  const treatQuality = document.createElement('div');
-  treatQuality.classList.add('block__quality');
-  treatQuality.classList.add(
-      treatData.is_qualitative ? 'block__quality--green' : 'block__quality--gray'
-  );
 
   const infoBox = document.createElement('div');
   infoBox.style.display = 'flex';
@@ -2500,16 +2497,26 @@ function createTreatBlock(parentElem, treatData, prevName) {
     const treatHeader = document.createElement('h4');
     treatHeader.innerText = capitalizeFirstLetter(treatData.name);
     treatHeader.style.margin = '0';
+    treatHeader.style.fontWeight = 'normal';
+
+    const treatQualityMark = document.createElement('span');
+    treatQualityMark.style.display = 'inline-block';
+    treatQualityMark.style.minWidth = '22px';
+    treatQualityMark.style.textAlign = 'center';
+    treatQualityMark.style.fontWeight = 'normal';
+    treatQualityMark.textContent = treatData.is_qualitative ? 'KK' : '';
 
     treatHeaderWrapper.appendChild(infoBox);
+    treatHeaderWrapper.appendChild(treatQualityMark);
     treatHeaderWrapper.appendChild(treatHeader);
+
     if (treatData.cr_db_id && popupData && popupData[treatData.cr_db_id]) {
       const infoIcon = document.createElement('img');
       infoIcon.src = '../images/info-icon.png';
       infoIcon.alt = 'Info';
       infoIcon.classList.add('block__info-icon');
       infoIcon.style.cursor = 'pointer';
-      infoIcon.style.marginLeft = '8px';
+      infoIcon.style.marginLeft = 'auto';
       infoIcon.addEventListener('click', (event) => {
         event.stopPropagation();
         event.preventDefault();
@@ -2534,7 +2541,6 @@ function createTreatBlock(parentElem, treatData, prevName) {
     treatContainer.appendChild(treatDuration);
   }
 
-  treatContainer.appendChild(treatQuality);
   parentElem.appendChild(treatContainer);
 }
 
