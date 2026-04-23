@@ -2108,7 +2108,7 @@ function createTableBlockSections(sections) {
     if (section.name.trim() !== '') {
       // Только если есть название секции — рисуем заголовок и таблицы
       sectionsHtml += `<div class="block__container" style="margin-bottom: 5px;">
-                        <div class="block__header category-name" style="display: flex; justify-content: space-between; align-items: center; background-color: rgb(245, 245, 245); padding: 5px 5px 5px 10px; border-radius: 100px; cursor: default;">
+                        <div class="block__header category-name" style="display: flex; justify-content: space-between; align-items: flex-start; background-color: rgb(245, 245, 245); padding: 5px 5px 5px 10px; border-radius: 100px; cursor: default;">
                           <h4 style="margin: 0px; font-weight: normal;">${section.name}</h4>
                         </div>
                       </div>`;
@@ -2387,7 +2387,7 @@ function createGroupTitle(blockParentElem, title) {
   examHeader.classList.add('block__header');
   examHeader.style.display = 'flex';
   examHeader.style.justifyContent = 'space-between';
-  examHeader.style.alignItems = 'center';
+  examHeader.style.alignItems = 'flex-start';
   examHeader.style.backgroundColor = '#f5f5f5';
   examHeader.style.padding = '5px 5px 5px 10px';
   examHeader.style.borderRadius = '100px';
@@ -2446,7 +2446,7 @@ function createExamBlock(blockParentElem, examData, prevName) {
     const examHeader = document.createElement('div');
     examHeader.classList.add('block__header');
     examHeader.style.display = 'flex';
-    examHeader.style.alignItems = 'center';
+    examHeader.style.alignItems = 'flex-start';
     examHeader.style.gap = '8px';
 
     const examTitle = document.createElement('h4');
@@ -2518,7 +2518,7 @@ function createTreatBlock(parentElem, treatData, prevName) {
     const treatHeaderWrapper = document.createElement('div');
     treatHeaderWrapper.classList.add('block__header');
     treatHeaderWrapper.style.display = 'flex';
-    treatHeaderWrapper.style.alignItems = 'center';
+    treatHeaderWrapper.style.alignItems = 'flex-start';
     treatHeaderWrapper.style.gap = '8px';
 
     const treatHeader = document.createElement('h4');
