@@ -1120,7 +1120,7 @@ function isCopyEnabledCard(cardElem) {
 }
 
 function setCardCopyButtonsEventHandler() {
-  // Перебираем все карточки
+  // Перебираем все карточки␊
   Array.from(document.getElementsByClassName('form__card')).forEach((cardElem) => {
     const copyButton = cardElem.querySelector('.copy-button__copy-button');
     const closeButton = cardElem.querySelector('.copy-button__close-button');
@@ -1128,13 +1128,7 @@ function setCardCopyButtonsEventHandler() {
         '.form__card--copy-button[data-copy-all="true"]'
     );
 
-    if (!isCopyEnabledCard(cardElem)) {
-      if (copyAllButton) {
-        copyAllButton.remove();
-      }
-      return;
-    }
-
+  
     // Кнопка "копировать выделенные блоки"
     if (copyButton) {
       addCopyCardAllTextDataEventListeners(copyButton);
@@ -1152,7 +1146,8 @@ function setCardCopyButtonsEventHandler() {
     }
 
     // Кнопка "копировать всё в этой карточке"
-    if (copyAllButton) {
+  
+    if (copyAllButton && isCopyEnabledCard(cardElem)) {
       copyAllButton.addEventListener('click', (e) => {
         if (e.target.closest('.copy-button__close-button')) {
           return;
@@ -1224,10 +1219,6 @@ function setTextBlockSelectionEventHandler() {
   const cardElems = Array.from(document.getElementsByClassName('form__card'));
 
   cardElems.forEach((cardElem) => {
-    if (!isCopyEnabledCard(cardElem)) {
-      return;
-    }
-
     cardElem.addEventListener('click', (e) => {
       // Пропускаем клик, если он пришёл от иконки "i"
       if (e.target.closest('.block__info-icon')) {
@@ -1247,7 +1238,7 @@ function setTextBlockSelectionEventHandler() {
         const textToCopy = getCardDataText(
             cardElem,
             cardElem.querySelector('.copy-button__copy-button'),
-            { includeGroupHeaders: selectedBlocksAmount > 1 }
+            { includeGroupHeaders: true }
         );
 
         if (selectedBlocksAmount) {
@@ -1273,7 +1264,7 @@ function setTextBlockSelectionEventHandler() {
         const textToCopy = getCardDataText(
             cardElem,
             cardElem.querySelector('.copy-button__copy-button'),
-            { includeGroupHeaders: selectedBlocksAmount > 1 }
+            { includeGroupHeaders: true }
         );
 
         if (selectedBlocksAmount) {
@@ -1469,13 +1460,25 @@ function getCardDataText(cardElem, copyButtonElem, options = {}) {
   if (!selectedBlocks.length) return '';
 
   const groupedBlocks = new Map();
-  let lastTitle = '';
+  const lastTitleByGroup = new Map();
+  const sectionOrder = Array.from(document.querySelectorAll('.form__card')).reduce(
+      (acc, card, index) => {
+        acc.set(card.id || `card-${index}`, index);
+        return acc;
+      },
+      new Map()
+  );
 
   selectedBlocks.forEach((blockElem) => {
     const cardElemForBlock = blockElem.closest('.form__card');
     const cardTitle =
       cardElemForBlock?.querySelector('.form__card-title')?.innerText.trim() || '';
-    const groupName = getClipboardGroupName(cardTitle);
+    const cardKey =
+      cardElemForBlock?.id ||
+      cardElemForBlock?.querySelector('.form__card-title')?.innerText.trim() ||
+      'Прочее';
+    const groupName = cardTitle || 'Прочее';
+
 
     let headerElem = blockElem.querySelector('.block__header');
     if (!headerElem || headerElem.classList.contains('category-name')) {
@@ -1505,38 +1508,37 @@ function getCardDataText(cardElem, copyButtonElem, options = {}) {
     if (planText) blockLines.push(planText);
     if (durationText) blockLines.push(durationText);
 
+     const lastTitle = lastTitleByGroup.get(cardKey) || '';
     if (titleText === lastTitle) {
       blockLines[0] = '';
     } else {
-      lastTitle = titleText;
+      lastTitleByGroup.set(cardKey, titleText);
     }
 
-    if (!groupedBlocks.has(groupName)) {
-      groupedBlocks.set(groupName, []);
+    if (!groupedBlocks.has(cardKey)) {
+      groupedBlocks.set(cardKey, {
+        title: groupName,
+        order: sectionOrder.get(cardElemForBlock?.id || '') ?? Number.MAX_SAFE_INTEGER,
+        items: [],
+      });
     }
-    groupedBlocks.get(groupName).push(blockLines.filter(Boolean).join('\n'));
+    groupedBlocks.get(cardKey).items.push(blockLines.filter(Boolean).join('\n'));
   });
 
   if (!includeGroupHeaders) {
     return Array.from(groupedBlocks.values())
+        .map(group => group.items)
         .flat()
         .filter(Boolean)
         .join('\n\n')
         .trim();
   }
 
-  const orderedGroups = [
-    'Диагностические мероприятия',
-    'Лекарственная терапия',
-    'Немедикаментозное лечение',
-  ];
-
-  const groupedResult = orderedGroups
-      .filter(groupName => groupedBlocks.has(groupName))
-      .map(groupName => {
-        const items = groupedBlocks.get(groupName).filter(Boolean);
-        const itemSeparator = groupName === 'Лекарственная терапия' ? '\n\n' : '\n';
-        return `**${groupName}**\n\n${items.join(itemSeparator)}`;
+  const groupedResult = Array.from(groupedBlocks.values())
+      .sort((a, b) => a.order - b.order)
+      .map((group) => {
+        const filteredItems = group.items.filter(Boolean);
+        return `**${group.title}**\n\n${filteredItems.join('\n\n')}`;
       });
 
   return groupedResult.join('\n\n').trim();
@@ -1571,8 +1573,7 @@ function getClipboardGroupName(cardTitle) {
 function getSelectedCopyBlocks() {
   return Array.from(document.querySelectorAll('.form__card .block__container--selected'))
       .filter(block => {
-        const header = block.querySelector('.block__header');
-        return header && !header.classList.contains('category-name');
+        return !block.querySelector('.block__header.category-name');
       });
 }
 
