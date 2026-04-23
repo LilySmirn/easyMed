@@ -1033,7 +1033,7 @@ searchListElem.addEventListener('click', function (e) {
 });
 
 ageToggleElem.addEventListener('click', async () => await setLists());
-standardToggleElem.addEventListener('click', async () => await setLists());
+// standardToggleElem.addEventListener('click', async () => await setLists());
 
 setCardViewTogglers();
 setTextBlockSelectionEventHandler();
@@ -1705,9 +1705,7 @@ async function setLists() {
   examStageToggleSecondElem.addEventListener('click', toggleStage);
 
   const currentAge = ageToggleElem.checked ? 'grownup' : 'child';
-  const currentStatus = standardToggleElem.checked
-      ? 'Рекомендация'
-      : 'Стандарт';
+  const currentStatus = 'Рекомендация';
 
   const listsData = {};
   listsData.exam = createListData(
@@ -1808,27 +1806,17 @@ function setTogglers(mkbData) {
   }
   const currentAge = ageToggleElem.checked ? 'grownup' : 'child';
 
-  const hasStandard = mkbData[currentAge].standards.some(
-      (standard) => standard.status === 'Стандарт'
-  );
   const hasRecommendation = mkbData[currentAge].standards.some(
       (standard) => standard.status === 'Рекомендация'
   );
 
   crmLinkContainer.innerHTML = '';
 
-  if (!hasStandard && hasRecommendation) {
+  standardToggleElem.checked = true;
+  standardToggleElem.disabled = true;
+
+  if (!hasRecommendation) {
     standardToggleElem.checked = true;
-    standardToggleElem.disabled = true;
-  } else if (hasStandard && !hasRecommendation) {
-    standardToggleElem.checked = false;
-    standardToggleElem.disabled = true;
-  } else if (hasStandard && hasRecommendation) {
-    if (!standardToggleElem.hasAttribute('data-user-touched')) {
-      standardToggleElem.setAttribute('data-user-touched', 'true');
-      standardToggleElem.checked = true;
-    }
-    standardToggleElem.disabled = false;
   }
 }
 
@@ -2565,10 +2553,9 @@ function createTreatBlock(parentElem, treatData, prevName) {
 }
 
 function updateButtonsVisibility() {
-  const standardToggle = document.getElementById('standard-toggle');
   const selectElem = document.getElementById('exam-list');
   const monolist = document.getElementById('exam-monolist');
-  const isRecommendation = standardToggle.checked;
+  const isRecommendation = true;
   const selectHasValue = selectElem && selectElem.value !== "";
   const monolistVisible = monolist && !monolist.classList.contains("hidden") && monolist.textContent.trim() !== "";
 
