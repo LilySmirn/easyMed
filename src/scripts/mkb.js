@@ -1174,7 +1174,6 @@ function setCardCopyButtonsEventHandler() {
   });
 }
 
-
 function showInputListLoader() {
   const loadingElem = createLoadingElement();
   const resultsList = document.getElementById('search-list');
@@ -2583,14 +2582,14 @@ function createTreatBlock(parentElem, treatData, prevName) {
   if (treatData.plan) {
     const treatPlan = document.createElement('p');
     treatPlan.classList.add('block__comment', 'block__comment--plan');
-    treatPlan.innerHTML = '<b>Схема лечения: </b>>' + treatData.plan;
+    treatPlan.innerHTML = 'Схема лечения: ' + treatData.plan;
     treatContainer.appendChild(treatPlan);
   }
 
   if (treatData.duration) {
     const treatDuration = document.createElement('p');
     treatDuration.classList.add('block__comment', 'block__comment--duration');
-    treatDuration.innerHTML = '<b>Длительность курса: </b>' + treatData.duration;
+    treatDuration.innerHTML = 'Длительность курса: ' + treatData.duration;
     treatContainer.appendChild(treatDuration);
   }
 
