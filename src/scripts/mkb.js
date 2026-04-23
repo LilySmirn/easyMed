@@ -1490,7 +1490,7 @@ function getCardDataText(cardElem, copyButtonElem, options = {}) {
       if (prev) headerElem = prev.querySelector('.block__header');
     }
 
-    const titleText = headerElem?.innerText.trim() || '';
+    const titleText = headerElem?.querySelector('h4')?.innerText.trim() || '';
     const planElem = blockElem.querySelector('.block__comment--plan');
     const durationElem = blockElem.querySelector('.block__comment--duration');
 
