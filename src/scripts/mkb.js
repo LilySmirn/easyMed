@@ -1147,7 +1147,7 @@ function setCardCopyButtonsEventHandler() {
         e.preventDefault();
         e.stopPropagation();
         const card = e.target.closest('.form__card');
-        removeBlockSelections(card);
+        removeBlockSelections(card, true);
       });
     }
 
@@ -1305,11 +1305,11 @@ function toggleBlockSelection(blockElem) {
   ) {
     switchOnCopyButton(copyButtonElem);
   } else {
-    removeBlockSelections(cardElem);
+    removeBlockSelections(cardElem, true);
   }
 }
 
-function removeBlockSelections(cardElem) {
+function removeBlockSelections(cardElem, shouldClearClipboard = false) {
   const copyButton = cardElem.querySelector('.form__card--copy-button');
   const closeButton = cardElem.querySelector('.copy-button__close-button');
 
@@ -1321,6 +1321,10 @@ function removeBlockSelections(cardElem) {
         someBlockElem.classList.remove('block__container--selected');
       }
   );
+
+  if (shouldClearClipboard) {
+    clearClipboardData();
+  }
 }
 
 function removeAllBlockSelections() {
@@ -1419,6 +1423,27 @@ function copyToClipboard(textToCopy, callback, args) {
     } catch (err) {
       console.error('Fallback: Could not copy text', err);
     }
+    document.body.removeChild(tempTextArea);
+}
+}
+
+function clearClipboardData() {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText('').catch((err) => {
+      console.error('Could not clear clipboard: ', err);
+    });
+  } else {
+    const tempTextArea = document.createElement('textarea');
+    tempTextArea.value = '';
+    document.body.appendChild(tempTextArea);
+    tempTextArea.select();
+
+    try {
+      document.execCommand('copy');
+    } catch (err) {
+      console.error('Fallback: Could not clear clipboard', err);
+    }
+
     document.body.removeChild(tempTextArea);
   }
 }
