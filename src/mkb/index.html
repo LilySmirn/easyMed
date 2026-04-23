@@ -244,6 +244,21 @@
             <div class="toggles__toggle"></div>
             <span class="toggles__title">Взрослый</span>
           </label>
+          <div class="form__section form__section--buttons form__section--buttons-inline">
+            <button
+              class="form__button form__button--stage stage__selected"
+              id="exam-stage-toggle-first"
+            >
+              Первичный
+            </button>
+            <div class="exam-stage-toggle" id="exam-stage-toggle-switch"></div>
+            <button
+              class="form__button form__button--stage"
+              id="exam-stage-toggle-second"
+            >
+              Повторный
+            </button>
+          </div>
           <label for="standard-toggle" class="toggles__label hidden">
             <span class="toggles__title">Стандарт</span>
             <input
@@ -283,21 +298,6 @@
             </div>
 
             <div class="button--stage-sorting">
-              <!-- Examination Buttons Section -->
-              <div class="form__section form__section--buttons">
-                <button
-                        class="form__button form__button--stage stage__selected"
-                        id="exam-stage-toggle-first"
-                >
-                  Первичный приём
-                </button>
-                <button
-                        class="form__button form__button--stage"
-                        id="exam-stage-toggle-second"
-                >
-                  Повторный приём
-                </button>
-              </div>
               <div class="sorting-select hidden">
                 <p class="sorting-title">Упорядочить:</p>
                 <select class="form__select-sorting" id="select-sorting">

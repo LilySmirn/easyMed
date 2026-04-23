@@ -773,6 +773,7 @@ input {
 .form__section--toggles {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   margin-top: 12px;
 }
 
@@ -874,31 +875,69 @@ input {
   margin-bottom: 20px;
 }
 
+.form__section--buttons-inline {
+  margin: 0;
+  margin-left: auto;
+  margin-bottom: 0;
+  align-items: center;
+  gap: 8px;
+  width: auto;
+  height: auto;
+}
+
 .form__button--stage {
-  font-weight: bold;
-  height: 36px;
-  width: 184px;
-  background-color: #badeff;
-  color: #0085ff;
-  padding: 10px 20px;
+  font-weight: 400;
+  height: auto;
+  width: auto;
+  background-color: transparent;
+  color: black;
+  padding: 0;
   font-size: 14px;
   border: none;
-  border-radius: 12px;
+  border-radius: 0;
   cursor: pointer;
+  transition: color 0.25s ease;
 }
 
 .form__button--stage:nth-of-type(1) {
-  border-radius: 12px 0 0 12px;
+  border-radius: 0;
 }
 
 .form__button--stage:nth-of-type(2) {
-  border-radius: 0 12px 12px 0;
+  border-radius: 0;
 }
 
 .stage__selected {
-  background-color: #0085ff;
-  color: #ffffff;
+  background-color: transparent;
+  color: rgba(20, 110, 255, 1);
   cursor: pointer;
+}
+
+.exam-stage-toggle {
+  position: relative;
+  width: 45px;
+  height: 15px;
+  background-color: rgba(20, 110, 255, 1);
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.exam-stage-toggle::after {
+  position: absolute;
+  content: "";
+  width: 12px;
+  height: 12px;
+  background-color: #ffffff;
+  border-radius: 7px;
+  top: 1.5px;
+  left: 1.5px;
+  transition: 0.25s;
+}
+
+.form__section--buttons-inline:has(#exam-stage-toggle-second.stage__selected)
+  .exam-stage-toggle::after {
+  left: calc(100% - 1.5px);
+  transform: translateX(-100%);
 }
 
 .form__section--select {

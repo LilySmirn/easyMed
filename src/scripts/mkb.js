@@ -1701,8 +1701,12 @@ async function setLists() {
   const examStageToggleSecondElem = document.getElementById(
       'exam-stage-toggle-second'
   );
+  const examStageToggleSwitchElem = document.getElementById(
+      'exam-stage-toggle-switch'
+  );
   examStageToggleFirstElem.addEventListener('click', toggleStage);
   examStageToggleSecondElem.addEventListener('click', toggleStage);
+  examStageToggleSwitchElem.addEventListener('click', toggleStageBySwitch);
 
   const currentAge = ageToggleElem.checked ? 'grownup' : 'child';
   const currentStatus = 'Рекомендация';
@@ -2237,6 +2241,21 @@ function toggleStage(e) {
     }
     e.target.classList.add('stage__selected');
     setExamText();
+}
+}
+
+function toggleStageBySwitch() {
+  const examStageToggleFirstElem = document.getElementById(
+      'exam-stage-toggle-first'
+  );
+  const examStageToggleSecondElem = document.getElementById(
+      'exam-stage-toggle-second'
+  );
+
+  if (examStageToggleFirstElem.classList.contains('stage__selected')) {
+    examStageToggleSecondElem.click();
+  } else {
+    examStageToggleFirstElem.click();
   }
 }
 
