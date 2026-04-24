@@ -1512,6 +1512,56 @@ function flashTooltipOnEvent(event, tooltipText, timeout) {
 }
 
 function getCardDataText(cardElem, copyButtonElem, options = {}) {
+  const getCommentValue = (containerElem, selector, labelText) => {
+    const commentElem = containerElem?.querySelector(selector);
+    if (!commentElem) return '';
+
+    const fromSpan = commentElem.querySelector('span')?.innerText.trim() || '';
+    if (fromSpan) return fromSpan;
+
+    const rawText = commentElem.innerText || '';
+    return rawText.replace(new RegExp(`^${labelText}:\\s*`), '').trim();
+  };
+
+  const getFirstTreatmentDetailsByTitle = (cardForBlock, treatmentTitle) => {
+    if (!cardForBlock || !treatmentTitle) return { plan: '', duration: '' };
+
+    const getContainerTitle = (containerElem) => {
+      const ownTitle = containerElem.querySelector('.block__header h4')?.innerText.trim() || '';
+      if (ownTitle) return ownTitle;
+
+      let prev = containerElem.previousElementSibling;
+      while (prev) {
+        const prevTitle = prev.querySelector('.block__header h4')?.innerText.trim() || '';
+        if (prevTitle) return prevTitle;
+        prev = prev.previousElementSibling;
+      }
+
+      return '';
+    };
+
+    const allContainers = Array.from(cardForBlock.querySelectorAll('.block__container'));
+    const matchingContainers = allContainers.filter((container) => {
+      const title = getContainerTitle(container);
+      return title === treatmentTitle;
+    });
+
+    for (const container of matchingContainers) {
+      const plan = getCommentValue(container, '.block__comment--plan', 'Схема лечения');
+      const duration = getCommentValue(
+          container,
+          '.block__comment--duration',
+          'Длительность курса'
+      );
+
+      if (plan || duration) {
+        return { plan, duration };
+      }
+    }
+
+    return { plan: '', duration: '' };
+  };
+
   const includeGroupHeaders = options.includeGroupHeaders ?? true;
   const selectedBlocks = getSelectedCopyBlocks();
   if (!selectedBlocks.length) return '';
@@ -1551,15 +1601,21 @@ function getCardDataText(cardElem, copyButtonElem, options = {}) {
     }
 
     const titleText = headerElem?.querySelector('h4')?.innerText.trim() || '';
-    const planElem = blockElem.querySelector('.block__comment--plan');
-    const durationElem = blockElem.querySelector('.block__comment--duration');
+    let planValue = getCommentValue(blockElem, '.block__comment--plan', 'Схема лечения');
+    let durationValue = getCommentValue(
+        blockElem,
+        '.block__comment--duration',
+        'Длительность курса'
+    );
 
-    const planText = planElem
-      ? `Схема лечения: ${planElem.innerText.replace(/^.*?:\s*>?/, '').trim()}`
-      : '';
-    const durationText = durationElem
-      ? `Длительность курса: ${durationElem.innerText.replace(/^.*?:\s*/, '').trim()}`
-      : '';
+    if (!planValue || !durationValue) {
+      const firstDetails = getFirstTreatmentDetailsByTitle(cardElemForBlock, titleText);
+      if (!planValue) planValue = firstDetails.plan;
+      if (!durationValue) durationValue = firstDetails.duration;
+    }
+
+    const planText = planValue ? `Схема лечения: ${planValue}` : '';
+    const durationText = durationValue ? `Длительность курса: ${durationValue}` : '';
 
     const blockLines = [titleText];
     if (planText) blockLines.push(planText);
