@@ -2366,79 +2366,136 @@ function setupPopupCloseHandlers() {
     if (e.target === popupOverlay) {
       popupOverlay.classList.add("hidden");
     }
+   });
+}
+
+function getPopupSectionsData(items = []) {
+  if (!Array.isArray(items)) return [];
+
+  return items
+      .map((item) => {
+        if (!item) return null;
+        const popupInfo = popupData?.[item.cr_db_id] ?? null;
+        if (!popupInfo) return null;
+
+        return {
+          title: item.name || "Без названия",
+          udd: item.pers ? `${item.pers.уур ?? ''}${item.pers.удд ?? ''}`.trim() : '',
+          isQualitative: Number(item.is_qualitative) === 1,
+          text: popupInfo.text || "Описание отсутствует",
+          comment: popupInfo.comment?.trim() || '',
+        };
+      })
+      .filter(Boolean);
+}
+
+function renderPopupSections(sections = []) {
+  const popupOverlay = document.getElementById('popup-overlay');
+  const popupContent = popupOverlay.querySelector('.popup__content');
+  if (!popupContent) return;
+
+  popupContent.innerHTML = '';
+
+  sections.forEach((section, index) => {
+    const qualityWrapper = document.createElement('div');
+    qualityWrapper.classList.add('popup__quality-wrapper');
+
+    const headingContainer = document.createElement('div');
+    headingContainer.classList.add('urr-udd-h2-container');
+
+    const uddContainer = document.createElement('div');
+    uddContainer.classList.add('urr-udd-container');
+
+    const uddText = document.createElement('p');
+    uddText.classList.add('udd__text');
+    uddText.textContent = section.udd || '';
+    uddContainer.appendChild(uddText);
+
+    const qualityMark = document.createElement('span');
+    qualityMark.classList.add('popup__quality-mark');
+    qualityMark.textContent = section.isQualitative ? 'KK' : '';
+
+    const titleEl = document.createElement('h2');
+    titleEl.classList.add('popup__title');
+    titleEl.textContent = section.title;
+
+    headingContainer.appendChild(uddContainer);
+    headingContainer.appendChild(qualityMark);
+    headingContainer.appendChild(titleEl);
+    qualityWrapper.appendChild(headingContainer);
+    popupContent.appendChild(qualityWrapper);
+
+    const hrDescription = document.createElement('hr');
+    popupContent.appendChild(hrDescription);
+
+    const description = document.createElement('p');
+    description.classList.add('popup__description', 'dot-description');
+    description.textContent = section.text;
+    popupContent.appendChild(description);
+
+    const hrComment = document.createElement('hr');
+    popupContent.appendChild(hrComment);
+
+    const commentTitle = document.createElement('p');
+    commentTitle.classList.add('popup__comment');
+    commentTitle.innerHTML = '<b>Комментарий:</b>';
+
+    const commentText = document.createElement('p');
+    commentText.classList.add('popup__comment-text');
+    if (section.comment) {
+      commentText.innerHTML = `<i>${section.comment}</i>`;
+    } else {
+      commentTitle.classList.add('hidden');
+      commentText.classList.add('hidden');
+    }
+    popupContent.appendChild(commentTitle);
+    popupContent.appendChild(commentText);
+
+    if (index < sections.length - 1) {
+      const sectionSeparator = document.createElement('hr');
+      popupContent.appendChild(sectionSeparator);
+    }
   });
 }
 
+function collectHeaderRelatedTreatments(headerContainer) {
+  const relatedTreatments = [];
+  let current = headerContainer;
+
+  while (current) {
+    if (current !== headerContainer && current.querySelector('.block__header')) break;
+
+    const data = current.dataset?.popupEntry;
+    if (data) {
+      try {
+        relatedTreatments.push(JSON.parse(data));
+      } catch (e) {
+        console.warn('Не удалось распарсить данные popupEntry', e);
+      }
+    }
+
+    current = current.nextElementSibling;
+  }
+
+  return relatedTreatments;
+}
+
 //открытие инфо поп-апа с тестовыми данными
-function openInfoPopupByTitle(examData) {
+function openInfoPopupByTitle(examData, relatedEntries = null) {
   const popupOverlay = document.getElementById('popup-overlay');
-  const titleEl = popupOverlay.querySelector('.popup__title');
-  const descEl = popupOverlay.querySelector('.popup__description');
-  const commentTitleEl = popupOverlay.querySelector('.popup__comment');
-  const commentEl = popupOverlay.querySelector('.popup__comment-text');
-  const urrImg = popupOverlay.querySelector('.circle__img');
-  const uddText = popupOverlay.querySelector('.udd__text');
+  const entries = Array.isArray(relatedEntries) && relatedEntries.length
+      ? relatedEntries
+      : [examData];
+  const sections = getPopupSectionsData(entries);
 
-  const crDbId = examData.cr_db_id;
-  const popupInfo = popupData[crDbId];
-
-  if (popupInfo) {
-    console.log(popupInfo);
-
-    // 1. Заголовок
-    titleEl.textContent = examData.name || "Без названия";
-
-    // 2. Код
-    if (examData.pers) {
-      const { уур, удд } = examData.pers;
-      uddText.textContent = `${уур}${удд}`;
-    } else {
-      uddText.textContent = "";
-    }
-
-    // 3. Маркер качества (KK для "зелёного" случая)
-    const qualityWrapper = popupOverlay.querySelector('.popup__quality-wrapper');
-    if (qualityWrapper) {
-      let qualityMark = qualityWrapper.querySelector('.popup__quality-mark');
-      if (!qualityMark) {
-        qualityMark = document.createElement('span');
-        qualityMark.classList.add('popup__quality-mark');
-
-        const headingContainer = qualityWrapper.querySelector('.urr-udd-h2-container');
-        const titleNode = qualityWrapper.querySelector('.popup__title');
-        if (headingContainer && titleNode) {
-          headingContainer.insertBefore(qualityMark, titleNode);
-        }
-      }
-
-      if (qualityMark) {
-        qualityMark.textContent = examData.is_qualitative === 1 ? 'KK' : '';
-      }
-    }
-
-    // 5. Описание
-    descEl.textContent = popupInfo.text || "Описание отсутствует";
-
-    // 6. Комментарий
-    const commentText = popupInfo.comment?.trim();
-    if (commentText) {
-      commentEl.innerHTML = `<i>${commentText}</i>`;
-      commentTitleEl.classList.remove('hidden');
-      commentEl.classList.remove('hidden');
-    } else {
-      commentEl.innerHTML = '';
-      commentTitleEl.classList.add('hidden');
-      commentEl.classList.add('hidden');
-    }
-
-    // 7. Показать попап
+  if (sections.length) {
+    renderPopupSections(sections);
     popupOverlay.classList.remove('hidden');
   } else {
+    const crDbId = examData?.cr_db_id;
     console.warn("Нет данных из второго JSON для:", crDbId);
   }
 }
-
-
 
 //вставка данных в левый блок анализов
 function fillLeftBlockData(examName, uddTextElem, urrImgElem) {
@@ -2568,6 +2625,7 @@ function createExamBlock(blockParentElem, examData, prevName) {
 function createTreatBlock(parentElem, treatData, prevName) {
   const treatContainer = document.createElement('div');
   treatContainer.classList.add('block__container');
+  const isDrugCard = parentElem.id === 'treat-card-drug' || parentElem.id === 'treat-card-drug-offlabel';
 
   const infoBox = document.createElement('div');
   infoBox.style.display = 'flex';
@@ -2631,20 +2689,24 @@ function createTreatBlock(parentElem, treatData, prevName) {
       infoIcon.addEventListener('click', (event) => {
         event.stopPropagation();
         event.preventDefault();
+        const relatedEntries = collectHeaderRelatedTreatments(treatContainer);
         openInfoPopupByTitle({
           ...treatData,
           is_qualitative: hasGroupQuality ? 1 : treatData.is_qualitative
-        });
+        }, relatedEntries);
       });
       treatHeaderWrapper.appendChild(infoIcon);
     }
     treatContainer.appendChild(treatHeaderWrapper);
   }
 
-  if (treatData.plan) {
+   if (treatData.plan) {
     const treatPlan = document.createElement('p');
     treatPlan.classList.add('block__comment', 'block__comment--plan');
     treatPlan.innerHTML = 'Схема лечения: ' + treatData.plan;
+    if (isDrugCard) {
+      treatPlan.classList.add('hidden');
+    }
     treatContainer.appendChild(treatPlan);
   }
 
@@ -2652,7 +2714,21 @@ function createTreatBlock(parentElem, treatData, prevName) {
     const treatDuration = document.createElement('p');
     treatDuration.classList.add('block__comment', 'block__comment--duration');
     treatDuration.innerHTML = 'Длительность курса: ' + treatData.duration;
+    if (isDrugCard) {
+      treatDuration.classList.add('hidden');
+    }
     treatContainer.appendChild(treatDuration);
+  }
+
+  treatContainer.dataset.popupEntry = JSON.stringify({
+    cr_db_id: treatData.cr_db_id,
+    name: treatData.name,
+    pers: treatData.pers,
+    is_qualitative: hasQualityInMap(treatQualityByName, treatData.name, treatData.is_qualitative) ? 1 : 0,
+  });
+
+  if (isDrugCard && treatData.name === prevName) {
+    treatContainer.style.display = 'none';
   }
 
   parentElem.appendChild(treatContainer);
