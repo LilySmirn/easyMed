@@ -38,6 +38,8 @@ tablePopupCloseBtn.addEventListener('click', () => {
   tablePopupContent.innerHTML = '';
 })
 let popupData = null;
+let examQualityByName = new Map();
+let treatQualityByName = new Map();
 
 /*if (ageToggleElem) {
   ageToggleElem.addEventListener('click', async () => await setLists());
@@ -126,6 +128,33 @@ function compareByNameAndSpan(a, b) {
   return String(a?.cr_db_id ?? '').localeCompare(String(b?.cr_db_id ?? ''), 'ru', { sensitivity: 'base' });
 }
 
+function buildQualityByNameMap(items = []) {
+  const qualityMap = new Map();
+
+  items.forEach((item) => {
+    const name = item?.name ?? '';
+    if (!name) return;
+    const hasQuality = Number(item?.is_qualitative) === 1;
+
+    if (!qualityMap.has(name)) {
+      qualityMap.set(name, hasQuality);
+      return;
+    }
+
+    if (hasQuality) {
+      qualityMap.set(name, true);
+    }
+  });
+
+  return qualityMap;
+}
+
+function hasQualityInMap(qualityMap, name, fallbackValue) {
+  if (!name) return Number(fallbackValue) === 1;
+  if (!qualityMap?.has(name)) return Number(fallbackValue) === 1;
+  return Boolean(qualityMap.get(name));
+}
+
 function groupByCategoryAndSortByQuality(arr) {
   const groups = {};
 
@@ -201,6 +230,7 @@ function sortByQuality() {
   const examsOptional = standard.examinations.filter(e =>
       !e.is_required && e.is_stationary !== 1
   );
+  examQualityByName = buildQualityByNameMap(examsRequired.concat(examsOptional));
 
   const requiredGrouped = groupByCategoryAndSortByQuality(examsRequired);
   const optionalGrouped = groupByCategoryAndSortByQuality(examsOptional);
@@ -261,6 +291,7 @@ function sortByQualityTreatment() {
   const drugTreatments = allTreatments.filter(t => t.type === "drug" && !t.is_offlabel);
   const actionTreatments = allTreatments.filter(t => t.type === "service");
   const offlabelTreatments = allTreatments.filter(t => t.is_offlabel && t.type === "drug");
+  treatQualityByName = buildQualityByNameMap(allTreatments);
 
   const groupedDrugs = groupTreatByCategoryAndSortByQuality(drugTreatments);
   const groupedActions = groupTreatByCategoryAndSortByQuality(actionTreatments);
@@ -418,6 +449,7 @@ function sortByUur() {
   const examsOptional = standard.examinations.filter(e =>
       !e.is_required && e.is_stationary !== 1
   );
+  examQualityByName = buildQualityByNameMap(examsRequired.concat(examsOptional));
 
   const requiredGrouped = groupByCategoryAndSortByUur(examsRequired);
   const optionalGrouped = groupByCategoryAndSortByUur(examsOptional);
@@ -489,6 +521,7 @@ function sortByUurTreatment() {
   const drugTreatments = allTreatments.filter(t => t.type === "drug" && !t.is_offlabel);
   const actionTreatments = allTreatments.filter(t => t.type === "service");
   const offlabelTreatments = allTreatments.filter(t => t.is_offlabel && t.type === "drug");
+  treatQualityByName = buildQualityByNameMap(allTreatments);
 
   const groupedDrugs = groupTreatByCategoryAndSortByUur(drugTreatments);
   const groupedActions = groupTreatByCategoryAndSortByUur(actionTreatments);
@@ -662,6 +695,7 @@ function sortById() {
   const examsOptional = standard.examinations.filter(e =>
       !e.is_required && e.is_stationary !== 1
   );
+  examQualityByName = buildQualityByNameMap(examsRequired.concat(examsOptional));
 
   const requiredGrouped = groupByCategoryAndSortById(examsRequired);
   const optionalGrouped = groupByCategoryAndSortById(examsOptional);
@@ -718,6 +752,7 @@ function sortByIdTreatment() {
   clearCard(treatCardDrugOfflabelElem);
 
   const allTreatments = standard.treatments.filter(t => t.is_stationary !== 1);
+  treatQualityByName = buildQualityByNameMap(allTreatments);
 
   const drugTreatments = allTreatments.filter(t => t.type === "drug" && !t.is_offlabel);
   const actionTreatments = allTreatments.filter(t => t.type === "service");
@@ -1905,22 +1940,17 @@ function setExamText() {
     crmLinkContainer.classList.add('active');
   }
 
+  const currentExaminations = mkbData[currentAge].standards[standardInd].examinations
+      .filter(exam => exam.stage === currentStage && exam.is_stationary !== 1);
+
+  examQualityByName = buildQualityByNameMap(currentExaminations);
+
   let requiredExaminationsByCategory = groupByCategoryAndSort(
-      mkbData[currentAge].standards[standardInd].examinations
-          .filter(exam =>
-              exam.stage === currentStage &&
-              exam.is_required &&
-              exam.is_stationary !== 1
-          )
+      currentExaminations.filter(exam => exam.is_required)
   );
 
   let optionalExaminationsByCategory = groupByCategoryAndSort(
-      mkbData[currentAge].standards[standardInd].examinations
-          .filter(exam =>
-              exam.stage === currentStage &&
-              !exam.is_required &&
-              exam.is_stationary !== 1
-          )
+      currentExaminations.filter(exam => !exam.is_required)
   );
 
   let hasRequired = requiredExaminationsByCategory.length > 0;
@@ -1977,6 +2007,7 @@ function setTreatText() {
       .standards[standardInd]
       .treatments
       .filter(t => t.is_stationary !== 1);
+  treatQualityByName = buildQualityByNameMap(allTreatments);
 
   const treatments = allTreatments
       .filter(t => !t.is_offlabel)
@@ -2507,7 +2538,8 @@ function createExamBlock(blockParentElem, examData, prevName) {
     examQualityMark.style.minWidth = '22px';
     examQualityMark.style.textAlign = 'center';
     examQualityMark.style.fontWeight = 'normal';
-    examQualityMark.textContent = examData.is_qualitative ? 'KK' : '';
+    const hasGroupQuality = hasQualityInMap(examQualityByName, examData.name, examData.is_qualitative);
+    examQualityMark.textContent = hasGroupQuality ? 'KK' : '';
 
     examHeader.appendChild(infoBox);
     examHeader.appendChild(examQualityMark);
@@ -2521,7 +2553,10 @@ function createExamBlock(blockParentElem, examData, prevName) {
       infoIcon.style.cursor = 'pointer';
       infoIcon.style.marginLeft = 'auto';
       infoIcon.title = 'Показать расширенные комментарии';
-      infoIcon.addEventListener('click', () => openInfoPopupByTitle(examData));
+      infoIcon.addEventListener('click', () => openInfoPopupByTitle({
+        ...examData,
+        is_qualitative: hasGroupQuality ? 1 : examData.is_qualitative
+      }));
       examHeader.appendChild(infoIcon);
     }
     examContainer.appendChild(examHeader);
@@ -2579,7 +2614,8 @@ function createTreatBlock(parentElem, treatData, prevName) {
     treatQualityMark.style.minWidth = '22px';
     treatQualityMark.style.textAlign = 'center';
     treatQualityMark.style.fontWeight = 'normal';
-    treatQualityMark.textContent = treatData.is_qualitative ? 'KK' : '';
+    const hasGroupQuality = hasQualityInMap(treatQualityByName, treatData.name, treatData.is_qualitative);
+    treatQualityMark.textContent = hasGroupQuality ? 'KK' : '';
 
     treatHeaderWrapper.appendChild(infoBox);
     treatHeaderWrapper.appendChild(treatQualityMark);
@@ -2595,7 +2631,10 @@ function createTreatBlock(parentElem, treatData, prevName) {
       infoIcon.addEventListener('click', (event) => {
         event.stopPropagation();
         event.preventDefault();
-        openInfoPopupByTitle(treatData);
+        openInfoPopupByTitle({
+          ...treatData,
+          is_qualitative: hasGroupQuality ? 1 : treatData.is_qualitative
+        });
       });
       treatHeaderWrapper.appendChild(infoIcon);
     }

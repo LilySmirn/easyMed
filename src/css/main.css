@@ -1237,9 +1237,9 @@ th, td {
   font-family: Arial, sans-serif;
   font-weight: bold;
   font-size: 16px;
-  margin-bottom: 8px;
+  margin-bottom: 3px;
   cursor: pointer;
-  margin-top: 15px;
+  margin-top: 8px;
 }
 
 .block__comment {
