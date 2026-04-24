@@ -103,6 +103,29 @@ function sortByAlphabetTreatment() {
   setTreatText(standard.treatments);
 }
 
+function getItemSpanText(item) {
+  if (!item || !item.pers) return '';
+  const uur = item.pers.уур ?? '';
+  const udd = item.pers.удд ?? '';
+  return `${uur}${udd}`.trim();
+}
+
+function compareByNameAndSpan(a, b) {
+  const byName = (a?.name ?? '').localeCompare(b?.name ?? '', 'ru', { sensitivity: 'base' });
+  if (byName !== 0) return byName;
+
+  const spanA = getItemSpanText(a);
+  const spanB = getItemSpanText(b);
+
+  if (!spanA && spanB) return 1;
+  if (spanA && !spanB) return -1;
+
+  const bySpan = spanA.localeCompare(spanB, 'ru', { sensitivity: 'base' });
+  if (bySpan !== 0) return bySpan;
+
+  return String(a?.cr_db_id ?? '').localeCompare(String(b?.cr_db_id ?? ''), 'ru', { sensitivity: 'base' });
+}
+
 function groupByCategoryAndSortByQuality(arr) {
   const groups = {};
 
@@ -126,7 +149,7 @@ function groupByCategoryAndSortByQuality(arr) {
           if (b.is_qualitative !== a.is_qualitative) {
             return b.is_qualitative - a.is_qualitative;
           }
-          return a.name.localeCompare(b.name);
+          return compareByNameAndSpan(a, b);
         });
         return {
           name: groupName,
@@ -140,7 +163,7 @@ function groupByCategoryAndSortByQuality(arr) {
       if (b.is_qualitative !== a.is_qualitative) {
         return b.is_qualitative - a.is_qualitative;
       }
-      return a.name.localeCompare(b.name);
+      return compareByNameAndSpan(a, b);
     });
     result.push({ name: 'Прочее', values: sorted });
   }
@@ -313,7 +336,7 @@ function groupTreatByCategoryAndSortByQuality(arr) {
           if (b.is_qualitative !== a.is_qualitative) {
             return b.is_qualitative - a.is_qualitative;
           }
-          return a.name.localeCompare(b.name);
+          return compareByNameAndSpan(a, b);
         });
         return {
           name: groupName,
@@ -327,7 +350,7 @@ function groupTreatByCategoryAndSortByQuality(arr) {
       if (b.is_qualitative !== a.is_qualitative) {
         return b.is_qualitative - a.is_qualitative;
       }
-      return a.name.localeCompare(b.name);
+      return compareByNameAndSpan(a, b);
     });
 
     result.push({ name: 'Прочее', values: sorted });
@@ -339,7 +362,7 @@ function groupTreatByCategoryAndSortByQuality(arr) {
 function sortByPers(groupName, values) {
   const sortedWithPers = values
       .filter(x => x.hasOwnProperty('pers'))
-      .sort((a, b) => a.name.localeCompare(b.name))
+      .sort(compareByNameAndSpan)
       .sort((a, b) => {
 
         let aValue = `${a.pers["уур"]}${a.pers["удд"]}`;
@@ -350,7 +373,7 @@ function sortByPers(groupName, values) {
 
   const sortedNoPers = values
       .filter(x => !x.hasOwnProperty('pers'))
-      .sort((a, b) => a.name.localeCompare(b.name));
+      .sort(compareByNameAndSpan);
 
   return {
     name: groupName,
@@ -538,7 +561,7 @@ function groupByCategoryAndSortById(arr) {
           const bId = parseInt(b.cr_db_id) || 0;
 
           if (aId !== bId) return aId - bId;
-          return a.name.localeCompare(b.name);
+          return compareByNameAndSpan(a, b);
         });
 
         return {
@@ -554,7 +577,7 @@ function groupByCategoryAndSortById(arr) {
       const bId = parseInt(b.cr_db_id) || 0;
 
       if (aId !== bId) return aId - bId;
-      return a.name.localeCompare(b.name);
+      return compareByNameAndSpan(a, b);
     });
 
     result.push({ name: 'Прочее', values: sorted });
@@ -584,7 +607,7 @@ function groupTreatByCategoryAndSortById(arr) {
           const bId = parseFloat((b.cr_db_id || '').replace(/[^\d.]/g, '')) || 0;
 
           if (aId !== bId) return aId - bId;
-          return a.name.localeCompare(b.name);
+          return compareByNameAndSpan(a, b);
         });
 
         return {
@@ -600,7 +623,7 @@ function groupTreatByCategoryAndSortById(arr) {
       const bId = parseFloat((b.cr_db_id || '').replace(/[^\d.]/g, '')) || 0;
 
       if (aId !== bId) return aId - bId;
-      return a.name.localeCompare(b.name);
+      return compareByNameAndSpan(a, b);
     });
 
     result.push({ name: 'Прочее', values: sorted });
@@ -1957,11 +1980,11 @@ function setTreatText() {
 
   const treatments = allTreatments
       .filter(t => !t.is_offlabel)
-      .sort((a, b) => a.name.localeCompare(b.name));
+      .sort(compareByNameAndSpan);
 
   const offlabelTreatments = allTreatments
       .filter(t => t.is_offlabel)
-      .sort((a, b) => a.name.localeCompare(b.name));
+      .sort(compareByNameAndSpan);
 
   let hasAction = false;
   let hasDrug = false;
@@ -2234,14 +2257,14 @@ function groupByCategoryAndSort(arr, key) {
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([groupName, values]) => ({
         name: groupName,
-        values: values.sort((a, b) => a.name.localeCompare(b.name))
+        values: values.sort(compareByNameAndSpan)
       }));
 
   // Добавляем "Прочее" в конец
   if (groups['Прочее']) {
     result.push({
       name: 'Прочее',
-      values: groups['Прочее'].sort((a, b) => a.name.localeCompare(b.name))
+      values: groups['Прочее'].sort(compareByNameAndSpan)
     });
   }
 
