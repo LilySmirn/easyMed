@@ -1873,55 +1873,79 @@ async function setLists() {
 
 function createList(type, listData) {
   const listElem = document.getElementById(type + '-list');
+
   listElem.removeEventListener(
-      'change',
-      type === 'exam' ? setExamText : type === 'treat' ? setTreatText : setTableText
+    'change',
+    type === 'exam' ? setExamText : type === 'treat' ? setTreatText : setTableText
   );
+
   removeOptions(listElem);
+
   const listParentElem = listElem.parentElement;
   const sectionElem = listParentElem.parentElement;
+  sectionElem.classList.remove('hidden');
   const monolistElem = listParentElem.getElementsByTagName('p')[0];
+
+  // ВАЖНО: сброс состояния от предыдущей нозологии
+  sectionElem.classList.remove('hidden');
+  listElem.classList.add('hidden');
+  monolistElem.classList.add('hidden');
+  listElem.value = '';
+  monolistElem.value = '';
+  monolistElem.innerText = '';
 
   if (listData.length === 0) {
     sectionElem.classList.add('hidden');
-    listElem.classList.add('hidden');
-    monolistElem.classList.add('hidden');
 
+    if (type === 'exam') {
+      crmLinkContainer.innerHTML = '';
+      crmLinkContainer.classList.remove('active');
+      buttonsSection.classList.add('hidden');
+    }
+
+    hideCard(type);
     return;
   }
 
   if (listData.length === 1) {
-    listElem.classList.add('hidden');
     monolistElem.classList.remove('hidden');
     monolistElem.innerText = listData[0].name;
     monolistElem.value = listData[0].index;
-    if (monolistElem.id === 'exam-monolist') {
-      setExamText();
-    }
-    if (monolistElem.id === 'treat-monolist') {
+
+    if (type === 'exam') setExamText();
+    if (type === 'treat') {
       setTreatText();
       monolistElem.classList.add('hidden');
     }
-    if (monolistElem.id === 'tables-monolist') {
+    if (type === 'tables') {
       setTableText();
       monolistElem.classList.add('hidden');
     }
   } else {
-    hideCard(type);
-    monolistElem.classList.add('hidden');
-    listElem.classList.remove('hidden');
-    listData.forEach((data) => {
-      const optionElem = document.createElement('option');
-      optionElem.innerText = data.name;
-      optionElem.value = data.index;
-      listElem.appendChild(optionElem);
-    });
-  }
-  listElem.value = '';
+  hideCard(type);
+  monolistElem.classList.add('hidden');
+  listElem.classList.remove('hidden');
+
+  listData.forEach((data) => {
+    const optionElem = document.createElement('option');
+    optionElem.innerText = data.name;
+    optionElem.value = data.index;
+    listElem.appendChild(optionElem);
+  });
+
+  listElem.value = listData[0].index;
+
+  if (type === 'exam') setExamText();
+  if (type === 'treat') setTreatText();
+  if (type === 'tables') setTableText();
+}
+
+  //listElem.value = '';
   listElem.addEventListener(
-      'change',
-      type === 'exam' ? setExamText : type === 'treat' ? setTreatText : setTableText
+    'change',
+    type === 'exam' ? setExamText : type === 'treat' ? setTreatText : setTableText
   );
+
   revealSection(type);
 
   if (type === 'exam') {
@@ -1972,6 +1996,7 @@ function setExamText() {
   const currentAge = ageToggleElem.checked ? 'grownup' : 'child';
   const currentStage = examStageToggleFirstElem.classList.contains('stage__selected') ? "1" : "2";
   const standardInd = getStandardInd('exam');
+  const currentStandard = mkbData[currentAge]?.standards?.[standardInd];
 
   const examCardRequiredElem = document.getElementById('exam-card-required');
   const examCardOptionalElem = document.getElementById('exam-card-optional');
@@ -1982,7 +2007,13 @@ function setExamText() {
   crmLinkContainer.innerHTML = '';
   crmLinkContainer.classList.remove('active');
 
-  let crmId = mkbData[currentAge].standards[standardInd].cr_m_id;
+  if (!currentStandard) {
+    examCardRequiredElem.classList.add('hidden');
+    examCardOptionalElem.classList.add('hidden');
+    return;
+  }
+
+  let crmId = currentStandard.cr_m_id;
 
   if (crmId !== undefined) {
     crmLinkContainer.innerHTML =
@@ -1996,9 +2027,16 @@ function setExamText() {
     crmLinkContainer.classList.add('active');
   }
 
-  const currentExaminations = mkbData[currentAge].standards[standardInd].examinations
-      .filter(exam => exam.stage === currentStage && exam.is_stationary !== 1);
+  const allExaminations = (currentStandard.examinations || [])
+  .filter(exam => exam.is_stationary !== 1);
 
+const stagedExaminations = allExaminations.filter(
+  exam => String(exam.stage) === String(currentStage)
+);
+
+const currentExaminations = stagedExaminations.length > 0
+  ? stagedExaminations
+  : allExaminations;
   examQualityByName = buildQualityByNameMap(currentExaminations);
 
   let requiredExaminationsByCategory = groupByCategoryAndSort(
@@ -2050,6 +2088,7 @@ function setTreatText() {
   const ageToggleElem = document.getElementById('age-toggle');
   const currentAge = ageToggleElem.checked ? 'grownup' : 'child';
   const standardInd = getStandardInd('treat');
+  const currentStandard = mkbData[currentAge]?.standards?.[standardInd];
 
   const treatCardActionElem = document.getElementById('treat-card-action');
   const treatCardDrugElem = document.getElementById('treat-card-drug');
@@ -2059,8 +2098,14 @@ function setTreatText() {
   clearCard(treatCardActionElem);
   clearCard(treatCardDrugElem);
 
-  const allTreatments = mkbData[currentAge]
-      .standards[standardInd]
+  if (!currentStandard) {
+    treatCardActionElem.classList.add('hidden');
+    treatCardDrugElem.classList.add('hidden');
+    treatCardDrugOfflabelElem.classList.add('hidden');
+    return;
+  }
+
+  const allTreatments = currentStandard
       .treatments
       .filter(t => t.is_stationary !== 1);
   treatQualityByName = buildQualityByNameMap(allTreatments);
@@ -2125,6 +2170,11 @@ async function createTableSection() {
   clearTablesData();
 
   const crmId = getCurrentCrmId(document.mkbData);
+  if (!crmId) {
+    const tablesSection = document.getElementById('tables-section');
+    if (tablesSection) tablesSection.classList.add('hidden');
+    return;
+  }
   const tableData = await loadTableData(crmId);
 
   //const tableData = tablesData.find(x => x.crId === crmId);
@@ -2316,8 +2366,11 @@ function getCurrentCrmId(mkbData) {
   console.log(standardInd);
 
   console.log(mkbData[currentAge].standards[standardInd]);
+  if (!mkbData[currentAge]?.standards?.[standardInd]) {
+    return null;
+  }
 
-  return mkbData[currentAge].standards[standardInd].cr_m_id;
+  return mkbData[currentAge].standards[standardInd].cr_m_id ?? null;
 }
 
 function groupByCategoryAndSort(arr, key) {
@@ -2610,6 +2663,7 @@ function createExamBlock(blockParentElem, examData, prevName) {
   infoBox.style.display = 'flex';
   infoBox.style.alignItems = 'center';
   infoBox.style.gap = '4px';
+  infoBox.style.minWidth = '42px';
 
   const uddText = document.createElement('span');
   uddText.style.fontWeight = 'normal';
@@ -2687,6 +2741,7 @@ function createTreatBlock(parentElem, treatData, prevName) {
   infoBox.style.display = 'flex';
   infoBox.style.alignItems = 'center';
   infoBox.style.gap = '4px';
+  infoBox.style.minWidth = '42px';
 
   const uddText = document.createElement('span');
   uddText.style.fontWeight = 'normal';
@@ -2816,33 +2871,44 @@ function removeOptions(listElem) {
 function getStandardInd(type) {
   if (document.getElementById(`${type}-list`).classList.contains('hidden')) {
     const listElem = document.getElementById(`${type}-monolist`);
-    return listElem.value;
+    return listElem.value || null;
   } else {
     const listElem = document.getElementById(`${type}-list`);
-    return listElem.options[listElem.selectedIndex].value;
+    const selectedOption = listElem.options[listElem.selectedIndex];
+    return selectedOption ? selectedOption.value : null;
   }
 }
 
 function createListData(mkbData, type, status, age) {
-  const agedStandards = (age === 'child' ? mkbData.child : mkbData.grownup)
-      .standards;
+  const agedStandards = mkbData[age]?.standards || [];
 
-  const listData = [];
+  const hasDataForType = (standard) => {
+    if (type === 'Диагностика') {
+      return Array.isArray(standard.examinations) && standard.examinations.length > 0;
+    }
 
-  agedStandards.forEach((standard, standardIndex) => {
-    if (type !== standard.type || status !== standard.status) {
-      return;
+    if (type === 'Лечение') {
+      return Array.isArray(standard.treatments) && standard.treatments.length > 0;
     }
-    else {
-      listData.push({
-        name: standard.name,
-        index: standardIndex,
-        cr_m_id: standard.cr_m_id,
-      });
-    }
+
+    return false;
+  };
+
+  const withData = agedStandards
+    .map((standard, standardIndex) => ({ standard, standardIndex }))
+    .filter(({ standard }) => hasDataForType(standard));
+
+  const recommendations = withData.filter(({ standard }) => {
+    return standard.status === 'Рекомендация';
   });
 
-  return listData;
+  const source = recommendations.length > 0 ? recommendations : withData;
+
+  return source.map(({ standard, standardIndex }) => ({
+    name: standard.name || standard.status || 'Стандарт',
+    index: standardIndex,
+    cr_m_id: standard.cr_m_id,
+  }));
 }
 
 // function fetchResults(query) {
