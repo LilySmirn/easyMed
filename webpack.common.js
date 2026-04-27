@@ -38,6 +38,7 @@ module.exports = {
     entry: {
         'scripts/mkb': './src/scripts/mkb.js',
         'scripts/mkbStart': './src/scripts/mkb-start.js',
+        'scripts/crmSoft': './src/scripts/crm-soft.js',
         'scripts/login': './src/scripts/login.js',
         'index/bubbles': ['./src/index/bubbles.js', './src/index/bubbles.css'],
         'index/script': './src/index/script.js',
@@ -56,6 +57,12 @@ module.exports = {
             template: './src/mkb/index.html',
             filename: 'mkb/index.html',
             chunks: ['scripts/mkb', 'scripts/mkbStart', 'css/main'],
+            inject: 'body',
+        }),
+        new HtmlWebpackPlugin({
+            template: './src/crm-soft/index.html',
+            filename: 'crm-soft/index.html',
+            chunks: ['scripts/crmSoft', 'scripts/mkbStart', 'css/main'],
             inject: 'body',
         }),
         new HtmlWebpackPlugin({
