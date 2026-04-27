@@ -55,11 +55,37 @@ html,
   padding: 0 24px;
 }
 
+.page__header-crm-soft {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100vw;
+  height: 48px;
+
+  max-height: 10%;
+  background-color: #BADEFF;
+  z-index: 1000;
+  box-sizing: border-box;
+  padding: 0 24px;
+}
+
 .header__logo-container {
   width: 76px;
   height: 32px;
   cursor: pointer;
 }
+
+.header__logo-container-crm-soft {
+  height: 36px;
+  cursor: pointer;
+}
+
+.header__logo {
+  display: block;
+  height: 100%;
+  width: auto;
+}
+
 .header__call-exit-container {
   display: flex;
   justify-content: center;
@@ -698,6 +724,25 @@ input {
   .page__mkb--start {
     margin: 6% auto;
   }
+
+  .header__logo-container-crm-soft {
+  height: 15px;
+  cursor: pointer;
+}
+
+.page__header-crm-soft {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100vw;
+  height: 30px;
+
+  max-height: 10%;
+  background-color: #BADEFF;
+  z-index: 1000;
+  box-sizing: border-box;
+  padding: 0 24px;
+}
 
   .popup-overlay {
     padding: 12px;
