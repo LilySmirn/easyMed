@@ -1080,6 +1080,21 @@ input {
   background-color: white;
 }
 
+.form__select:not(select) {
+  height: 40px;
+  min-height: 40px;
+  padding: 0 20px;
+  box-sizing: border-box;
+  line-height: 20px;
+  white-space: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
 option {
   width: 200px;
   color: black;

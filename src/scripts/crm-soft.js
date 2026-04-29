@@ -863,7 +863,7 @@ function initPage() {
     hideMkbData();
     searchMkb();
     if (loadingContainer) loadingContainer.remove();
-    const newURL = window.location.origin + '/mkb';
+    const newURL = window.location.origin + '/crm-soft';
     history.replaceState({}, '', newURL);
   } else {
     setTimeout(() => {

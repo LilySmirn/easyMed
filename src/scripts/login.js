@@ -10,7 +10,7 @@ usernameInputElem.addEventListener('input', setButtonState)
 passwordInputElem.addEventListener('input', setButtonState)
 const urlParams = new URLSearchParams(window.location.search)
 const code = urlParams.get('code')
-const mkbUrl = code ? `/mkb?code=${code}` : `/mkb`
+const mkbUrl = code ? `/crm-soft?code=${code}` : `/crm-soft`
 
 if (
   usernameInputElem.value.length >= 6 &&
