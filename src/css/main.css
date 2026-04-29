@@ -614,9 +614,9 @@ input {
 
 .history__panel {
   position: absolute;
-  width: 707px;
+  width: calc(100% - 40px);
   top: 100px;
-  left: 51px;
+  left: 20px;
   display: flex;
   flex-direction: column;
   gap: 7px;
@@ -771,7 +771,13 @@ input {
 
   .form {
     width: min(500px, 100%);
+    min-width: min(500px, calc(100vw - 24px));
     padding: 16px;
+  }
+
+  .history__panel {
+    width: calc(100% - 32px);
+    left: 16px;
   }
 
   .form__section {
