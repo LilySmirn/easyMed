@@ -2665,10 +2665,11 @@ function createExamBlock(blockParentElem, examData, prevName) {
   infoBox.style.display = 'flex';
   infoBox.style.alignItems = 'center';
   infoBox.style.gap = '4px';
-  infoBox.style.minWidth = '42px';
+  infoBox.style.minWidth = '20px';
+  infoBox.style.fontWeight = 'bold';
 
   const uddText = document.createElement('span');
-  uddText.style.fontWeight = 'normal';
+  uddText.style.fontWeight = 'bold';
   if (examData.pers) {
     const { уур, удд } = examData.pers;
     uddText.textContent = `${уур}${удд}`;
@@ -2700,7 +2701,7 @@ function createExamBlock(blockParentElem, examData, prevName) {
     const examTitle = document.createElement('h4');
     examTitle.innerText = capitalizeFirstLetter(examData.name);
     examTitle.style.margin = '0';
-    examTitle.style.fontWeight = 'normal';
+    examTitle.style.fontWeight = 'bold';
 
     const examQualityMark = document.createElement('span');
     examQualityMark.style.display = 'inline-block';
@@ -2743,10 +2744,11 @@ function createTreatBlock(parentElem, treatData, prevName) {
   infoBox.style.display = 'flex';
   infoBox.style.alignItems = 'center';
   infoBox.style.gap = '4px';
-  infoBox.style.minWidth = '42px';
+  infoBox.style.minWidth = '20px';
+  infoBox.style.fontWeight = 'bold';
 
   const uddText = document.createElement('span');
-  uddText.style.fontWeight = 'normal';
+  uddText.style.fontWeight = 'bold';
   if (treatData.pers) {
     const { уур, удд } = treatData.pers;
     uddText.textContent = `${уур}${удд}`;
@@ -2778,7 +2780,7 @@ function createTreatBlock(parentElem, treatData, prevName) {
     const treatHeader = document.createElement('h4');
     treatHeader.innerText = capitalizeFirstLetter(treatData.name);
     treatHeader.style.margin = '0';
-    treatHeader.style.fontWeight = 'normal';
+    treatHeader.style.fontWeight = 'bold';
 
     const treatQualityMark = document.createElement('span');
     treatQualityMark.style.display = 'inline-block';
