@@ -2707,7 +2707,7 @@ function createExamBlock(blockParentElem, examData, prevName) {
     examQualityMark.style.display = 'inline-block';
     examQualityMark.style.minWidth = '22px';
     examQualityMark.style.textAlign = 'center';
-    examQualityMark.style.fontWeight = 'normal';
+    examQualityMark.style.fontWeight = 'bold';
     const hasGroupQuality = hasQualityInMap(examQualityByName, examData.name, examData.is_qualitative);
     examQualityMark.textContent = hasGroupQuality ? 'KK' : '';
 
@@ -2786,7 +2786,7 @@ function createTreatBlock(parentElem, treatData, prevName) {
     treatQualityMark.style.display = 'inline-block';
     treatQualityMark.style.minWidth = '22px';
     treatQualityMark.style.textAlign = 'center';
-    treatQualityMark.style.fontWeight = 'normal';
+    treatQualityMark.style.fontWeight = 'bold';
     const hasGroupQuality = hasQualityInMap(treatQualityByName, treatData.name, treatData.is_qualitative);
     treatQualityMark.textContent = hasGroupQuality ? 'KK' : '';
 
