@@ -3,14 +3,15 @@ const passwordInputElem = document.getElementById('password')
 const loginButtonElem = document.getElementById('login-button')
 const revealPassButtonElem = document.getElementById('reveal-password-img')
 const hidePassButtonElem = document.getElementById('hide-password-img')
+
 loginButtonElem.addEventListener('click', authorize)
 revealPassButtonElem.addEventListener('click', togglePasswordView)
 hidePassButtonElem.addEventListener('click', togglePasswordView)
 usernameInputElem.addEventListener('input', setButtonState)
 passwordInputElem.addEventListener('input', setButtonState)
+
 const urlParams = new URLSearchParams(window.location.search)
 const code = urlParams.get('code')
-const mkbUrl = code ? `/crm-soft?code=${code}` : `/crm-soft`
 
 if (
   usernameInputElem.value.length >= 6 &&
@@ -21,9 +22,16 @@ if (
 
 usernameInputElem.focus()
 
-document.querySelector('.header__logo-container')?.addEventListener('click', function () {
-  window.location.href = '../index.html';
-});
+document
+  .querySelector('.header__logo-container')
+  ?.addEventListener('click', function () {
+    window.location.href = '../index.html'
+  })
+
+function getTargetUrl(branch) {
+  const normalizedBranch = branch === 'mkb' ? 'mkb' : 'crm-soft'
+  return code ? `/${normalizedBranch}?code=${code}` : `/${normalizedBranch}`
+}
 
 function authorize() {
   document
@@ -32,23 +40,18 @@ function authorize() {
   document
     .getElementsByClassName('login__shadow--popup')[0]
     .classList.remove('hidden')
+
   const username = usernameInputElem.value
   const password = passwordInputElem.value
+
   fetch(`../php/login.php/login?username=${username}&password=${password}`)
     .then((response) => {
       if (!response.ok) {
         throw new Error('Network response was not ok')
       }
-      return response.json();
+      return response.json()
     })
     .then((data) => {
-      const expirationDate = new Date();
-      expirationDate.setDate(expirationDate.getDate() + 30);
-
-      document.cookie = `username=${username}; path=/; expires=${expirationDate.toUTCString()}`;
-      document.cookie = `password=${password}; path=/; expires=${expirationDate.toUTCString()}`;
-
-      window.location.href = window.location.origin + mkbUrl;
       if (data.result === 'denyIP') {
         document
           .getElementsByClassName('login__shadow--popup')[0]
@@ -61,7 +64,9 @@ function authorize() {
           .getElementsByClassName('login__form--error')[0]
           .classList.remove('hidden')
         console.log('Access denied (IP)')
+        return
       }
+
       if (data.result === 'deny') {
         document
           .getElementsByClassName('login__shadow--popup')[0]
@@ -74,15 +79,22 @@ function authorize() {
           .getElementsByClassName('login__form--error')[0]
           .classList.remove('hidden')
         console.log('Access denied: ' + data.result)
-      } else if (data.result === 'access') {
-        const expirationDate = new Date();
-        expirationDate.setDate(expirationDate.getDate() + 30);
+        return
+      }
 
-        document.cookie = `username=${username}; path=/; expires=${expirationDate.toUTCString()}`;
-        document.cookie = `password=${password}; path=/; expires=${expirationDate.toUTCString()}`;
+      if (data.result === 'access') {
+        const expirationDate = new Date()
+        expirationDate.setDate(expirationDate.getDate() + 30)
 
-        window.location.href = window.location.origin + mkbUrl;
-      } else console.log(data)
+        document.cookie = `username=${username}; path=/; expires=${expirationDate.toUTCString()}`
+        document.cookie = `password=${password}; path=/; expires=${expirationDate.toUTCString()}`
+
+        const targetUrl = getTargetUrl(data.branch)
+        window.location.href = window.location.origin + targetUrl
+        return
+      }
+
+      console.log(data)
     })
     .catch((error) => {
       document
@@ -106,9 +118,9 @@ function togglePasswordView() {
   hidePassButtonElem.classList.toggle('hidden')
 }
 
-function setButtonState(e) {
-  usernameValue = usernameInputElem.value
-  passwordValue = passwordInputElem.value
+function setButtonState() {
+  const usernameValue = usernameInputElem.value
+  const passwordValue = passwordInputElem.value
   if (usernameValue.length < 6 || passwordValue.length < 6) {
     loginButtonElem.disabled = true
   } else {
