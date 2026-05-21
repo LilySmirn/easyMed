@@ -1561,3 +1561,20 @@ th, td {
     padding: clamp(12px, 2.4vw, 16px);
   }
 }
+
+
+@media (max-width: 320px) {
+  .popup-overlay {
+    padding: 10px;
+  }
+
+  .exam-popup {
+    min-width: calc(100vw - 20px);
+    max-width: calc(100vw - 20px);
+  }
+
+  .form {
+    width: calc(100vw - 20px);
+    min-width: calc(100vw - 20px);
+  }
+}
