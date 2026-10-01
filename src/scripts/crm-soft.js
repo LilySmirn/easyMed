@@ -12,6 +12,8 @@ const searchListElem = document.getElementById('search-list');
 const exitButtonElem = document.querySelector('.header__exit-btn-container');
 const urlMkbParams = new URLSearchParams(window.location.search);
 const urlCode = urlMkbParams.get('code');
+const urlUsername = urlMkbParams.get('username');
+const urlPassword = urlMkbParams.get('password');
 const selectElem = document.getElementById('exam-list');
 const buttonsSection = document.querySelector(".form__section--buttons");
 const pageMkb = document.querySelector('.page__mkb');
@@ -1807,6 +1809,9 @@ function getCookie(cname) {
       return c.substring(name.length, c.length);
     }
   }
+  // Fallback for URL auto-login (credentials not stored in cookies)
+  if (cname === 'username' && urlUsername) return urlUsername;
+  if (cname === 'password' && urlPassword) return urlPassword;
   return '';
 }
 
@@ -2665,11 +2670,10 @@ function createExamBlock(blockParentElem, examData, prevName) {
   infoBox.style.display = 'flex';
   infoBox.style.alignItems = 'center';
   infoBox.style.gap = '4px';
-  infoBox.style.minWidth = '20px';
-  infoBox.style.fontWeight = 'bold';
+  infoBox.style.minWidth = '42px';
 
   const uddText = document.createElement('span');
-  uddText.style.fontWeight = 'bold';
+  uddText.style.fontWeight = 'normal';
   if (examData.pers) {
     const { уур, удд } = examData.pers;
     uddText.textContent = `${уур}${удд}`;
@@ -2701,13 +2705,13 @@ function createExamBlock(blockParentElem, examData, prevName) {
     const examTitle = document.createElement('h4');
     examTitle.innerText = capitalizeFirstLetter(examData.name);
     examTitle.style.margin = '0';
-    examTitle.style.fontWeight = 'bold';
+    examTitle.style.fontWeight = 'normal';
 
     const examQualityMark = document.createElement('span');
     examQualityMark.style.display = 'inline-block';
     examQualityMark.style.minWidth = '22px';
     examQualityMark.style.textAlign = 'center';
-    examQualityMark.style.fontWeight = 'bold';
+    examQualityMark.style.fontWeight = 'normal';
     const hasGroupQuality = hasQualityInMap(examQualityByName, examData.name, examData.is_qualitative);
     examQualityMark.textContent = hasGroupQuality ? 'KK' : '';
 
@@ -2744,11 +2748,10 @@ function createTreatBlock(parentElem, treatData, prevName) {
   infoBox.style.display = 'flex';
   infoBox.style.alignItems = 'center';
   infoBox.style.gap = '4px';
-  infoBox.style.minWidth = '20px';
-  infoBox.style.fontWeight = 'bold';
+  infoBox.style.minWidth = '42px';
 
   const uddText = document.createElement('span');
-  uddText.style.fontWeight = 'bold';
+  uddText.style.fontWeight = 'normal';
   if (treatData.pers) {
     const { уур, удд } = treatData.pers;
     uddText.textContent = `${уур}${удд}`;
@@ -2780,13 +2783,13 @@ function createTreatBlock(parentElem, treatData, prevName) {
     const treatHeader = document.createElement('h4');
     treatHeader.innerText = capitalizeFirstLetter(treatData.name);
     treatHeader.style.margin = '0';
-    treatHeader.style.fontWeight = 'bold';
+    treatHeader.style.fontWeight = 'normal';
 
     const treatQualityMark = document.createElement('span');
     treatQualityMark.style.display = 'inline-block';
     treatQualityMark.style.minWidth = '22px';
     treatQualityMark.style.textAlign = 'center';
-    treatQualityMark.style.fontWeight = 'bold';
+    treatQualityMark.style.fontWeight = 'normal';
     const hasGroupQuality = hasQualityInMap(treatQualityByName, treatData.name, treatData.is_qualitative);
     treatQualityMark.textContent = hasGroupQuality ? 'KK' : '';
 

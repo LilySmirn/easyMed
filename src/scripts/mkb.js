@@ -12,6 +12,8 @@ const searchListElem = document.getElementById('search-list');
 const exitButtonElem = document.querySelector('.header__exit-btn-container');
 const urlMkbParams = new URLSearchParams(window.location.search);
 const urlCode = urlMkbParams.get('code');
+const urlUsername = urlMkbParams.get('username');
+const urlPassword = urlMkbParams.get('password');
 const selectElem = document.getElementById('exam-list');
 const buttonsSection = document.querySelector(".form__section--buttons");
 const pageMkb = document.querySelector('.page__mkb');
@@ -1805,6 +1807,9 @@ function getCookie(cname) {
       return c.substring(name.length, c.length);
     }
   }
+  // Fallback for URL auto-login (credentials not stored in cookies)
+  if (cname === 'username' && urlUsername) return urlUsername;
+  if (cname === 'password' && urlPassword) return urlPassword;
   return '';
 }
 
