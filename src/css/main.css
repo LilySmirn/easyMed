@@ -1287,6 +1287,7 @@ th, td {
 .table-popup__content {
   max-height: 80vh;
   overflow-y: auto;
+  overflow-x: auto;
 }
 
 .table-popup {
