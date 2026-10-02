@@ -1708,6 +1708,7 @@ function getSelectedBlocksAmount(cardElem) {
 async function searchMkb() {
   removeHistoryPanel();
   pageMkb.classList.remove('page__mkb--start');
+  hideMkbData();
 
   const code = searchInput.codeValue;
 
@@ -1725,7 +1726,12 @@ async function searchMkb() {
   searchInput.disabled = true;
 
   try {
-    const response = await fetch('/res_K26.0_first.json');
+    // Keep the local K26.0 fixture available for visual development while all
+    // other codes continue to use the production API.
+    const requestUrl = code === 'K26.0'
+      ? '/res_K26.0_first.json'
+      : `../php/get-data-main.php/login?code=${encodeURIComponent(code)}&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`;
+    const response = await fetch(requestUrl);
     // const response = await fetch('/test-f.json');
 
     console.log(document.tablesData);
@@ -1736,10 +1742,6 @@ async function searchMkb() {
       throw new Error('Network response was not ok');
     }
 
-    // fire and forget: the additional data should be loaded in background
-    await fetchPopupDataOnce();
-
-
     // const encryptedText  = await response.text();
     // const data = await decryptData(encryptedText);
     //
@@ -1749,15 +1751,25 @@ async function searchMkb() {
 
     const data = await response.json();
 
-    if (!data || !data.child) {
+    if (data?.error === 'No MKB records found for the provided code') {
+      showDiagnosisNotFound();
+      return;
+    }
+
+    if (!data || data.error || (!data.child?.code && !data.grownup?.code)) {
       throw new Error('Invalid data received');
     }
 
+    // The API leaves the missing age group as an empty object. Normalizing its
+    // standards keeps that valid partial diagnosis distinct from "not found".
+    data.child = { standards: [], ...data.child };
+    data.grownup = { standards: [], ...data.grownup };
     document.mkbData = data;
     console.log(document.mkbData);
+    const diagnosis = data.child.code ? data.child : data.grownup;
     const newSearchData = {
-      valueData: data.child.code,
-      textContent: data.child.code + ': ' + data.child.name,
+      valueData: diagnosis.code,
+      textContent: diagnosis.code + ': ' + diagnosis.name,
     };
     updateHistory(newSearchData);
     clearButton.classList.remove('hidden');
@@ -1765,16 +1777,24 @@ async function searchMkb() {
     setMkbName();
     const listsAreSet = await setLists();
     if (listsAreSet) revealMkbData();
+
+    // Fire and forget: additional popup data must not delay the main result.
+    fetchPopupDataOnce();
   }
   catch (error) {
     console.error('Ошибка:', error);
     searchInput.placeholder = 'Название нозологии или код МКБ';
     searchInput.disabled = false;
+    clearButton.classList.remove('hidden');
+    searchButton.classList.remove('hidden');
   }
 }
 
 function setMkbName() {
-  searchInput.value = `${document.mkbData.child.code} ${document.mkbData.child.name}`;
+  const diagnosis = document.mkbData.child.code
+    ? document.mkbData.child
+    : document.mkbData.grownup;
+  searchInput.value = `${diagnosis.code} ${diagnosis.name}`;
   searchInput.placeholder = 'Название нозологии или код МКБ';
   searchInput.disabled = false;
 }
@@ -1787,8 +1807,20 @@ function revealMkbData() {
 function hideMkbData() {
   const mkbDataElem = document.getElementById('mkb-data');
   const noDataPopupElem = document.getElementById('no-data-popup-section');
+  const diagnosisNotFoundElem = document.getElementById('diagnosis-not-found-section');
   mkbDataElem.classList.add('hidden');
   noDataPopupElem.classList.add('hidden');
+  diagnosisNotFoundElem.classList.add('hidden');
+  document.mkbData = null;
+}
+
+function showDiagnosisNotFound() {
+  document.getElementById('diagnosis-not-found-section').classList.remove('hidden');
+  searchInput.value = searchInput.codeValue || '';
+  searchInput.placeholder = 'Название нозологии или код МКБ';
+  searchInput.disabled = false;
+  clearButton.classList.remove('hidden');
+  searchButton.classList.remove('hidden');
 }
 
 function revealSection(type) {
@@ -1831,7 +1863,7 @@ async function setLists() {
       mkbData.child.standards.length === 0 &&
       mkbData.grownup.standards.length === 0
   ) {
-    document.getElementById('mkb-code').innerText = mkbData.child.code;
+    document.getElementById('mkb-code').innerText = mkbData.child.code || mkbData.grownup.code;
     sectionToggles.classList.add('hidden');
     noDataPopup.classList.remove('hidden');
     ageToggleElem.disabled = true;

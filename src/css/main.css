@@ -1511,6 +1511,20 @@ th, td {
   background-color: white;
 }
 
+.page--crm-soft #diagnosis-not-found-section {
+  box-sizing: border-box;
+  justify-content: center;
+  text-align: center;
+}
+
+@media (max-width: 500px) {
+  .page--crm-soft #diagnosis-not-found-section {
+    width: 100%;
+    padding: 8px 16px;
+    border-radius: 12px;
+  }
+}
+
 /* CRM Soft result rows use semantic classes so their compact embedded layout
    can be adjusted independently without affecting the regular MKB page. */
 .page--crm-soft .block__header {
