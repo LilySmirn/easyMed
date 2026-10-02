@@ -1510,3 +1510,147 @@ th, td {
   align-items: center;
   background-color: white;
 }
+
+/* CRM Soft result rows use semantic classes so their compact embedded layout
+   can be adjusted independently without affecting the regular MKB page. */
+.page--crm-soft .block__header {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.page--crm-soft .block__header.category-name {
+  justify-content: space-between;
+  background-color: #f5f5f5;
+  padding: 5px 5px 5px 10px;
+  border-radius: 100px;
+  cursor: default;
+}
+
+.page--crm-soft .block__meta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 42px;
+}
+
+.page--crm-soft .block__code,
+.page--crm-soft .block__quality-mark,
+.page--crm-soft .block__title {
+  font-weight: normal;
+}
+
+.page--crm-soft .block__quality-mark {
+  display: inline-block;
+  min-width: 22px;
+  text-align: center;
+}
+
+.page--crm-soft .block__title {
+  margin: 0;
+}
+
+.page--crm-soft .block__info-icon {
+  margin-left: auto;
+  cursor: pointer;
+}
+
+@media (max-width: 808px) {
+  .page--crm-soft .form__card {
+    padding: 8px 12px;
+    margin-bottom: 10px;
+  }
+
+  .page--crm-soft .form__card-header {
+    margin-bottom: 6px;
+  }
+
+  .page--crm-soft .form__card-title {
+    font-size: 15px;
+    line-height: 18px;
+  }
+
+  .page--crm-soft .form__card-toggle {
+    width: 20px;
+    height: 20px;
+    padding: 2px;
+  }
+
+  .page--crm-soft .block__container {
+    margin-bottom: 4px;
+    padding-left: 6px;
+    margin-left: -6px;
+  }
+
+  .page--crm-soft .block__header {
+    gap: 4px;
+    margin-top: 4px;
+    margin-bottom: 1px;
+    font-size: 13px;
+    line-height: 16px;
+  }
+
+  .page--crm-soft .block__meta {
+    min-width: 34px;
+    gap: 2px;
+  }
+
+  .page--crm-soft .block__code {
+    font-size: 12px;
+    line-height: 16px;
+  }
+
+  .page--crm-soft .block__quality-mark {
+    min-width: 18px;
+    font-size: 12px;
+    line-height: 16px;
+  }
+
+  .page--crm-soft .block__title {
+    font-size: inherit;
+    line-height: inherit;
+  }
+
+  .page--crm-soft .block__info-icon {
+    width: 15px;
+    height: 15px;
+    flex: 0 0 15px;
+  }
+
+  .page--crm-soft .block__header.category-name {
+    padding: 3px 5px 3px 8px;
+    font-size: 13px;
+    line-height: 16px;
+  }
+
+  .page--crm-soft .block__comment {
+    font-size: 13px;
+    line-height: 16px;
+  }
+
+  .page--crm-soft .block__comment--plan,
+  .page--crm-soft .block__comment--duration {
+    margin-top: 4px;
+    margin-left: 18px;
+  }
+
+  .page--crm-soft .exam-popup {
+    padding: 12px 8px 12px 12px;
+  }
+
+  .page--crm-soft .popup__title {
+    font-size: 16px;
+    line-height: 19px;
+  }
+
+  .page--crm-soft .udd__text {
+    font-size: 15px;
+    line-height: 19px;
+  }
+
+  .page--crm-soft .popup__description,
+  .page--crm-soft .popup__comment-text {
+    font-size: 13px;
+    line-height: 17px;
+  }
+}

@@ -34,10 +34,13 @@ if (urlUsername && urlPassword) {
       console.error('Ошибка:', error)
       window.location.href = window.location.origin + loginUrl
     })
-} else if (!cookieUsername || !cookiePassword) {
+// } else if (!cookieUsername || !cookiePassword) {
   // Only redirect if no credentials found
-  window.location.href = window.location.origin + loginUrl
-  throw new Error('No credentials found')
+//  window.location.href = window.location.origin + loginUrl
+//  throw new Error('No credentials found')
+} else if (!cookieUsername || !cookiePassword) {
+  console.log('LOCAL: auth skipped')
+
 } else {
   fetch(
     `../php/login.php/login?username=${encodeURIComponent(cookieUsername)}&password=${encodeURIComponent(cookiePassword)}`

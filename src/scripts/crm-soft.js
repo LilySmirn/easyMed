@@ -1725,12 +1725,12 @@ async function searchMkb() {
   searchInput.disabled = true;
 
   try {
-    // const response = await fetch('/res_K26.0_first.json');
+    const response = await fetch('/res_K26.0_first.json');
     // const response = await fetch('/test-f.json');
 
     console.log(document.tablesData);
 
-    const response = await fetch(`../php/get-data-main.php/login?code=${code}&username=${username}&password=${password}`);
+    //const response = await fetch(`../php/get-data-main.php/login?code=${code}&username=${username}&password=${password}`);
 
     if (!response.ok) {
       throw new Error('Network response was not ok');
@@ -2636,21 +2636,11 @@ function createGroupTitle(blockParentElem, title) {
   examContainer.style.marginBottom = '5px';
 
   const examHeader = document.createElement('div');
-  examHeader.classList.add('block__header');
-  examHeader.style.display = 'flex';
-  examHeader.style.justifyContent = 'space-between';
-  examHeader.style.alignItems = 'flex-start';
-  examHeader.style.backgroundColor = '#f5f5f5';
-  examHeader.style.padding = '5px 5px 5px 10px';
-  examHeader.style.borderRadius = '100px';
-  examHeader.style.cursor = 'default';
-
   examHeader.classList.add('block__header', 'category-name');
 
   const examTitle = document.createElement('h4');
+  examTitle.classList.add('block__title');
   examTitle.innerText = capitalizeFirstLetter(title);
-  examTitle.style.margin = '0';
-  examTitle.style.fontWeight = 'normal';
 
   examHeader.appendChild(examTitle);
   examContainer.appendChild(examHeader);
@@ -2667,13 +2657,10 @@ function createExamBlock(blockParentElem, examData, prevName) {
   examContainer.classList.add('block__container');
 
   const infoBox = document.createElement('div');
-  infoBox.style.display = 'flex';
-  infoBox.style.alignItems = 'center';
-  infoBox.style.gap = '4px';
-  infoBox.style.minWidth = '42px';
+  infoBox.classList.add('block__meta');
 
   const uddText = document.createElement('span');
-  uddText.style.fontWeight = 'normal';
+  uddText.classList.add('block__code');
   if (examData.pers) {
     const { уур, удд } = examData.pers;
     uddText.textContent = `${уур}${удд}`;
@@ -2698,20 +2685,13 @@ function createExamBlock(blockParentElem, examData, prevName) {
   if (examData.name !== prevName) {
     const examHeader = document.createElement('div');
     examHeader.classList.add('block__header');
-    examHeader.style.display = 'flex';
-    examHeader.style.alignItems = 'flex-start';
-    examHeader.style.gap = '8px';
 
     const examTitle = document.createElement('h4');
+    examTitle.classList.add('block__title');
     examTitle.innerText = capitalizeFirstLetter(examData.name);
-    examTitle.style.margin = '0';
-    examTitle.style.fontWeight = 'normal';
 
     const examQualityMark = document.createElement('span');
-    examQualityMark.style.display = 'inline-block';
-    examQualityMark.style.minWidth = '22px';
-    examQualityMark.style.textAlign = 'center';
-    examQualityMark.style.fontWeight = 'normal';
+    examQualityMark.classList.add('block__quality-mark');
     const hasGroupQuality = hasQualityInMap(examQualityByName, examData.name, examData.is_qualitative);
     examQualityMark.textContent = hasGroupQuality ? 'KK' : '';
 
@@ -2724,8 +2704,6 @@ function createExamBlock(blockParentElem, examData, prevName) {
       infoIcon.src = '../images/info-icon.png';
       infoIcon.alt = 'Info';
       infoIcon.classList.add('block__info-icon');
-      infoIcon.style.cursor = 'pointer';
-      infoIcon.style.marginLeft = 'auto';
       infoIcon.title = 'Показать расширенные комментарии';
       infoIcon.addEventListener('click', () => openInfoPopupByTitle({
         ...examData,
@@ -2745,13 +2723,10 @@ function createTreatBlock(parentElem, treatData, prevName) {
   const isDrugCard = parentElem.id === 'treat-card-drug' || parentElem.id === 'treat-card-drug-offlabel';
 
   const infoBox = document.createElement('div');
-  infoBox.style.display = 'flex';
-  infoBox.style.alignItems = 'center';
-  infoBox.style.gap = '4px';
-  infoBox.style.minWidth = '42px';
+  infoBox.classList.add('block__meta');
 
   const uddText = document.createElement('span');
-  uddText.style.fontWeight = 'normal';
+  uddText.classList.add('block__code');
   if (treatData.pers) {
     const { уур, удд } = treatData.pers;
     uddText.textContent = `${уур}${удд}`;
@@ -2776,20 +2751,13 @@ function createTreatBlock(parentElem, treatData, prevName) {
   if (treatData.name !== prevName) {
     const treatHeaderWrapper = document.createElement('div');
     treatHeaderWrapper.classList.add('block__header');
-    treatHeaderWrapper.style.display = 'flex';
-    treatHeaderWrapper.style.alignItems = 'flex-start';
-    treatHeaderWrapper.style.gap = '8px';
 
     const treatHeader = document.createElement('h4');
+    treatHeader.classList.add('block__title');
     treatHeader.innerText = capitalizeFirstLetter(treatData.name);
-    treatHeader.style.margin = '0';
-    treatHeader.style.fontWeight = 'normal';
 
     const treatQualityMark = document.createElement('span');
-    treatQualityMark.style.display = 'inline-block';
-    treatQualityMark.style.minWidth = '22px';
-    treatQualityMark.style.textAlign = 'center';
-    treatQualityMark.style.fontWeight = 'normal';
+    treatQualityMark.classList.add('block__quality-mark');
     const hasGroupQuality = hasQualityInMap(treatQualityByName, treatData.name, treatData.is_qualitative);
     treatQualityMark.textContent = hasGroupQuality ? 'KK' : '';
 
@@ -2802,8 +2770,6 @@ function createTreatBlock(parentElem, treatData, prevName) {
       infoIcon.src = '../images/info-icon.png';
       infoIcon.alt = 'Info';
       infoIcon.classList.add('block__info-icon');
-      infoIcon.style.cursor = 'pointer';
-      infoIcon.style.marginLeft = 'auto';
       infoIcon.addEventListener('click', (event) => {
         event.stopPropagation();
         event.preventDefault();
