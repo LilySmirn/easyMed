@@ -1,7 +1,6 @@
 import '../css/main.css';
 
 import { decryptData } from './crypto.js';
-
 const searchInput = document.getElementById('search-input');
 const clearButton = document.getElementById('clear-button');
 const searchButton = document.getElementById('search-button');
@@ -1094,7 +1093,10 @@ searchListElem?.addEventListener('click', function (e) {
   }
 });
 
-ageToggleElem?.addEventListener('click', async () => await setLists());
+ageToggleElem?.addEventListener('change', async () => await setLists());
+document.getElementById('exam-stage-toggle-first')?.addEventListener('click', toggleStage);
+document.getElementById('exam-stage-toggle-second')?.addEventListener('click', toggleStage);
+document.getElementById('exam-stage-toggle-switch')?.addEventListener('click', toggleStageBySwitch);
 // standardToggleElem.addEventListener('click', async () => await setLists());
 
 setCardViewTogglers();
@@ -1775,6 +1777,9 @@ async function searchMkb() {
     clearButton.classList.remove('hidden');
     searchButton.classList.remove('hidden');
     setMkbName();
+    ageToggleElem.checked = true;
+    document.getElementById('exam-stage-toggle-first').classList.add('stage__selected');
+    document.getElementById('exam-stage-toggle-second').classList.remove('stage__selected');
     const listsAreSet = await setLists();
     if (listsAreSet) revealMkbData();
 
@@ -1847,6 +1852,13 @@ function getCookie(cname) {
   return '';
 }
 
+function hasDisplayableData(ageGroup) {
+  return (ageGroup?.standards || []).some(standard =>
+    (Array.isArray(standard.examinations) && standard.examinations.length > 0) ||
+    (Array.isArray(standard.treatments) && standard.treatments.length > 0)
+  );
+}
+
 async function setLists() {
   removeAllBlockSelections();
   sectionToggles.classList.remove('hidden');
@@ -1859,10 +1871,10 @@ async function setLists() {
   const treatDrugTextElem = document.getElementById('treat-drug');
   const noDataPopup = document.getElementById('no-data-popup-section');
 
-  if (
-      mkbData.child.standards.length === 0 &&
-      mkbData.grownup.standards.length === 0
-  ) {
+  const childAvailable = hasDisplayableData(mkbData.child);
+  const grownupAvailable = hasDisplayableData(mkbData.grownup);
+
+  if (!childAvailable && !grownupAvailable) {
     document.getElementById('mkb-code').innerText = mkbData.child.code || mkbData.grownup.code;
     sectionToggles.classList.add('hidden');
     noDataPopup.classList.remove('hidden');
@@ -1871,20 +1883,7 @@ async function setLists() {
     return false;
   }
   noDataPopup.classList.add('hidden');
-  setTogglers(mkbData);
-
-  const examStageToggleFirstElem = document.getElementById(
-      'exam-stage-toggle-first'
-  );
-  const examStageToggleSecondElem = document.getElementById(
-      'exam-stage-toggle-second'
-  );
-  const examStageToggleSwitchElem = document.getElementById(
-      'exam-stage-toggle-switch'
-  );
-  examStageToggleFirstElem.addEventListener('click', toggleStage);
-  examStageToggleSecondElem.addEventListener('click', toggleStage);
-  examStageToggleSwitchElem.addEventListener('click', toggleStageBySwitch);
+  setTogglers(mkbData, childAvailable, grownupAvailable);
 
   const currentAge = ageToggleElem.checked ? 'grownup' : 'child';
   const currentStatus = 'Рекомендация';
@@ -1992,7 +1991,24 @@ function createList(type, listData) {
   }
 }
 
-function setTogglers(mkbData) {
+function getStageAvailability(ageGroup) {
+  const standardsWithExaminations = (ageGroup?.standards || []).filter(
+      standard => Array.isArray(standard.examinations) && standard.examinations.length > 0
+  );
+  const recommendations = standardsWithExaminations.filter(
+      standard => standard.status === 'Рекомендация'
+  );
+  const standards = recommendations.length > 0 ? recommendations : standardsWithExaminations;
+  const examinations = standards.flatMap(standard => standard.examinations)
+      .filter(examination => examination.is_stationary !== 1);
+
+  return {
+    primary: examinations.some(examination => String(examination.stage) === '1'),
+    repeat: examinations.some(examination => String(examination.stage) === '2'),
+  };
+}
+
+function setTogglers(mkbData, childAvailable, grownupAvailable) {
   const ageToggleElem = document.getElementById('age-toggle');
   // const standardToggleElem = document.getElementById('standard-toggle');
   const examStageToggleFirstElem = document.getElementById(
@@ -2003,14 +2019,37 @@ function setTogglers(mkbData) {
   );
   ageToggleElem.disabled = false;
   standardToggleElem.disabled = false;
-  if (mkbData.child.standards.length === 0) {
+  if (!childAvailable && grownupAvailable) {
     ageToggleElem.checked = true;
     ageToggleElem.disabled = true;
-  } else if (mkbData.grownup.standards.length === 0) {
+  } else if (childAvailable && !grownupAvailable) {
     ageToggleElem.checked = false;
     ageToggleElem.disabled = true;
   }
+  const [childLabel, grownupLabel] = ageToggleElem.closest('label')
+      .querySelectorAll('.toggles__title');
+  childLabel.classList.toggle('toggles__title--disabled', !childAvailable);
+  grownupLabel.classList.toggle('toggles__title--disabled', !grownupAvailable);
+
   const currentAge = ageToggleElem.checked ? 'grownup' : 'child';
+  const { primary, repeat } = getStageAvailability(mkbData[currentAge]);
+  examStageToggleFirstElem.disabled = !primary;
+  examStageToggleSecondElem.disabled = !repeat;
+
+  if (!primary && repeat) {
+    examStageToggleFirstElem.classList.remove('stage__selected');
+    examStageToggleSecondElem.classList.add('stage__selected');
+  } else if (primary && (!repeat || !examStageToggleSecondElem.classList.contains('stage__selected'))) {
+    examStageToggleFirstElem.classList.add('stage__selected');
+    examStageToggleSecondElem.classList.remove('stage__selected');
+  } else if (!primary && !repeat) {
+    examStageToggleFirstElem.classList.remove('stage__selected');
+    examStageToggleSecondElem.classList.remove('stage__selected');
+  }
+
+  const stageSwitch = document.getElementById('exam-stage-toggle-switch');
+  stageSwitch.classList.toggle('exam-stage-toggle--disabled', !primary || !repeat);
+  stageSwitch.setAttribute('aria-disabled', String(!primary || !repeat));
 
   const hasRecommendation = mkbData[currentAge].standards.some(
       (standard) => standard.status === 'Рекомендация'
@@ -2073,9 +2112,7 @@ const stagedExaminations = allExaminations.filter(
   exam => String(exam.stage) === String(currentStage)
 );
 
-const currentExaminations = stagedExaminations.length > 0
-  ? stagedExaminations
-  : allExaminations;
+const currentExaminations = stagedExaminations;
   examQualityByName = buildQualityByNameMap(currentExaminations);
 
   let requiredExaminationsByCategory = groupByCategoryAndSort(
@@ -2458,15 +2495,15 @@ function toggleStage(e) {
   const examStageToggleSecondElem = document.getElementById(
       'exam-stage-toggle-second'
   );
-  if (e.target.classList.contains('stage__selected')) {
+  if (e.currentTarget.disabled || e.currentTarget.classList.contains('stage__selected')) {
     return;
   } else {
-    if (e.target === examStageToggleFirstElem) {
+    if (e.currentTarget === examStageToggleFirstElem) {
       examStageToggleSecondElem.classList.remove('stage__selected');
     } else {
       examStageToggleFirstElem.classList.remove('stage__selected');
     }
-    e.target.classList.add('stage__selected');
+    e.currentTarget.classList.add('stage__selected');
     setExamText();
 }
 }
@@ -2479,9 +2516,9 @@ function toggleStageBySwitch() {
       'exam-stage-toggle-second'
   );
 
-  if (examStageToggleFirstElem.classList.contains('stage__selected')) {
+  if (examStageToggleFirstElem.classList.contains('stage__selected') && !examStageToggleSecondElem.disabled) {
     examStageToggleSecondElem.click();
-  } else {
+  } else if (!examStageToggleFirstElem.disabled) {
     examStageToggleFirstElem.click();
   }
 }
