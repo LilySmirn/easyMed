@@ -1413,6 +1413,22 @@ th, td {
   height: 15px;
 }
 
+.remove-all-floating {
+  position: fixed;
+  top: 16px;
+  z-index: 1000;
+  padding: 7px 10px;
+  border: 0;
+  border-radius: 5px;
+  background-color: #dc3545;
+  color: #fff;
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  line-height: 16px;
+  white-space: nowrap;
+}
+
 .tooltip {
   position: absolute;
   padding: 2px 6px;

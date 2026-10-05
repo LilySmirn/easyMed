@@ -1098,6 +1098,7 @@ ageToggleElem.addEventListener('click', async () => await setLists());
 setCardViewTogglers();
 setTextBlockSelectionEventHandler();
 setCardCopyButtonsEventHandler();
+setRemoveAllFloatingEventHandler();
 
 async function createHistoryPanel() {
   const username = getCookie('username');
@@ -1201,7 +1202,11 @@ function setCardCopyButtonsEventHandler() {
         e.preventDefault();
         e.stopPropagation();
         const card = e.target.closest('.form__card');
-        removeBlockSelections(card, true);
+        if (card.id === 'exam-card-required') {
+          removeAllBlockSelections(true);
+        } else {
+          removeBlockSelections(card, true);
+        }
       });
     }
 
@@ -1357,6 +1362,7 @@ function toggleBlockSelection(blockElem) {
   } else {
     removeBlockSelections(cardElem, true);
   }
+  updateRemoveAllFloatingVisibility();
 }
 
 function removeBlockSelections(cardElem, shouldClearClipboard = false) {
@@ -1375,14 +1381,58 @@ function removeBlockSelections(cardElem, shouldClearClipboard = false) {
   if (shouldClearClipboard) {
     clearClipboardData();
   }
+
+  updateRemoveAllFloatingVisibility();
 }
 
-function removeAllBlockSelections() {
+function removeAllBlockSelections(shouldClearClipboard = false) {
   Array.from(document.getElementsByClassName('form__card')).forEach(
       (cardElem) => {
         removeBlockSelections(cardElem);
       }
   );
+
+  
+  if (shouldClearClipboard) {
+    clearClipboardData();
+  }
+}
+
+function updateRemoveAllFloatingVisibility() {
+  const button = document.getElementById('remove-all-floating');
+  const firstCard = document.getElementById('exam-card-required');
+  const firstCardHeader = firstCard?.querySelector('.form__card-header');
+  const hasSelection = Boolean(
+      document.querySelector('.block__container--selected')
+  );
+
+  if (!button || !firstCardHeader || firstCard.classList.contains('hidden')) {
+    button?.classList.add('hidden');
+    return;
+  }
+
+  const headerHasScrolledAboveViewport =
+      firstCardHeader.getBoundingClientRect().bottom <= 0;
+
+  button.classList.toggle(
+      'hidden',
+      !hasSelection || !headerHasScrolledAboveViewport
+  );
+
+  if (!button.classList.contains('hidden')) {
+    button.style.left = `${firstCard.getBoundingClientRect().right + 12}px`;
+  }
+}
+
+function setRemoveAllFloatingEventHandler() {
+  const button = document.getElementById('remove-all-floating');
+  if (!button) return;
+
+  button.addEventListener('click', () => removeAllBlockSelections(true));
+  window.addEventListener('scroll', updateRemoveAllFloatingVisibility, {
+    passive: true,
+  });
+  window.addEventListener('resize', updateRemoveAllFloatingVisibility);
 }
 
 function switchOnCopyButton(copyButtonElem) {
