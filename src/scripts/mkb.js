@@ -40,6 +40,7 @@ tablePopupCloseBtn.addEventListener('click', () => {
   tablePopupContent.innerHTML = '';
 })
 let popupData = null;
+let popupDataPromise = null;
 let examQualityByName = new Map();
 let treatQualityByName = new Map();
 
@@ -1217,7 +1218,11 @@ function setCardCopyButtonsEventHandler() {
         if (e.target.closest('.copy-button__close-button')) {
           return;
         }
-        const blocks = cardElem.querySelectorAll('.block__container');
+        // Highlight only the rows that are actually copied. Category titles
+        // are excluded by getSelectedCopyBlocks, so they stay unselected.
+        const blocks = Array.from(cardElem.querySelectorAll('.block__container')).filter(
+            (block) => !block.querySelector('.block__header.category-name')
+        );
         blocks.forEach(block => block.classList.add('block__container--selected'));
 
         const text = getCardDataText(cardElem, copyAllButton, {
@@ -1233,7 +1238,12 @@ function setCardCopyButtonsEventHandler() {
           ]);
         }
 
-        removeBlockSelections(cardElem);
+        // Keep the highlight visible. The close control and the floating
+        // clear button dismiss it the same way as a manual selection.
+        if (blocks.length) {
+          switchOnCopyButton(copyAllButton);
+          updateRemoveAllFloatingVisibility();
+        }
       });
     }
   });
@@ -1401,27 +1411,32 @@ function removeAllBlockSelections(shouldClearClipboard = false) {
 function updateRemoveAllFloatingVisibility() {
   const button = document.getElementById('remove-all-floating');
   const firstCard = document.getElementById('exam-card-required');
-  const firstCardHeader = firstCard?.querySelector('.form__card-header');
   const hasSelection = Boolean(
       document.querySelector('.block__container--selected')
   );
 
-  if (!button || !firstCardHeader || firstCard.classList.contains('hidden')) {
+  if (!button || !firstCard || firstCard.classList.contains('hidden') || !hasSelection) {
     button?.classList.add('hidden');
     return;
   }
 
-  const headerHasScrolledAboveViewport =
-      firstCardHeader.getBoundingClientRect().bottom <= 0;
+  // Place the control just to the right of the card, then pull it back
+  // so a narrower window cannot leave it past the visible edge.
+  // Keep it under the page header instead of covering that bar.
+  const gap = 12;
+  const edge = 8;
+  const buttonWidth = button.classList.contains('hidden')
+      ? 32
+      : (button.offsetWidth || 32);
+  const viewportWidth = document.documentElement.clientWidth || window.innerWidth;
+  const maxLeft = Math.max(edge, viewportWidth - buttonWidth - edge);
+  const preferredLeft = firstCard.getBoundingClientRect().right + gap;
+  const pageHeader = document.querySelector('.page__header');
+  const headerHeight = pageHeader ? pageHeader.offsetHeight : 48;
 
-  button.classList.toggle(
-      'hidden',
-      !hasSelection || !headerHasScrolledAboveViewport
-  );
-
-  if (!button.classList.contains('hidden')) {
-    button.style.left = `${firstCard.getBoundingClientRect().right + 12}px`;
-  }
+  button.style.left = `${Math.min(Math.max(edge, preferredLeft), maxLeft)}px`;
+  button.style.top = `${headerHeight + edge}px`;
+  button.classList.remove('hidden');
 }
 
 function setRemoveAllFloatingEventHandler() {
@@ -1480,9 +1495,16 @@ function addCopyCardAllTextDataEventListeners(cardCopyElem) {
     tooltipElem.style.visibility = 'hidden';
   });
 
-  // Copy text to clipboard on click
+  // Copy text to clipboard on click. The copy-all control has its own
+  // handler that selects every copied row and writes the clipboard.
   cardCopyElem.addEventListener('click', function (e) {
     const cardElem = e.target.closest('.form__card');
+    if (
+        isCopyEnabledCard(cardElem) &&
+        e.target.closest('.form__card--copy-button[data-copy-all="true"]')
+    ) {
+      return;
+    }
     const textToCopy = getCardDataText(cardElem, e.target, {
       includeGroupHeaders: true,
     });
@@ -1495,11 +1517,17 @@ function addCopyCardAllTextDataEventListeners(cardCopyElem) {
   });
 }
 
+let clipboardTask = Promise.resolve();
+let clipboardEpoch = 0;
+
 function copyToClipboard(textToCopy, callback, args) {
+  const epoch = ++clipboardEpoch;
+  let task = Promise.resolve();
   if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard
+    task = navigator.clipboard
         .writeText(textToCopy)
         .then(() => {
+          if (epoch !== clipboardEpoch) return;
           if (callback) {
             args = args ? args : [];
             callback(...args);
@@ -1524,28 +1552,60 @@ function copyToClipboard(textToCopy, callback, args) {
       console.error('Fallback: Could not copy text', err);
     }
     document.body.removeChild(tempTextArea);
+  }
+  clipboardTask = task;
 }
+
+function writeEmptyClipboard() {
+  const tempTextArea = document.createElement('textarea');
+  tempTextArea.value = ' ';
+  tempTextArea.setAttribute('readonly', '');
+  tempTextArea.style.position = 'fixed';
+  tempTextArea.style.top = '0';
+  tempTextArea.style.left = '0';
+  tempTextArea.style.opacity = '0';
+  document.body.appendChild(tempTextArea);
+  tempTextArea.focus({ preventScroll: true });
+  tempTextArea.select();
+
+  const onCopy = (event) => {
+    event.preventDefault();
+    event.clipboardData.clearData();
+    event.clipboardData.setData('text/plain', '');
+    try {
+      event.clipboardData.setData('text/html', '');
+    } catch (err) {
+      console.error('Could not clear html clipboard', err);
+    }
+  };
+
+  document.addEventListener('copy', onCopy);
+  try {
+    document.execCommand('copy');
+  } catch (err) {
+    console.error('Could not clear clipboard', err);
+  }
+  document.removeEventListener('copy', onCopy);
+  document.body.removeChild(tempTextArea);
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    return navigator.clipboard.writeText('').catch((err) => {
+      console.error('Could not clear clipboard: ', err);
+    });
+  }
+  return Promise.resolve();
 }
 
 function clearClipboardData() {
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText('').catch((err) => {
-      console.error('Could not clear clipboard: ', err);
-    });
-  } else {
-    const tempTextArea = document.createElement('textarea');
-    tempTextArea.value = '';
-    document.body.appendChild(tempTextArea);
-    tempTextArea.select();
-
-    try {
-      document.execCommand('copy');
-    } catch (err) {
-      console.error('Fallback: Could not clear clipboard', err);
-    }
-
-    document.body.removeChild(tempTextArea);
-  }
+  const epoch = ++clipboardEpoch;
+  const clearPromise = writeEmptyClipboard();
+  clipboardTask = clipboardTask
+      .catch(() => {})
+      .then(() => clearPromise)
+      .then(() => {
+        if (epoch !== clipboardEpoch) return;
+        return writeEmptyClipboard();
+      });
 }
 
 function flashTooltipOnEvent(event, tooltipText, timeout) {
@@ -1784,8 +1844,11 @@ async function searchMkb() {
       throw new Error('Network response was not ok');
     }
 
-    // fire and forget: the additional data should be loaded in background
-    await fetchPopupDataOnce();
+    // Popup text is loaded before the lists are drawn. Keep the promise so an
+    // info click can still wait if this request has not finished.
+    popupData = null;
+    popupDataPromise = fetchPopupDataOnce();
+    await popupDataPromise;
 
 
     // const encryptedText  = await response.text();
@@ -2483,8 +2546,18 @@ function toggleStage(e) {
       examStageToggleFirstElem.classList.remove('stage__selected');
     }
     e.target.classList.add('stage__selected');
+    syncExamStageKnob();
     setExamText();
+  }
 }
+
+function syncExamStageKnob() {
+  const secondSelected = document
+    .getElementById('exam-stage-toggle-second')
+    .classList.contains('stage__selected');
+  document
+    .getElementById('exam-stage-toggle-switch')
+    .classList.toggle('exam-stage-toggle--right', secondSelected);
 }
 
 function toggleStageBySwitch() {
@@ -2645,7 +2718,11 @@ function collectHeaderRelatedTreatments(headerContainer) {
 }
 
 //открытие инфо поп-апа с тестовыми данными
-function openInfoPopupByTitle(examData, relatedEntries = null) {
+async function openInfoPopupByTitle(examData, relatedEntries = null) {
+  if (popupDataPromise) {
+    await popupDataPromise;
+  }
+
   const popupOverlay = document.getElementById('popup-overlay');
   const entries = Array.isArray(relatedEntries) && relatedEntries.length
       ? relatedEntries
@@ -2845,13 +2922,14 @@ function createTreatBlock(parentElem, treatData, prevName) {
     treatHeaderWrapper.appendChild(treatQualityMark);
     treatHeaderWrapper.appendChild(treatHeader);
 
-    if (treatData.cr_db_id && popupData && popupData[treatData.cr_db_id]) {
+    if (treatData.cr_db_id) {
       const infoIcon = document.createElement('img');
       infoIcon.src = '../images/info-icon.png';
       infoIcon.alt = 'Info';
       infoIcon.classList.add('block__info-icon');
       infoIcon.style.cursor = 'pointer';
       infoIcon.style.marginLeft = 'auto';
+      infoIcon.title = 'Показать расширенные комментарии';
       infoIcon.addEventListener('click', (event) => {
         event.stopPropagation();
         event.preventDefault();
@@ -2926,7 +3004,10 @@ function removeOptions(listElem) {
 function getStandardInd(type) {
   if (document.getElementById(`${type}-list`).classList.contains('hidden')) {
     const listElem = document.getElementById(`${type}-monolist`);
-    return listElem.value || null;
+    const value = listElem.value;
+    // Index 0 is a real document. `value || null` treats it as nothing selected.
+    if (value === '' || value == null) return null;
+    return value;
   } else {
     const listElem = document.getElementById(`${type}-list`);
     const selectedOption = listElem.options[listElem.selectedIndex];

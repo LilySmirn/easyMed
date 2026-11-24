@@ -2,13 +2,20 @@ const urlParams = new URLSearchParams(window.location.search)
 const code = urlParams.get('code')
 const urlUsername = urlParams.get('username')
 const urlPassword = urlParams.get('password')
-const loginUrl = code ? `/login?code=${code}` : `/login`
+const loginUrl = code ? `/login?code=${encodeURIComponent(code)}` : `/login`
 
 const cookieUsername = getCookie('username')
 const cookiePassword = getCookie('password')
 
+function isCrmSoftPage() {
+  const path = window.location.pathname
+    .replace(/\/index\.html$/i, '')
+    .replace(/\/+$/, '')
+  return /\/crm-soft$/.test(path)
+}
+
 // URL auto-login: validate credentials without saving cookies.
-// Uses login.php (same checks as auto-login.php); auto-login.php may not be deployed yet.
+// Uses php/login.php (same checks as auto-login.php).
 if (urlUsername && urlPassword) {
   fetch(
     `../php/login.php/login?username=${encodeURIComponent(urlUsername)}&password=${encodeURIComponent(urlPassword)}`
@@ -34,12 +41,14 @@ if (urlUsername && urlPassword) {
       console.error('Ошибка:', error)
       window.location.href = window.location.origin + loginUrl
     })
-// } else if (!cookieUsername || !cookiePassword) {
-  // Only redirect if no credentials found
-//  window.location.href = window.location.origin + loginUrl
-//  throw new Error('No credentials found')
 } else if (!cookieUsername || !cookiePassword) {
-  console.log('LOCAL: auth skipped')
+  // CRM Soft has no session and no address-bar credentials: send to login.
+  // Username/password in the address stay on the auto-login branch above.
+  if (isCrmSoftPage()) {
+    window.location.href = window.location.origin + loginUrl
+  } else {
+    console.log('LOCAL: auth skipped')
+  }
 
 } else {
   fetch(

@@ -2,6 +2,10 @@
 <html>
   <head>
     <meta charset="UTF-8" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="color-scheme" content="light" />
 
 <!--    <script src="../scripts/mkb-start.js?v10"></script>-->
     <link
@@ -26,7 +30,7 @@
     />
     <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"> -->
   </head>
-  <body class="page">
+  <body class="page page--mkb">
 
   <!-- Yandex.Metrika counter -->
   <script type="text/javascript" >
@@ -233,7 +237,6 @@
         <!-- Toggles Section -->
         <div class="form__section form__section--toggles hidden">
           <label for="age-toggle" class="toggles__label">
-            <span class="toggles__title">Ребенок</span>
             <input
               type="checkbox"
               class="toggles__input"
@@ -241,6 +244,7 @@
               id="age-toggle"
               checked
             />
+            <span class="toggles__title">Ребенок</span>
             <div class="toggles__toggle"></div>
             <span class="toggles__title">Взрослый</span>
           </label>
@@ -260,7 +264,6 @@
             </button>
           </div>
           <label for="standard-toggle" class="toggles__label hidden">
-            <span class="toggles__title">Стандарт</span>
             <input
               type="checkbox"
               class="toggles__input"
@@ -268,6 +271,7 @@
               name="standard-toggle"
               value="checked"
             />
+            <span class="toggles__title">Стандарт</span>
             <div class="toggles__toggle"></div>
             <span class="toggles__title">Рекомендация</span>
           </label>

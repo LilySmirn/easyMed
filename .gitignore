@@ -1,3 +1,10 @@
 node_modules/
 .idea/
 dist/
+sqns/
+ai.md
+php/
+new-php/
+old-php/
+sqns/
+src/php/_db.php

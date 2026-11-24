@@ -27,7 +27,8 @@
   touch-action: none;
 }
 
-.page:has(.page__mkb) {
+.page--mkb,
+.page--crm-soft {
   min-height: 100vh;
   height: auto;
   background-color: white;
@@ -39,6 +40,11 @@ html,
   height: 100%;
   overflow: auto;
   overflow-x: hidden;
+}
+
+html {
+  background-color: #fff;
+  color-scheme: light;
 }
 
 .page__header {
@@ -810,6 +816,34 @@ input {
     width: 100%;
     padding: 3px 16px;
   }
+
+  /* CRM Soft start view: search and history span the page, with 5% side margins. */
+  .page--crm-soft .page__mkb--start {
+    width: 100%;
+    align-self: stretch;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .page--crm-soft .page__mkb--start .form {
+    width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .page--crm-soft .page__mkb--start .history__panel {
+    width: 90%;
+    left: 5%;
+    align-items: stretch;
+  }
+
+  .page--crm-soft .page__mkb--start .history__block {
+    min-width: 0;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
 }
 
 .form__section {
@@ -936,7 +970,12 @@ input {
   transition: color 0.3s;
 }
 
-.toggles__title:first-of-type {
+.toggles__input:not(:checked) + .toggles__title {
+  color: rgba(20, 110, 255, 1);
+  transition: color 0.3s;
+}
+
+.toggles__input:checked ~ .toggles__title:last-of-type {
   color: rgba(20, 110, 255, 1);
   transition: color 0.3s;
 }
@@ -953,19 +992,9 @@ input {
   transition: 0.25s;
 }
 
-.toggles__input:checked + .toggles__toggle::after {
+.toggles__input:checked ~ .toggles__toggle::after {
   left: calc(100% - 1.5px);
   transform: translateX(-100%);
-}
-
-.toggles__input:checked ~ .toggles__title {
-  color: rgba(20, 110, 255, 1);
-  transition: color 0.3s;
-}
-
-.toggles__label:has(.toggles__input:checked) :first-child {
-  color: black;
-  transition: color 0.3s;
 }
 
 .toggles__title.toggles__title--disabled {
@@ -1060,6 +1089,7 @@ input {
   transition: 0.25s;
 }
 
+.exam-stage-toggle--right::after,
 .form__section--buttons-inline:has(#exam-stage-toggle-second.stage__selected)
   .exam-stage-toggle::after {
   left: calc(100% - 1.5px);
@@ -1415,7 +1445,7 @@ th, td {
 
 .remove-all-floating {
   position: fixed;
-  top: 16px;
+  top: 56px;
   z-index: 1000;
 
   width: 32px;
